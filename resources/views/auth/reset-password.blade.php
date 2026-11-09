@@ -1,39 +1,49 @@
 <x-guest-layout>
+    <h1 class="acid-auth__title">Nouveau mot de passe</h1>
+    <p class="acid-auth__lead">Choisissez un mot de passe solide pour securiser votre acces.</p>
+
     <form method="POST" action="{{ route('password.store') }}">
         @csrf
 
-        <!-- Password Reset Token -->
         <input type="hidden" name="token" value="{{ $request->route('token') }}">
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email', $request->email)" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+        <div class="acid-field">
+            <x-input-label for="email" value="Adresse e-mail" class="acid-label--required" />
+            <div class="acid-input-group">
+                <i class="fas fa-envelope acid-input-group__icon" aria-hidden="true"></i>
+                <x-text-input id="email" type="email" name="email" :value="old('email', $request->email)"
+                              class="{{ $errors->get('email') ? 'is-invalid' : '' }}"
+                              required autofocus autocomplete="username" />
+            </div>
+            <x-input-error :messages="$errors->get('email')" />
         </div>
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-            <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" />
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+        <div class="acid-field">
+            <x-input-label for="password" value="Nouveau mot de passe" class="acid-label--required" />
+            <div class="acid-input-group">
+                <i class="fas fa-lock acid-input-group__icon" aria-hidden="true"></i>
+                <x-text-input id="password" type="password" name="password"
+                              class="{{ $errors->get('password') ? 'is-invalid' : '' }}"
+                              placeholder="8 caracteres minimum"
+                              required autocomplete="new-password" />
+            </div>
+            <x-input-error :messages="$errors->get('password')" />
         </div>
 
-        <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
-
-            <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                                type="password"
-                                name="password_confirmation" required autocomplete="new-password" />
-
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
+        <div class="acid-field">
+            <x-input-label for="password_confirmation" value="Confirmer le mot de passe" class="acid-label--required" />
+            <div class="acid-input-group">
+                <i class="fas fa-lock acid-input-group__icon" aria-hidden="true"></i>
+                <x-text-input id="password_confirmation" type="password" name="password_confirmation"
+                              class="{{ $errors->get('password_confirmation') ? 'is-invalid' : '' }}"
+                              required autocomplete="new-password" />
+            </div>
+            <x-input-error :messages="$errors->get('password_confirmation')" />
         </div>
 
-        <div class="flex items-center justify-end mt-4">
-            <x-primary-button>
-                {{ __('Reset Password') }}
-            </x-primary-button>
-        </div>
+        <x-primary-button class="acid-btn--lg acid-btn--block" style="margin-block-start:var(--acid-space-5);">
+            <i class="fas fa-key" aria-hidden="true"></i>
+            Enregistrer le mot de passe
+        </x-primary-button>
     </form>
 </x-guest-layout>

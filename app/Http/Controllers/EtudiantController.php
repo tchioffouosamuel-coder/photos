@@ -48,8 +48,13 @@ class EtudiantController extends Controller
         if ($etudiant->classe_id !== $classe->id) {
             abort(404);
         }
-        
-        return view('etudiants.edit', compact('classe', 'etudiant'));
+
+        // Classes disponibles comme destination de transfert
+        $autresClasses = Classe::where('id', '!=', $classe->id)
+            ->orderBy('nom')
+            ->get(['id', 'nom', 'annee_scolaire']);
+
+        return view('etudiants.edit', compact('classe', 'etudiant', 'autresClasses'));
     }
     
     public function update(Request $request, Classe $classe, Etudiant $etudiant)

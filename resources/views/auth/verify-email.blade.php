@@ -1,31 +1,34 @@
 <x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
-        {{ __('Thanks for signing up! Before getting started, could you verify your email address by clicking on the link we just emailed to you? If you didn\'t receive the email, we will gladly send you another.') }}
-    </div>
+    <h1 class="acid-auth__title">Verifiez votre e-mail</h1>
+    <p class="acid-auth__lead">
+        Merci pour votre inscription. Avant de commencer, confirmez votre adresse
+        e-mail en cliquant sur le lien que nous venons de vous envoyer.
+        Si vous ne l'avez pas recu, nous pouvons vous en renvoyer un.
+    </p>
 
     @if (session('status') == 'verification-link-sent')
-        <div class="mb-4 font-medium text-sm text-green-600 dark:text-green-400">
-            {{ __('A new verification link has been sent to the email address you provided during registration.') }}
+        <div class="acid-auth-status" role="status">
+            <i class="fas fa-circle-check" aria-hidden="true" style="margin-top:.15rem;"></i>
+            <span>
+                Un nouveau lien de verification a ete envoye a l'adresse indiquee
+                lors de votre inscription.
+            </span>
         </div>
     @endif
 
-    <div class="mt-4 flex items-center justify-between">
-        <form method="POST" action="{{ route('verification.send') }}">
-            @csrf
+    <form method="POST" action="{{ route('verification.send') }}">
+        @csrf
+        <x-primary-button class="acid-btn--lg acid-btn--block">
+            <i class="fas fa-paper-plane" aria-hidden="true"></i>
+            Renvoyer l'e-mail de verification
+        </x-primary-button>
+    </form>
 
-            <div>
-                <x-primary-button>
-                    {{ __('Resend Verification Email') }}
-                </x-primary-button>
-            </div>
-        </form>
-
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-
-            <button type="submit" class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
-                {{ __('Log Out') }}
-            </button>
-        </form>
-    </div>
+    <form method="POST" action="{{ route('logout') }}" class="acid-auth__footer">
+        @csrf
+        <button type="submit" class="acid-btn acid-btn--ghost acid-btn--sm">
+            <i class="fas fa-arrow-right-from-bracket" aria-hidden="true"></i>
+            Se deconnecter
+        </button>
+    </form>
 </x-guest-layout>

@@ -1,325 +1,301 @@
+@php
+    $totalStudents = (int) ($totalStudents ?? 0);
+    $pct = fn ($value) => $totalStudents > 0 ? ($value / $totalStudents) * 100 : 0;
+
+    $pctBoys   = $pct($totalBoys);
+    $pctGirls  = $pct($totalGirls);
+    $pctNormal = $pct($normalStudents);
+    $pctRedo   = $pct($redoublants);
+@endphp
+
 <x-app-layout>
-    <div class="container py-4">
-        <!-- Header -->
-        <div class="card shadow-lg mb-4">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h1 class="h2 mb-2">
-                            <i class="fas fa-chart-line text-primary me-2"></i>
-                            Statistiques Générales
-                        </h1>
-                        <p class="text-muted mb-0">Vue d'ensemble de tous les établissements</p>
-                    </div>
-                
-                </div>
-            </div>
+
+    <div class="acid-page-header">
+        <div class="acid-page-header__text">
+            <span class="acid-page-header__eyebrow">Pilotage</span>
+            <h1 class="acid-page-header__title">Statistiques generales</h1>
+            <p class="acid-page-header__lead">
+                Vue d'ensemble des effectifs et de l'avancement de la campagne photographique.
+            </p>
         </div>
-
-        <!-- Global Stats Cards -->
-        <div class="row g-4 mb-4">
-            <div class="col-12 col-md-6 col-lg-3">
-                <div class="card text-white bg-primary shadow-lg">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <i class="fas fa-school fa-3x opacity-75"></i>
-                            <div class="text-end">
-                                <h3 class="mb-0">{{ $totalClasses }}</h3>
-                                <small>Classes</small>
-                            </div>
-                        </div>
-                        <hr class="border-white opacity-50">
-                        <small class="opacity-75">Total dans le système</small>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-12 col-md-6 col-lg-3">
-                <div class="card text-white bg-success shadow-lg">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <i class="fas fa-users fa-3x opacity-75"></i>
-                            <div class="text-end">
-                                <h3 class="mb-0">{{ $totalStudents }}</h3>
-                                <small>Élèves</small>
-                            </div>
-                        </div>
-                        <hr class="border-white opacity-50">
-                        <small class="opacity-75">Effectif total</small>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-12 col-md-6 col-lg-3">
-                <div class="card text-white shadow-lg" style="background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <i class="fas fa-camera fa-3x opacity-75"></i>
-                            <div class="text-end">
-                                <h3 class="mb-0">{{ $studentsWithPhotos }}</h3>
-                                <small>Avec Photo</small>
-                            </div>
-                        </div>
-                        <hr class="border-white opacity-50">
-                        <small class="opacity-75">{{ number_format($photoPercentage, 1) }}% complété</small>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-12 col-md-6 col-lg-3">
-                <div class="card text-white bg-danger shadow-lg">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <i class="fas fa-user-times fa-3x opacity-75"></i>
-                            <div class="text-end">
-                                <h3 class="mb-0">{{ $studentsWithoutPhotos }}</h3>
-                                <small>Sans Photo</small>
-                            </div>
-                        </div>
-                        <hr class="border-white opacity-50">
-                        <a href="{{ route('statistics.no-photos') }}" class="text-white text-decoration-none opacity-75">
-                            Voir la liste <i class="fas fa-arrow-right ms-2"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Charts Row -->
-        <div class="row g-4 mb-4">
-            <!-- Gender Distribution -->
-            <div class="col-12 col-lg-6">
-                <div class="card shadow-lg">
-                    <div class="card-body">
-                        <h5 class="card-title mb-4">
-                            <i class="fas fa-venus-mars text-primary me-2"></i>
-                            Répartition par Sexe
-                        </h5>
-                      
-                        <div class="row g-3 mt-3">
-                            <div class="col-6">
-                                <div class="card bg-light border-0">
-                                    <div class="card-body text-center">
-                                        <i class="fas fa-mars fa-2x text-primary mb-2"></i>
-                                        <h4 class="mb-0">{{ $totalBoys }}</h4>
-                                        <small class="text-muted">Garçons ({{ number_format($totalBoys / $totalStudents * 100, 1) }}%)</small>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="card bg-light border-0">
-                                    <div class="card-body text-center">
-                                        <i class="fas fa-venus fa-2x text-danger mb-2"></i>
-                                        <h4 class="mb-0">{{ $totalGirls }}</h4>
-                                        <small class="text-muted">Filles ({{ number_format($totalGirls / $totalStudents * 100, 1) }}%)</small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Status Distribution -->
-            <div class="col-12 col-lg-6">
-                <div class="card shadow-lg">
-                    <div class="card-body">
-                        <h5 class="card-title mb-4">
-                            <i class="fas fa-chart-pie text-primary me-2"></i>
-                            Répartition par Statut
-                        </h5>
-                     
-                        <div class="row g-3 mt-3">
-                            <div class="col-6">
-                                <div class="card bg-light border-0">
-                                    <div class="card-body text-center">
-                                        <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
-                                        <h4 class="mb-0">{{ $normalStudents }}</h4>
-                                        <small class="text-muted">Normal</small>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="card bg-light border-0">
-                                    <div class="card-body text-center">
-                                        <i class="fas fa-redo fa-2x text-warning mb-2"></i>
-                                        <h4 class="mb-0">{{ $redoublants }}</h4>
-                                        <small class="text-muted">Redoublants</small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Classes Table -->
-        <div class="card shadow-lg mb-4">
-            <div class="card-header text-white" style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);">
-                <h5 class="mb-0">
-                    <i class="fas fa-table me-2"></i>
-                    Détails par Classe
-                </h5>
-            </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Classe</th>
-                                <th class="text-center">Total</th>
-                                <th class="text-center">Garçons</th>
-                                <th class="text-center">Filles</th>
-                                <th class="text-center">Avec Photo</th>
-                                <th class="text-center">Sans Photo</th>
-                                <th class="text-center">% Photos</th>
-                                <th class="text-center">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($classes as $classe)
-                            <tr>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <i class="fas fa-chalkboard-teacher text-primary me-2"></i>
-                                        <div>
-                                            <div class="fw-bold">{{ $classe->nom }}</div>
-                                            <small class="text-muted">{{ $classe->annee_scolaire }}</small>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="text-center">
-                                    <strong>{{ $classe->effectif_total }}</strong>
-                                </td>
-                                <td class="text-center">
-                                    <span class="badge bg-primary">{{ $classe->effectif_garcons }}</span>
-                                </td>
-                                <td class="text-center">
-                                    <span class="badge bg-danger">{{ $classe->effectif_filles }}</span>
-                                </td>
-                                <td class="text-center">
-                                    <span class="badge bg-success">{{ $classe->students_with_photos }}</span>
-                                </td>
-                                <td class="text-center">
-                                    <span class="badge bg-danger">{{ $classe->students_without_photos }}</span>
-                                </td>
-                                <td class="text-center">
-                                    <div class="d-flex align-items-center justify-content-center">
-                                        <div class="progress me-2" style="width: 100px; height: 8px;">
-                                            <div class="progress-bar bg-success" role="progressbar" 
-                                                 style="width: {{ $classe->photo_percentage }}%"
-                                                 aria-valuenow="{{ $classe->photo_percentage }}" 
-                                                 aria-valuemin="0" aria-valuemax="100"></div>
-                                        </div>
-                                        <small class="fw-bold">{{ number_format($classe->photo_percentage, 0) }}%</small>
-                                    </div>
-                                </td>
-                                <td class="text-center">
-                                    <a href="{{ route('classes.show', $classe) }}" class="text-primary">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Photo Completion Progress -->
-        <div class="card text-white shadow-lg" style="background: linear-gradient(135deg, #059669 0%, #14b8a6 100%);">
-            <div class="card-body">
-                <h5 class="card-title mb-4">
-                    <i class="fas fa-tasks me-2"></i>
-                    Progression Photos
-                </h5>
-                <div class="bg-white bg-opacity-25 rounded p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="fs-5 fw-bold">Complétion globale</span>
-                        <span class="fs-3 fw-bold">{{ number_format($photoPercentage, 1) }}%</span>
-                    </div>
-                    <div class="progress" style="height: 30px;">
-                        <div class="progress-bar bg-white text-success fw-bold" 
-                             role="progressbar" 
-                             style="width: {{ $photoPercentage }}%"
-                             aria-valuenow="{{ $photoPercentage }}" 
-                             aria-valuemin="0" 
-                             aria-valuemax="100">
-                            {{ $studentsWithPhotos }}/{{ $totalStudents }}
-                        </div>
-                    </div>
-                    <small class="d-block mt-2 opacity-75">
-                        Il reste {{ $studentsWithoutPhotos }} photo(s) à collecter
-                    </small>
-                </div>
-            </div>
+        <div class="acid-page-header__actions">
+            <button type="button" class="acid-btn acid-btn--neutral" onclick="window.print()">
+                <i class="fas fa-print" aria-hidden="true"></i>
+                Imprimer le rapport
+            </button>
+            <a href="{{ route('statistics.no-photos') }}" class="acid-btn acid-btn--primary">
+                <i class="fas fa-user-slash" aria-hidden="true"></i>
+                Photos manquantes
+            </a>
         </div>
     </div>
 
-    <script>
-        // Gender Chart
-        const genderCtx = document.getElementById('genderChart').getContext('2d');
-        new Chart(genderCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Garçons', 'Filles'],
-                datasets: [{
-                    data: [{{ $totalBoys }}, {{ $totalGirls }}],
-                    backgroundColor: ['#0d6efd', '#dc3545'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                    }
-                }
-            }
-        });
+    {{-- Indicateurs globaux --}}
+    <div class="acid-grid acid-grid--stats" style="margin-block-end:var(--acid-space-6);">
+        <article class="acid-stat">
+            <span class="acid-stat__icon" aria-hidden="true"><i class="fas fa-school"></i></span>
+            <div class="acid-stat__body">
+                <span class="acid-stat__label">Classes</span>
+                <span class="acid-stat__value">{{ number_format($totalClasses, 0, ',', ' ') }}</span>
+                <span class="acid-stat__hint">Total dans le systeme</span>
+            </div>
+        </article>
 
-        // Status Chart
-        const statusCtx = document.getElementById('statusChart').getContext('2d');
-        new Chart(statusCtx, {
-            type: 'pie',
-            data: {
-                labels: ['Normal', 'Redoublant'],
-                datasets: [{
-                    data: [{{ $normalStudents }}, {{ $redoublants }}],
-                    backgroundColor: ['#198754', '#ffc107'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                    }
-                }
-            }
-        });
-    </script>
+        <article class="acid-stat acid-stat--sky">
+            <span class="acid-stat__icon" aria-hidden="true"><i class="fas fa-users"></i></span>
+            <div class="acid-stat__body">
+                <span class="acid-stat__label">Eleves</span>
+                <span class="acid-stat__value">{{ number_format($totalStudents, 0, ',', ' ') }}</span>
+                <span class="acid-stat__hint">Effectif total</span>
+            </div>
+        </article>
 
-    <style>
-        @media print {
-            body {
-                background: white;
-            }
-            .no-print {
-                display: none;
-            }
-        }
-        
-        .bg-opacity-25 {
-            background-color: rgba(255, 255, 255, 0.25) !important;
-        }
-        
-        .opacity-75 {
-            opacity: 0.75;
-        }
-    </style>
+        <article class="acid-stat acid-stat--teal">
+            <span class="acid-stat__icon" aria-hidden="true"><i class="fas fa-camera-retro"></i></span>
+            <div class="acid-stat__body">
+                <span class="acid-stat__label">Avec photo</span>
+                <span class="acid-stat__value">{{ number_format($studentsWithPhotos, 0, ',', ' ') }}</span>
+                <span class="acid-stat__hint">{{ number_format($photoPercentage, 1) }}% complete</span>
+            </div>
+        </article>
+
+        <article class="acid-stat {{ $studentsWithoutPhotos > 0 ? 'acid-stat--coral' : '' }}">
+            <span class="acid-stat__icon" aria-hidden="true"><i class="fas fa-user-slash"></i></span>
+            <div class="acid-stat__body">
+                <span class="acid-stat__label">Sans photo</span>
+                <span class="acid-stat__value">{{ number_format($studentsWithoutPhotos, 0, ',', ' ') }}</span>
+                <span class="acid-stat__hint">
+                    @if ($studentsWithoutPhotos > 0)
+                        <a href="{{ route('statistics.no-photos') }}" style="font-weight:var(--acid-fw-semibold);">
+                            Voir la liste <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                        </a>
+                    @else
+                        Campagne terminee
+                    @endif
+                </span>
+            </div>
+        </article>
+    </div>
+
+    {{-- Progression globale --}}
+    <section class="acid-card" style="margin-block-end:var(--acid-space-6);">
+        <div class="acid-card__header">
+            <span class="acid-stat__icon" aria-hidden="true"
+                  style="background:var(--acid-teal-50);color:var(--acid-teal-700);">
+                <i class="fas fa-list-check"></i>
+            </span>
+            <div>
+                <h2 class="acid-card__title">Avancement de la campagne photographique</h2>
+                <p class="acid-card__subtitle">
+                    @if ($studentsWithoutPhotos > 0)
+                        Il reste {{ number_format($studentsWithoutPhotos, 0, ',', ' ') }} photo(s) a collecter
+                    @else
+                        Toutes les photos ont ete collectees
+                    @endif
+                </p>
+            </div>
+            <div class="acid-card__actions">
+                <span class="acid-stat__value" style="font-size:var(--acid-text-2xl);">
+                    {{ number_format($photoPercentage, 1) }}%
+                </span>
+            </div>
+        </div>
+        <div class="acid-card__body">
+            <div class="acid-progress" style="height:.75rem;" role="progressbar"
+                 aria-valuenow="{{ $photoPercentage }}" aria-valuemin="0" aria-valuemax="100"
+                 aria-label="Avancement global de la campagne">
+                <div class="acid-progress__bar" style="width:{{ $photoPercentage }}%;"></div>
+            </div>
+            <p class="acid-hint" style="margin-block-start:var(--acid-space-2);">
+                {{ number_format($studentsWithPhotos, 0, ',', ' ') }} eleves sur
+                {{ number_format($totalStudents, 0, ',', ' ') }} disposent d'une photo.
+            </p>
+        </div>
+    </section>
+
+    {{-- Repartitions --}}
+    <div class="acid-grid acid-grid--2" style="margin-block-end:var(--acid-space-6);">
+
+        <section class="acid-card">
+            <div class="acid-card__header">
+                <div>
+                    <h2 class="acid-card__title">Repartition par sexe</h2>
+                </div>
+            </div>
+            <div class="acid-card__body">
+                <div class="acid-row" style="gap:.25rem;margin-block-end:var(--acid-space-4);">
+                    <div style="flex:{{ max($pctBoys, 1) }};min-width:1.5rem;height:.625rem;
+                                border-radius:var(--acid-radius-pill);background:var(--acid-sky-500);"
+                         title="Garcons"></div>
+                    <div style="flex:{{ max($pctGirls, 1) }};min-width:1.5rem;height:.625rem;
+                                border-radius:var(--acid-radius-pill);background:var(--acid-coral-500);"
+                         title="Filles"></div>
+                </div>
+
+                <div class="acid-form-grid acid-form-grid--2" style="gap:var(--acid-space-3);">
+                    <div class="acid-card acid-card--soft" style="padding:var(--acid-space-4);text-align:center;">
+                        <i class="fas fa-mars" aria-hidden="true"
+                           style="color:var(--acid-sky-600);font-size:var(--acid-text-lg);"></i>
+                        <div class="acid-stat__value" style="font-size:var(--acid-text-xl);">
+                            {{ number_format($totalBoys, 0, ',', ' ') }}
+                        </div>
+                        <span class="acid-stat__hint">Garcons &middot; {{ number_format($pctBoys, 1) }}%</span>
+                    </div>
+                    <div class="acid-card acid-card--soft" style="padding:var(--acid-space-4);text-align:center;">
+                        <i class="fas fa-venus" aria-hidden="true"
+                           style="color:var(--acid-coral-600);font-size:var(--acid-text-lg);"></i>
+                        <div class="acid-stat__value" style="font-size:var(--acid-text-xl);">
+                            {{ number_format($totalGirls, 0, ',', ' ') }}
+                        </div>
+                        <span class="acid-stat__hint">Filles &middot; {{ number_format($pctGirls, 1) }}%</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="acid-card">
+            <div class="acid-card__header">
+                <div>
+                    <h2 class="acid-card__title">Repartition par statut</h2>
+                </div>
+            </div>
+            <div class="acid-card__body">
+                <div class="acid-row" style="gap:.25rem;margin-block-end:var(--acid-space-4);">
+                    <div style="flex:{{ max($pctNormal, 1) }};min-width:1.5rem;height:.625rem;
+                                border-radius:var(--acid-radius-pill);background:var(--acid-teal-500);"
+                         title="Normal"></div>
+                    <div style="flex:{{ max($pctRedo, 1) }};min-width:1.5rem;height:.625rem;
+                                border-radius:var(--acid-radius-pill);background:var(--acid-amber-500);"
+                         title="Redoublants"></div>
+                </div>
+
+                <div class="acid-form-grid acid-form-grid--2" style="gap:var(--acid-space-3);">
+                    <div class="acid-card acid-card--soft" style="padding:var(--acid-space-4);text-align:center;">
+                        <i class="fas fa-circle-check" aria-hidden="true"
+                           style="color:var(--acid-teal-600);font-size:var(--acid-text-lg);"></i>
+                        <div class="acid-stat__value" style="font-size:var(--acid-text-xl);">
+                            {{ number_format($normalStudents, 0, ',', ' ') }}
+                        </div>
+                        <span class="acid-stat__hint">Normal &middot; {{ number_format($pctNormal, 1) }}%</span>
+                    </div>
+                    <div class="acid-card acid-card--soft" style="padding:var(--acid-space-4);text-align:center;">
+                        <i class="fas fa-rotate-left" aria-hidden="true"
+                           style="color:var(--acid-amber-600);font-size:var(--acid-text-lg);"></i>
+                        <div class="acid-stat__value" style="font-size:var(--acid-text-xl);">
+                            {{ number_format($redoublants, 0, ',', ' ') }}
+                        </div>
+                        <span class="acid-stat__hint">Redoublants &middot; {{ number_format($pctRedo, 1) }}%</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    {{-- Detail par classe --}}
+    <section class="acid-card">
+        <div class="acid-card__header">
+            <div>
+                <h2 class="acid-card__title">Detail par classe</h2>
+                <p class="acid-card__subtitle">Effectifs et couverture photographique</p>
+            </div>
+            <div class="acid-card__actions">
+                <span class="acid-badge acid-badge--navy">{{ $classes->count() }} classes</span>
+            </div>
+        </div>
+
+        <div class="acid-table-wrap">
+            <table class="acid-table acid-table--stack">
+                <thead>
+                    <tr>
+                        <th scope="col">Classe</th>
+                        <th scope="col" class="acid-table__num">Total</th>
+                        <th scope="col" class="acid-table__num">Garcons</th>
+                        <th scope="col" class="acid-table__num">Filles</th>
+                        <th scope="col" class="acid-table__num">Avec photo</th>
+                        <th scope="col" class="acid-table__num">Sans photo</th>
+                        <th scope="col">Couverture</th>
+                        <th scope="col" class="acid-table__actions">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($classes as $classe)
+                        <tr data-acid-searchable="{{ $classe->nom }} {{ $classe->annee_scolaire }}">
+                            <td data-label="Classe">
+                                <span class="acid-identity__text">
+                                    <strong>{{ $classe->nom }}</strong>
+                                    <span>{{ $classe->annee_scolaire }}</span>
+                                </span>
+                            </td>
+                            <td data-label="Total" class="acid-table__num">
+                                <strong>{{ $classe->effectif_total }}</strong>
+                            </td>
+                            <td data-label="Garcons" class="acid-table__num">
+                                <span class="acid-badge acid-badge--sky">{{ $classe->effectif_garcons }}</span>
+                            </td>
+                            <td data-label="Filles" class="acid-table__num">
+                                <span class="acid-badge acid-badge--coral">{{ $classe->effectif_filles }}</span>
+                            </td>
+                            <td data-label="Avec photo" class="acid-table__num">
+                                <span class="acid-badge acid-badge--teal">{{ $classe->students_with_photos }}</span>
+                            </td>
+                            <td data-label="Sans photo" class="acid-table__num">
+                                @if ($classe->students_without_photos > 0)
+                                    <span class="acid-badge acid-badge--amber">{{ $classe->students_without_photos }}</span>
+                                @else
+                                    <span class="acid-badge acid-badge--teal">0</span>
+                                @endif
+                            </td>
+                            <td data-label="Couverture">
+                                <div class="acid-row" style="gap:var(--acid-space-2);flex-wrap:nowrap;">
+                                    <div class="acid-progress" style="flex:1 1 5rem;min-width:4rem;"
+                                         role="progressbar" aria-valuenow="{{ $classe->photo_percentage }}"
+                                         aria-valuemin="0" aria-valuemax="100"
+                                         aria-label="Couverture de {{ $classe->nom }}">
+                                        <div class="acid-progress__bar"
+                                             style="width:{{ $classe->photo_percentage }}%;"></div>
+                                    </div>
+                                    <strong class="acid-num" style="font-size:var(--acid-text-sm);">
+                                        {{ number_format($classe->photo_percentage, 0) }}%
+                                    </strong>
+                                </div>
+                            </td>
+                            <td data-label="Actions" class="acid-table__actions">
+                                <a href="{{ route('classes.show', $classe) }}"
+                                   class="acid-btn acid-btn--neutral acid-btn--sm acid-btn--icon"
+                                   title="Ouvrir la classe" aria-label="Ouvrir la classe {{ $classe->nom }}">
+                                    <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="8">
+                                <div class="acid-empty">
+                                    <span class="acid-empty__icon" aria-hidden="true"><i class="fas fa-chart-column"></i></span>
+                                    <h3 class="acid-empty__title">Aucune donnee a analyser</h3>
+                                    <p class="acid-empty__text">
+                                        Les statistiques apparaitront des que des classes et des eleves
+                                        seront enregistres.
+                                    </p>
+                                    <div class="acid-empty__actions">
+                                        <a href="{{ route('classes.create') }}" class="acid-btn acid-btn--primary">
+                                            <i class="fas fa-plus" aria-hidden="true"></i> Creer une classe
+                                        </a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        <div data-acid-search-empty hidden>
+            <div class="acid-empty">
+                <span class="acid-empty__icon" aria-hidden="true"><i class="fas fa-magnifying-glass"></i></span>
+                <h3 class="acid-empty__title">Aucune classe ne correspond</h3>
+                <p class="acid-empty__text">Modifiez votre recherche dans la barre superieure.</p>
+            </div>
+        </div>
+    </section>
 </x-app-layout>

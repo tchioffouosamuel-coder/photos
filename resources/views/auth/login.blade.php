@@ -1,47 +1,60 @@
 <x-guest-layout>
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+    <h1 class="acid-auth__title">Connexion</h1>
+    <p class="acid-auth__lead">Accedez a votre espace de gestion de l'identification scolaire.</p>
+
+    <x-auth-session-status :status="session('status')" />
 
     <form method="POST" action="{{ route('login') }}">
         @csrf
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+        <div class="acid-field">
+            <x-input-label for="email" value="Adresse e-mail" class="acid-label--required" />
+            <div class="acid-input-group">
+                <i class="fas fa-envelope acid-input-group__icon" aria-hidden="true"></i>
+                <x-text-input id="email" type="email" name="email" :value="old('email')"
+                              class="{{ $errors->get('email') ? 'is-invalid' : '' }}"
+                              placeholder="nom@etablissement.cm"
+                              required autofocus autocomplete="username" />
+            </div>
+            <x-input-error :messages="$errors->get('email')" />
         </div>
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+        <div class="acid-field">
+            <x-input-label for="password" value="Mot de passe" class="acid-label--required" />
+            <div class="acid-input-group">
+                <i class="fas fa-lock acid-input-group__icon" aria-hidden="true"></i>
+                <x-text-input id="password" type="password" name="password"
+                              class="{{ $errors->get('password') ? 'is-invalid' : '' }}"
+                              placeholder="Votre mot de passe"
+                              required autocomplete="current-password" />
+            </div>
+            <x-input-error :messages="$errors->get('password')" />
         </div>
 
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800" name="remember">
-                <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">{{ __('Remember me') }}</span>
+        <div class="acid-row acid-row--between" style="margin-block-end:var(--acid-space-6);">
+            <label class="acid-check" for="remember_me">
+                <input id="remember_me" type="checkbox" name="remember">
+                <span class="acid-check__text">Se souvenir de moi</span>
             </label>
-        </div>
 
-        <div class="flex items-center justify-end mt-4">
             @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
+                <a href="{{ route('password.request') }}"
+                   style="font-size:var(--acid-text-sm);font-weight:var(--acid-fw-semibold);">
+                    Mot de passe oublie ?
                 </a>
             @endif
-
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
         </div>
+
+        <x-primary-button class="acid-btn--lg acid-btn--block">
+            <i class="fas fa-arrow-right-to-bracket" aria-hidden="true"></i>
+            Se connecter
+        </x-primary-button>
     </form>
+
+    @if (Route::has('register'))
+        <p class="acid-auth__footer">
+            Pas encore de compte ?
+            <a href="{{ route('register') }}">Creer un acces</a>
+        </p>
+    @endif
 </x-guest-layout>

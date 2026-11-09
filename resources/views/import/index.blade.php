@@ -1,448 +1,371 @@
 <x-app-layout>
-    <div class="container py-4">
-        <!-- Header -->
-        <div class="card shadow-lg mb-4 animate-fade-in" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
-            <div class="card-body text-white p-4">
-                <div class="row align-items-center">
-                    <div class="col-lg-8 mb-3 mb-lg-0">
-                        <h1 class="h2 mb-2">
-                            <i class="fas fa-file-excel me-2"></i>
-                            Importation des Listes Excel
-                        </h1>
-                        <p class="mb-0 opacity-75">Importez les listes d'élèves depuis vos fichiers Excel</p>
-                    </div>
-                    <div class="col-lg-4 text-lg-end">
-                        <a href="{{ route('import.template') }}" class="btn btn-light btn-lg shadow">
-                            <i class="fas fa-download me-2"></i>
-                            Télécharger Modèle
-                        </a>
-                    </div>
-                </div>
+
+    <div class="acid-page-header">
+        <div class="acid-page-header__text">
+            <span class="acid-page-header__eyebrow">Gestion scolaire</span>
+            <h1 class="acid-page-header__title">Importer une liste d'eleves</h1>
+            <p class="acid-page-header__lead">
+                Chargez un fichier Excel pour creer ou mettre a jour l'effectif d'une classe.
+                Les listes generees par SYGEST sont prises en charge telles quelles.
+            </p>
+        </div>
+        <div class="acid-page-header__actions">
+            <a href="{{ route('import.template') }}" class="acid-btn acid-btn--neutral">
+                <i class="fas fa-download" aria-hidden="true"></i>
+                Telecharger le modele
+            </a>
+        </div>
+    </div>
+
+    {{-- Etapes --}}
+    <ol class="acid-steps" style="margin-block-end:var(--acid-space-6);">
+        <li class="acid-steps__item is-active">Choisir la classe</li>
+        <li class="acid-steps__item">Deposer le fichier Excel</li>
+        <li class="acid-steps__item">Verifier le resultat</li>
+    </ol>
+
+    {{-- Erreurs de validation --}}
+    @if ($errors->any())
+        <div class="acid-alert acid-alert--danger" style="margin-block-end:var(--acid-space-5);" role="alert">
+            <i class="fas fa-triangle-exclamation acid-alert__icon" aria-hidden="true"></i>
+            <div class="acid-alert__body">
+                <p class="acid-alert__title">Le fichier n'a pas pu etre importe</p>
+                <ul style="margin:0;padding-inline-start:1.125rem;font-size:var(--acid-text-sm);">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
             </div>
         </div>
+    @endif
 
-        <!-- Messages de succès -->
-        @if(session('success'))
-        <div class="alert alert-success shadow-lg alert-dismissible fade show animate-fade-in" id="successAlert">
-            <div class="d-flex align-items-center">
-                <i class="fas fa-check-circle fs-4 me-3"></i>
+    <div class="acid-grid" style="grid-template-columns:minmax(0,1fr) minmax(320px,1fr);align-items:start;">
+
+        {{-- Formulaire --}}
+        <section class="acid-card">
+            <div class="acid-card__header">
+                <span class="acid-stat__icon" aria-hidden="true"
+                      style="background:var(--acid-teal-50);color:var(--acid-teal-700);">
+                    <i class="fas fa-file-import"></i>
+                </span>
                 <div>
-                    <span class="fw-semibold">{{ session('success') }}</span>
+                    <h2 class="acid-card__title">Fichier a importer</h2>
+                    <p class="acid-card__subtitle">Excel .xlsx ou .xls, 10 Mo maximum</p>
                 </div>
             </div>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-        @endif
 
-        <!-- Messages d'erreur -->
-        @if(session('error'))
-        <div class="alert alert-danger shadow-lg alert-dismissible fade show animate-fade-in" id="errorAlert">
-            <div class="d-flex align-items-center">
-                <i class="fas fa-exclamation-circle fs-4 me-3"></i>
-                <div>
-                    <span class="fw-semibold">{{ session('error') }}</span>
+            <form id="uploadForm" action="{{ route('import.upload') }}" method="POST"
+                  enctype="multipart/form-data" data-acid-no-busy>
+                @csrf
+
+                <div class="acid-card__body">
+
+                    <div class="acid-field">
+                        <label for="classe_id" class="acid-label acid-label--required">Classe de destination</label>
+                        <select id="classe_id" name="classe_id" required
+                                class="acid-select @error('classe_id') is-invalid @enderror">
+                            <option value="">Selectionnez une classe</option>
+                            @foreach ($classes as $classe)
+                                <option value="{{ $classe->id }}" {{ old('classe_id') == $classe->id ? 'selected' : '' }}>
+                                    {{ $classe->nom }}@if ($classe->eleves_count) &nbsp;({{ $classe->eleves_count }} eleves)@endif
+                                </option>
+                            @endforeach
+                        </select>
+                        <span class="acid-hint">
+                            Les eleves deja presents sont mis a jour, pas dupliques.
+                        </span>
+                        @error('classe_id')
+                            <div class="acid-error" role="alert">
+                                <i class="fas fa-circle-exclamation" aria-hidden="true"></i>
+                                <span>{{ $message }}</span>
+                            </div>
+                        @enderror
+                    </div>
+
+                    <div class="acid-field" style="margin-block-end:0;">
+                        <span class="acid-label acid-label--required">Fichier Excel</span>
+
+                        <div class="acid-dropzone" id="dropzone" role="button" tabindex="0"
+                             aria-label="Selectionner un fichier Excel">
+                            <input type="file" name="excel_file" id="fileInput" accept=".xlsx,.xls" hidden required>
+
+                            <span class="acid-dropzone__icon" aria-hidden="true">
+                                <i class="fas fa-file-excel"></i>
+                            </span>
+                            <span class="acid-dropzone__title">Cliquez ou glissez-deposez votre fichier</span>
+                            <p class="acid-dropzone__hint">Formats acceptes : .xlsx, .xls &middot; 10 Mo maximum</p>
+
+                            <span id="fileNameDisplay" class="acid-badge acid-badge--solid-teal d-none"
+                                  style="margin-block-start:var(--acid-space-2);">
+                                <i class="fas fa-file-excel" aria-hidden="true"></i>
+                                <span id="fileName"></span>
+                            </span>
+                        </div>
+
+                        @error('excel_file')
+                            <div class="acid-error" role="alert">
+                                <i class="fas fa-circle-exclamation" aria-hidden="true"></i>
+                                <span>{{ $message }}</span>
+                            </div>
+                        @enderror
+                    </div>
                 </div>
-            </div>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-        @endif
 
-        <!-- Erreurs de validation -->
-        @if($errors->any())
-        <div class="alert alert-danger shadow-lg alert-dismissible fade show animate-fade-in">
-            <div class="d-flex align-items-start">
-                <i class="fas fa-exclamation-triangle fs-4 me-3 mt-1"></i>
-                <div class="flex-grow-1">
-                    <span class="fw-semibold d-block mb-2">Erreurs de validation :</span>
-                    <ul class="mb-0 ps-3">
-                        @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
+                <div class="acid-card__footer">
+                    <button type="submit" class="acid-btn acid-btn--primary acid-btn--lg acid-btn--block"
+                            id="submitBtn">
+                        <i class="fas fa-upload" aria-hidden="true"></i>
+                        <span id="btnText">Importer maintenant</span>
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        {{-- Documentation du format --}}
+        <aside class="acid-stack">
+
+            <section class="acid-card">
+                <div class="acid-card__header">
+                    <span class="acid-stat__icon" aria-hidden="true"><i class="fas fa-table-columns"></i></span>
+                    <div>
+                        <h2 class="acid-card__title">Colonnes attendues</h2>
+                        <p class="acid-card__subtitle">Dans cet ordre exact</p>
+                    </div>
+                </div>
+
+                <div class="acid-table-wrap">
+                    <table class="acid-table acid-table--compact">
+                        <thead>
+                            <tr>
+                                <th scope="col" style="width:3rem;">Col.</th>
+                                <th scope="col">Contenu</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="acid-badge acid-badge--solid-navy">A</span></td>
+                                <td><span class="acid-table__primary">N&deg;</span>
+                                    <span class="acid-table__meta">Numero de ligne</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="acid-badge acid-badge--solid-navy">B</span></td>
+                                <td><span class="acid-table__primary">Matricule national</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="acid-badge acid-badge--solid-navy">C</span></td>
+                                <td><span class="acid-table__primary">Matricule interne</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="acid-badge acid-badge--solid-navy">D</span></td>
+                                <td><span class="acid-table__primary">Noms et prenoms</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="acid-badge acid-badge--solid-navy">E</span></td>
+                                <td><span class="acid-table__primary">Date de naissance</span>
+                                    <span class="acid-table__meta">Format JJ/MM/AAAA</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="acid-badge acid-badge--solid-navy">F</span></td>
+                                <td><span class="acid-table__primary">Lieu de naissance</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="acid-badge acid-badge--solid-navy">G</span></td>
+                                <td><span class="acid-table__primary">Sexe</span>
+                                    <span class="acid-table__meta">M ou F</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="acid-badge acid-badge--solid-navy">H</span></td>
+                                <td><span class="acid-table__primary">Statut</span>
+                                    <span class="acid-table__meta">N = Normal, R = Redoublant</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <div class="acid-alert acid-alert--warning">
+                <i class="fas fa-triangle-exclamation acid-alert__icon" aria-hidden="true"></i>
+                <div class="acid-alert__body">
+                    <p class="acid-alert__title">Points de vigilance</p>
+                    <ul style="margin:0;padding-inline-start:1.125rem;font-size:var(--acid-text-sm);">
+                        <li>L'en-tete de classe peut commencer en ligne 1.</li>
+                        <li>Les donnees doivent suivre la ligne intitulee &laquo; N&deg; &raquo;.</li>
+                        <li>L'ordre des colonnes doit etre respecte.</li>
+                        <li>Les dates sont au format JJ/MM/AAAA (ex. 15/08/2008).</li>
+                        <li>Les doublons sont mis a jour automatiquement.</li>
                     </ul>
                 </div>
             </div>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-        @endif
 
-        <div class="row g-4">
-            <!-- Formulaire d'upload -->
-            <div class="col-lg-6">
-                <div class="card shadow-lg p-4 animate-fade-in">
-                    <h2 class="h4 mb-4">
-                        <i class="fas fa-upload text-success me-2"></i>
-                        Importer un fichier
-                    </h2>
-
-                    <form id="uploadForm" action="{{ route('import.upload') }}" method="POST" enctype="multipart/form-data">
-                        @csrf
-                        
-                        <!-- Sélection de la classe -->
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold">
-                                <i class="fas fa-chalkboard me-2"></i>Classe
-                            </label>
-                            <select name="classe_id" class="form-select form-select-lg @error('classe_id') is-invalid @enderror" required>
-                                <option value="">Sélectionnez une classe</option>
-                                @foreach($classes as $classe)
-                                    <option value="{{ $classe->id }}" {{ old('classe_id') == $classe->id ? 'selected' : '' }}>
-                                        {{ $classe->nom }}
-                                        @if($classe->eleves_count)
-                                            ({{ $classe->eleves_count }} élèves)
-                                        @endif
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('classe_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <!-- Zone de drop -->
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold">
-                                <i class="fas fa-file-excel me-2"></i>Fichier Excel
-                            </label>
-                            <div class="dropzone" id="dropzone">
-                                <input type="file" name="excel_file" id="fileInput" accept=".xlsx,.xls" hidden required>
-                                <i class="fas fa-cloud-upload-alt upload-icon"></i>
-                                <p class="fw-semibold text-secondary mb-2">
-                                    Cliquez pour sélectionner ou glissez-déposez
-                                </p>
-                                <p class="small text-muted mb-0">
-                                    Fichiers Excel acceptés (.xlsx, .xls) - Max 10MB
-                                </p>
-                                <div id="fileNameDisplay" class="d-none">
-                                    <span class="file-name-display">
-                                        <i class="fas fa-file-excel me-2"></i>
-                                        <span id="fileName"></span>
-                                    </span>
-                                </div>
-                            </div>
-                            @error('excel_file')
-                                <div class="text-danger small mt-2">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <!-- Bouton d'upload -->
-                        <button type="submit" class="btn btn-success btn-lg w-100 shadow" id="submitBtn">
-                            <i class="fas fa-upload me-2"></i>
-                            <span id="btnText">Importer maintenant</span>
-                        </button>
-                    </form>
+            <div class="acid-alert acid-alert--navy">
+                <i class="fas fa-circle-info acid-alert__icon" aria-hidden="true"></i>
+                <div class="acid-alert__body">
+                    <p class="acid-alert__title">Besoin d'un point de depart ?</p>
+                    <p style="margin:0 0 var(--acid-space-3);font-size:var(--acid-text-sm);">
+                        Telechargez le modele deja structure et completez-le.
+                    </p>
+                    <a href="{{ route('import.template') }}" class="acid-btn acid-btn--outline acid-btn--sm">
+                        <i class="fas fa-download" aria-hidden="true"></i>
+                        Modele Excel
+                    </a>
                 </div>
             </div>
-
-            <!-- Instructions -->
-            <div class="col-lg-6">
-                <!-- Format requis -->
-                <div class="card shadow-lg p-4 mb-4 animate-fade-in">
-                    <h2 class="h4 mb-4">
-                        <i class="fas fa-info-circle text-primary me-2"></i>
-                        Format requis
-                    </h2>
-
-                    <div class="alert alert-info border-start border-4 border-info mb-3">
-                        <h3 class="h6 fw-bold mb-3">Compatible avec les listes générées par SYGEST</h3>
-                        <h3 class="h6 fw-bold mb-3">Colonnes attendues :</h3>
-                        <div class="row g-2">
-                            <div class="col-12">
-                                <span class="column-badge me-2">A</span>
-                                <strong>N°</strong> - Numéro de ligne
-                            </div>
-                            <div class="col-12">
-                                <span class="column-badge me-2">B</span>
-                                <strong>Matricule National</strong>
-                            </div>
-                            <div class="col-12">
-                                <span class="column-badge me-2">C</span>
-                                <strong>Matricule Interne</strong>
-                            </div>
-                            <div class="col-12">
-                                <span class="column-badge me-2">D</span>
-                                <strong>Noms et Prénoms</strong>
-                            </div>
-                            <div class="col-12">
-                                <span class="column-badge me-2">E</span>
-                                <strong>Date de Naissance</strong> (JJ/MM/AAAA)
-                            </div>
-                            <div class="col-12">
-                                <span class="column-badge me-2">F</span>
-                                <strong>Lieu de Naissance</strong>
-                            </div>
-                            <div class="col-12">
-                                <span class="column-badge me-2">G</span>
-                                <strong>Sexe</strong> (M ou F)
-                            </div>
-                            <div class="col-12">
-                                <span class="column-badge me-2">H</span>
-                                <strong>Statut</strong> (N = Normal, R = Redoublant)
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="alert alert-warning border-start border-4 border-warning">
-                        <h3 class="h6 fw-bold mb-2">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            Points importants
-                        </h3>
-                        <ul class="small mb-0 ps-3">
-                            <li>L'en-tête de la classe peut commencer en ligne 1</li>
-                            <li>Les données doivent commencer après la ligne "N°"</li>
-                            <li>Les colonnes doivent être dans l'ordre exact</li>
-                            <li>Les dates au format JJ/MM/AAAA (ex: 15/08/2008)</li>
-                            <li>Les doublons seront mis à jour automatiquement</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
+        </aside>
     </div>
 
-    <!-- Modal Erreurs -->
+    {{-- Modale de detail des erreurs d'import --}}
     <div class="modal fade" id="errorsModal" tabindex="-1" aria-labelledby="errorsModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
-                <div class="modal-header text-white" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
-                    <h5 class="modal-title" id="errorsModalLabel">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        Détails des erreurs
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="modal-header">
+                    <span class="acid-modal-icon acid-modal-icon--coral" aria-hidden="true">
+                        <i class="fas fa-triangle-exclamation"></i>
+                    </span>
+                    <div>
+                        <h2 class="modal-title" id="errorsModalLabel">Detail des erreurs</h2>
+                        <p style="margin:.125rem 0 0;font-size:var(--acid-text-sm);color:var(--acid-text-muted);">
+                            Lignes du fichier qui n'ont pas pu etre importees
+                        </p>
+                    </div>
+                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal"
+                            aria-label="Fermer"></button>
                 </div>
-                <div class="modal-body" id="errorsContent">
-                    <!-- Le contenu sera injecté dynamiquement -->
-                </div>
+                <div class="modal-body" id="errorsContent"></div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                    <button type="button" class="acid-btn acid-btn--neutral" data-bs-dismiss="modal">
+                        Fermer
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <style>
-        .dropzone {
-            border: 3px dashed #d1d5db;
-            border-radius: 0.75rem;
-            padding: 3rem 2rem;
-            text-align: center;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            background: #f9fafb;
-        }
+    @push('scripts')
+        <script>
+            (function () {
+                const dropzone        = document.getElementById('dropzone');
+                const fileInput       = document.getElementById('fileInput');
+                const fileNameDisplay = document.getElementById('fileNameDisplay');
+                const fileName        = document.getElementById('fileName');
+                const uploadForm      = document.getElementById('uploadForm');
+                const submitBtn       = document.getElementById('submitBtn');
+                const btnText         = document.getElementById('btnText');
 
-        .dropzone:hover,
-        .dropzone.drag-over {
-            border-color: #10b981;
-            background: #ecfdf5;
-        }
+                if (!dropzone) return;
 
-        .dropzone.file-selected {
-            border-color: #10b981;
-            background: #d1fae5;
-        }
+                dropzone.addEventListener('click', () => fileInput.click());
+                dropzone.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        fileInput.click();
+                    }
+                });
 
-        .upload-icon {
-            font-size: 4rem;
-            color: #9ca3af;
-            margin-bottom: 1rem;
-        }
+                fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
 
-        .file-name-display {
-            background: #10b981;
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            display: inline-block;
-            margin-top: 1rem;
-            font-weight: 600;
-        }
+                dropzone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    dropzone.classList.add('is-dragover');
+                });
+                dropzone.addEventListener('dragleave', () => dropzone.classList.remove('is-dragover'));
+                dropzone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    dropzone.classList.remove('is-dragover');
+                    handleFiles(e.dataTransfer.files);
+                });
 
-        .column-badge {
-            background: #4f46e5;
-            color: white;
-            padding: 0.25rem 0.5rem;
-            border-radius: 0.25rem;
-            font-size: 0.75rem;
-            font-weight: bold;
-            display: inline-block;
-            min-width: 2rem;
-            text-align: center;
-        }
+                function handleFiles(files) {
+                    if (!files.length) return;
+                    const file = files[0];
 
-        .error-list {
-            background: #fef2f2;
-            border-left: 4px solid #ef4444;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            margin-top: 0.5rem;
-        }
+                    if (file.size > 10 * 1024 * 1024) {
+                        window.AcidUI.notify('Fichier trop volumineux : 10 Mo maximum.', 'error');
+                        return;
+                    }
 
-        @keyframes fade-in {
-            from { 
-                opacity: 0; 
-                transform: translateY(-10px); 
-            }
-            to { 
-                opacity: 1; 
-                transform: translateY(0); 
-            }
-        }
-        
-        .animate-fade-in {
-            animation: fade-in 0.5s ease-out;
-        }
+                    if (!/\.(xlsx|xls)$/i.test(file.name)) {
+                        window.AcidUI.notify('Format non pris en charge : utilisez un fichier .xlsx ou .xls.', 'error');
+                        return;
+                    }
 
-        .shadow-lg {
-            box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
-        }
-
-        .opacity-75 {
-            opacity: 0.75;
-        }
-
-        .spinner-border-custom {
-            width: 1.5rem;
-            height: 1.5rem;
-            border-width: 0.2rem;
-        }
-
-        @media (max-width: 768px) {
-            .dropzone {
-                padding: 2rem 1rem;
-            }
-
-            .upload-icon {
-                font-size: 3rem;
-            }
-        }
-    </style>
-
-    <script>
-        const dropzone = document.getElementById('dropzone');
-        const fileInput = document.getElementById('fileInput');
-        const fileNameDisplay = document.getElementById('fileNameDisplay');
-        const fileName = document.getElementById('fileName');
-        const uploadForm = document.getElementById('uploadForm');
-        const submitBtn = document.getElementById('submitBtn');
-        const btnText = document.getElementById('btnText');
-
-        // Click to upload
-        dropzone.addEventListener('click', () => {
-            fileInput.click();
-        });
-
-        // File selection
-        fileInput.addEventListener('change', (e) => {
-            handleFiles(e.target.files);
-        });
-
-        // Drag and drop
-        dropzone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropzone.classList.add('drag-over');
-        });
-
-        dropzone.addEventListener('dragleave', () => {
-            dropzone.classList.remove('drag-over');
-        });
-
-        dropzone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropzone.classList.remove('drag-over');
-            handleFiles(e.dataTransfer.files);
-        });
-
-        function handleFiles(files) {
-            if (files.length > 0) {
-                const file = files[0];
-                
-                // Vérifier la taille du fichier (10MB max)
-                if (file.size > 10 * 1024 * 1024) {
-                    alert('Le fichier est trop volumineux. Taille maximum : 10MB');
-                    return;
-                }
-                
-                if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
                     fileName.textContent = file.name;
                     fileNameDisplay.classList.remove('d-none');
-                    dropzone.classList.add('file-selected');
-                    
-                    // Créer un DataTransfer pour assigner le fichier à l'input
+                    dropzone.style.borderColor = 'var(--acid-teal-500)';
+                    dropzone.style.background = 'var(--acid-teal-50)';
+
                     const dataTransfer = new DataTransfer();
                     dataTransfer.items.add(file);
                     fileInput.files = dataTransfer.files;
-                } else {
-                    alert('Veuillez sélectionner un fichier Excel (.xlsx ou .xls)');
                 }
-            }
-        }
 
-        // Form submission avec indication de chargement
-        uploadForm.addEventListener('submit', (e) => {
-            // Vérifier qu'un fichier est sélectionné
-            if (!fileInput.files || fileInput.files.length === 0) {
-                e.preventDefault();
-                alert('Veuillez sélectionner un fichier Excel');
-                return;
-            }
-
-            submitBtn.disabled = true;
-            btnText.innerHTML = '<span class="spinner-border spinner-border-custom me-2"></span>Importation en cours...';
-        });
-
-        // Fonction pour afficher les erreurs d'importation
-        function showErrors(errors) {
-            const errorsContent = document.getElementById('errorsContent');
-            
-            if (typeof errors === 'string') {
-                try {
-                    errors = JSON.parse(errors);
-                } catch (e) {
-                    errors = [errors];
-                }
-            }
-            
-            let html = '<div class="error-list">';
-            
-            if (Array.isArray(errors)) {
-                html += '<ul class="mb-0">';
-                errors.forEach(error => {
-                    html += `<li>${error}</li>`;
-                });
-                html += '</ul>';
-            } else if (typeof errors === 'object') {
-                for (const [key, value] of Object.entries(errors)) {
-                    html += `<div class="mb-3">`;
-                    html += `<strong>Ligne ${key}:</strong>`;
-                    html += `<ul class="mb-0 mt-1">`;
-                    if (Array.isArray(value)) {
-                        value.forEach(error => {
-                            html += `<li>${error}</li>`;
-                        });
-                    } else {
-                        html += `<li>${value}</li>`;
+                uploadForm.addEventListener('submit', (e) => {
+                    if (!fileInput.files || fileInput.files.length === 0) {
+                        e.preventDefault();
+                        window.AcidUI.notify('Veuillez selectionner un fichier Excel.', 'error');
+                        return;
                     }
-                    html += `</ul></div>`;
-                }
-            }
-            
-            html += '</div>';
-            errorsContent.innerHTML = html;
-            
-            const errorsModal = new bootstrap.Modal(document.getElementById('errorsModal'));
-            errorsModal.show();
-        }
 
-        // Auto-hide alerts après 5 secondes
-        document.addEventListener('DOMContentLoaded', function() {
-            const alerts = document.querySelectorAll('.alert');
-            alerts.forEach(alert => {
-                setTimeout(() => {
-                    const bsAlert = new bootstrap.Alert(alert);
-                    bsAlert.close();
-                }, 5000);
-            });
-        });
-    </script>
+                    submitBtn.disabled = true;
+                    btnText.innerHTML =
+                        '<span class="acid-spinner acid-spinner--sm" aria-hidden="true"></span> Importation en cours...';
+                });
+            })();
+
+            /* Affichage detaille des erreurs d'import (appele par le controleur) */
+            function showErrors(errors) {
+                const errorsContent = document.getElementById('errorsContent');
+
+                if (typeof errors === 'string') {
+                    try { errors = JSON.parse(errors); } catch (e) { errors = [errors]; }
+                }
+
+                const wrap = document.createElement('div');
+
+                const renderList = (items) => {
+                    const ul = document.createElement('ul');
+                    ul.style.margin = '0';
+                    ul.style.paddingInlineStart = '1.125rem';
+                    (Array.isArray(items) ? items : [items]).forEach((item) => {
+                        const li = document.createElement('li');
+                        li.textContent = item;
+                        ul.appendChild(li);
+                    });
+                    return ul;
+                };
+
+                if (Array.isArray(errors)) {
+                    const alert = document.createElement('div');
+                    alert.className = 'acid-alert acid-alert--danger';
+                    const body = document.createElement('div');
+                    body.className = 'acid-alert__body';
+                    body.appendChild(renderList(errors));
+                    alert.appendChild(body);
+                    wrap.appendChild(alert);
+                } else if (errors && typeof errors === 'object') {
+                    Object.entries(errors).forEach(([key, value]) => {
+                        const alert = document.createElement('div');
+                        alert.className = 'acid-alert acid-alert--danger';
+                        alert.style.marginBlockEnd = 'var(--acid-space-3)';
+
+                        const body = document.createElement('div');
+                        body.className = 'acid-alert__body';
+
+                        const title = document.createElement('p');
+                        title.className = 'acid-alert__title';
+                        title.textContent = 'Ligne ' + key;
+
+                        body.appendChild(title);
+                        body.appendChild(renderList(value));
+                        alert.appendChild(body);
+                        wrap.appendChild(alert);
+                    });
+                }
+
+                errorsContent.innerHTML = '';
+                errorsContent.appendChild(wrap);
+
+                new bootstrap.Modal(document.getElementById('errorsModal')).show();
+            }
+        </script>
+    @endpush
 </x-app-layout>

@@ -1,412 +1,298 @@
+@php
+    $totalStudents    = $totalStudents ?? 0;
+    $totalClasses     = $totalClasses ?? 0;
+    $totalBoys        = $totalBoys ?? 0;
+    $totalGirls       = $totalGirls ?? 0;
+    $totalWithPhotos  = $totalWithPhotos ?? 0;
+    $totalWithout     = max(0, $totalStudents - $totalWithPhotos);
+
+    $pct = fn ($value) => $totalStudents > 0 ? round(($value / $totalStudents) * 100, 1) : 0;
+
+    $pctPhotos = $pct($totalWithPhotos);
+    $pctBoys   = $pct($totalBoys);
+    $pctGirls  = $pct($totalGirls);
+@endphp
+
 <x-app-layout>
-    <div class="container-fluid py-4">
-        <!-- Welcome Header -->
-        <div class="card shadow-lg mb-4 animate-fade-in" style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);">
-            <div class="card-body text-white p-4">
-                <div class="row align-items-center">
-                    <div class="col-lg-8">
-                        <h1 class="h2 mb-2">
-                            <i class="fas fa-chart-line me-2"></i>
-                            Tableau de Bord
-                        </h1>
-                        <p class="mb-0 opacity-75">
-                            Bienvenue sur votre plateforme de gestion de pièces d'identité scolaire
-                            <span class="ms-2">
-                                <i class="fas fa-calendar-alt me-1"></i>
-                                {{ now()->format('d/m/Y') }}
-                            </span>
+
+    {{-- Bandeau d'accueil --}}
+    <section class="acid-hero" style="margin-block-end:var(--acid-space-6);">
+        <div class="acid-row acid-row--between" style="gap:var(--acid-space-5);">
+            <div style="min-width:0;">
+                <h1 class="h2" style="margin:0 0 .375rem;">Tableau de bord</h1>
+                <p>
+                    Pilotage de l'identification scolaire &middot;
+                    {{ now()->translatedFormat('d F Y') }}
+                </p>
+            </div>
+            <div class="acid-hero__pill">
+                <span>Annee scolaire</span>
+                <strong>{{ date('Y') }}-{{ date('Y') + 1 }}</strong>
+            </div>
+        </div>
+    </section>
+
+    {{-- Indicateurs cles --}}
+    <div class="acid-grid acid-grid--stats" style="margin-block-end:var(--acid-space-6);">
+
+        <article class="acid-stat">
+            <span class="acid-stat__icon" aria-hidden="true"><i class="fas fa-school"></i></span>
+            <div class="acid-stat__body">
+                <span class="acid-stat__label">Classes</span>
+                <span class="acid-stat__value">{{ number_format($totalClasses, 0, ',', ' ') }}</span>
+                <span class="acid-stat__hint">Classes actives cette annee</span>
+            </div>
+        </article>
+
+        <article class="acid-stat acid-stat--sky">
+            <span class="acid-stat__icon" aria-hidden="true"><i class="fas fa-users"></i></span>
+            <div class="acid-stat__body">
+                <span class="acid-stat__label">Eleves</span>
+                <span class="acid-stat__value">{{ number_format($totalStudents, 0, ',', ' ') }}</span>
+                <span class="acid-stat__hint">
+                    {{ number_format($totalBoys, 0, ',', ' ') }} garcons &middot;
+                    {{ number_format($totalGirls, 0, ',', ' ') }} filles
+                </span>
+            </div>
+        </article>
+
+        <article class="acid-stat acid-stat--teal">
+            <span class="acid-stat__icon" aria-hidden="true"><i class="fas fa-camera-retro"></i></span>
+            <div class="acid-stat__body">
+                <span class="acid-stat__label">Photos enregistrees</span>
+                <span class="acid-stat__value">{{ number_format($totalWithPhotos, 0, ',', ' ') }}</span>
+                <span class="acid-stat__hint">{{ $pctPhotos }}% de l'effectif couvert</span>
+            </div>
+        </article>
+
+        <article class="acid-stat {{ $totalWithout > 0 ? 'acid-stat--coral' : '' }}">
+            <span class="acid-stat__icon" aria-hidden="true"><i class="fas fa-user-slash"></i></span>
+            <div class="acid-stat__body">
+                <span class="acid-stat__label">Photos manquantes</span>
+                <span class="acid-stat__value">{{ number_format($totalWithout, 0, ',', ' ') }}</span>
+                <span class="acid-stat__hint">
+                    @if ($totalWithout > 0)
+                        <a href="{{ route('statistics.no-photos') }}" style="font-weight:var(--acid-fw-semibold);">
+                            Voir la liste <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                        </a>
+                    @else
+                        Effectif complet
+                    @endif
+                </span>
+            </div>
+        </article>
+    </div>
+
+    <div class="acid-grid" style="grid-template-columns:minmax(0,2fr) minmax(280px,1fr);align-items:start;">
+
+        {{-- Repartition par classe --}}
+        <section class="acid-card">
+            <div class="acid-card__header">
+                <div>
+                    <h2 class="acid-card__title">Repartition des eleves par classe</h2>
+                    <p class="acid-card__subtitle">Effectifs et couverture photographique</p>
+                </div>
+                <div class="acid-card__actions">
+                    <a href="{{ route('classes.index') }}" class="acid-btn acid-btn--neutral acid-btn--sm">
+                        <i class="fas fa-list" aria-hidden="true"></i>
+                        Toutes les classes
+                    </a>
+                </div>
+            </div>
+
+            <div class="acid-table-wrap">
+                <table class="acid-table acid-table--stack">
+                    <thead>
+                        <tr>
+                            <th scope="col">Classe</th>
+                            <th scope="col" class="acid-table__num">Effectif</th>
+                            <th scope="col" class="acid-table__num">Garcons</th>
+                            <th scope="col" class="acid-table__num">Filles</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($classes ?? [] as $classe)
+                            <tr data-acid-searchable="{{ $classe->nom }}">
+                                <td data-label="Classe">
+                                    <a href="{{ route('classes.show', $classe) }}" class="acid-table__primary">
+                                        {{ $classe->nom }}
+                                    </a>
+                                </td>
+                                <td data-label="Effectif" class="acid-table__num">
+                                    <span class="acid-badge acid-badge--navy">{{ $classe->etudiants_count }}</span>
+                                </td>
+                                <td data-label="Garcons" class="acid-table__num">
+                                    <span class="acid-badge acid-badge--sky">{{ $classe->effectif_garcons }}</span>
+                                </td>
+                                <td data-label="Filles" class="acid-table__num">
+                                    <span class="acid-badge acid-badge--coral">{{ $classe->effectif_filles }}</span>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="4">
+                                    <div class="acid-empty">
+                                        <span class="acid-empty__icon" aria-hidden="true">
+                                            <i class="fas fa-school"></i>
+                                        </span>
+                                        <h3 class="acid-empty__title">Aucune classe enregistree</h3>
+                                        <p class="acid-empty__text">
+                                            Creez une classe ou importez une liste d'eleves pour
+                                            demarrer la campagne d'identification.
+                                        </p>
+                                        <div class="acid-empty__actions">
+                                            <a href="{{ route('classes.create') }}" class="acid-btn acid-btn--primary">
+                                                <i class="fas fa-plus" aria-hidden="true"></i> Nouvelle classe
+                                            </a>
+                                            <a href="{{ route('import.index') }}" class="acid-btn acid-btn--neutral">
+                                                <i class="fas fa-file-import" aria-hidden="true"></i> Importer une liste
+                                            </a>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <div class="acid-stack">
+
+            {{-- Avancement photographique --}}
+            <section class="acid-card">
+                <div class="acid-card__header">
+                    <div>
+                        <h2 class="acid-card__title">Avancement photographique</h2>
+                        <p class="acid-card__subtitle">Eleves disposant d'une photo</p>
+                    </div>
+                </div>
+                <div class="acid-card__body">
+                    <div class="acid-row acid-row--between" style="margin-block-end:var(--acid-space-3);">
+                        <span class="acid-stat__value" style="font-size:var(--acid-text-2xl);">{{ $pctPhotos }}%</span>
+                        <span class="acid-badge acid-badge--teal">
+                            {{ number_format($totalWithPhotos, 0, ',', ' ') }} / {{ number_format($totalStudents, 0, ',', ' ') }}
+                        </span>
+                    </div>
+
+                    <div class="acid-progress" role="progressbar" aria-valuenow="{{ $pctPhotos }}"
+                         aria-valuemin="0" aria-valuemax="100"
+                         aria-label="Couverture photographique">
+                        <div class="acid-progress__bar" style="width:{{ $pctPhotos }}%;"></div>
+                    </div>
+
+                    @if ($totalWithout > 0)
+                        <a href="{{ route('statistics.no-photos') }}"
+                           class="acid-btn acid-btn--outline-coral acid-btn--sm acid-btn--block"
+                           style="margin-block-start:var(--acid-space-4);">
+                            <i class="fas fa-user-slash" aria-hidden="true"></i>
+                            {{ number_format($totalWithout, 0, ',', ' ') }} eleve(s) sans photo
+                        </a>
+                    @else
+                        <p class="acid-hint" style="margin-block-start:var(--acid-space-3);">
+                            <i class="fas fa-circle-check acid-text-teal" aria-hidden="true"></i>
+                            Tous les eleves disposent d'une photo.
                         </p>
+                    @endif
+                </div>
+            </section>
+
+            {{-- Repartition par sexe --}}
+            <section class="acid-card">
+                <div class="acid-card__header">
+                    <div>
+                        <h2 class="acid-card__title">Repartition par sexe</h2>
                     </div>
-                    <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
-                        <div class="d-inline-block bg-white bg-opacity-25 rounded px-4 py-2">
-                            <div class="small opacity-75">Année Scolaire</div>
-                            <div class="h4 mb-0">{{ date('Y') }}-{{ date('Y') + 1 }}</div>
+                </div>
+                <div class="acid-card__body">
+                    <div class="acid-row" style="gap:var(--acid-space-2);margin-block-end:var(--acid-space-4);">
+                        <div style="flex:{{ max($pctBoys, 1) }};min-width:2rem;">
+                            <div style="height:.625rem;border-radius:var(--acid-radius-pill);
+                                        background:var(--acid-sky-500);"></div>
+                        </div>
+                        <div style="flex:{{ max($pctGirls, 1) }};min-width:2rem;">
+                            <div style="height:.625rem;border-radius:var(--acid-radius-pill);
+                                        background:var(--acid-coral-500);"></div>
+                        </div>
+                    </div>
+
+                    <div class="acid-form-grid acid-form-grid--2" style="gap:var(--acid-space-3);">
+                        <div class="acid-card acid-card--soft" style="padding:var(--acid-space-4);text-align:center;">
+                            <i class="fas fa-mars" aria-hidden="true"
+                               style="color:var(--acid-sky-600);font-size:var(--acid-text-lg);"></i>
+                            <div class="acid-stat__value" style="font-size:var(--acid-text-xl);">
+                                {{ number_format($totalBoys, 0, ',', ' ') }}
+                            </div>
+                            <span class="acid-stat__hint">Garcons &middot; {{ $pctBoys }}%</span>
+                        </div>
+
+                        <div class="acid-card acid-card--soft" style="padding:var(--acid-space-4);text-align:center;">
+                            <i class="fas fa-venus" aria-hidden="true"
+                               style="color:var(--acid-coral-600);font-size:var(--acid-text-lg);"></i>
+                            <div class="acid-stat__value" style="font-size:var(--acid-text-xl);">
+                                {{ number_format($totalGirls, 0, ',', ' ') }}
+                            </div>
+                            <span class="acid-stat__hint">Filles &middot; {{ $pctGirls }}%</span>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Statistiques Principales -->
-        <div class="row g-4 mb-4">
-            <!-- Total Classes -->
-            <div class="col-12 col-sm-6 col-xl-3">
-                <div class="card shadow-lg border-0 h-100 animate-fade-in" 
-                     style="background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%); animation-delay: 0.1s;">
-                    <div class="card-body text-white p-4">
-                        <div class="d-flex justify-content-between align-items-start mb-3">
-                            <div>
-                                <div class="small opacity-75 text-uppercase mb-1">Total Classes</div>
-                                <div class="h2 fw-bold mb-0">{{ $totalClasses ?? 0 }}</div>
-                            </div>
-                            <div class="bg-white bg-opacity-25 rounded-circle p-3">
-                                <i class="fas fa-school fa-2x"></i>
-                            </div>
-                        </div>
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-arrow-up me-1 small"></i>
-                            <small class="opacity-75">Classes actives cette année</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Total Élèves -->
-            <div class="col-12 col-sm-6 col-xl-3">
-                <div class="card shadow-lg border-0 h-100 animate-fade-in" 
-                     style="background: linear-gradient(135deg, #198754 0%, #20c997 100%); animation-delay: 0.2s;">
-                    <div class="card-body text-white p-4">
-                        <div class="d-flex justify-content-between align-items-start mb-3">
-                            <div>
-                                <div class="small opacity-75 text-uppercase mb-1">Total Élèves</div>
-                                <div class="h2 fw-bold mb-0">{{ $totalStudents ?? 0 }}</div>
-                            </div>
-                            <div class="bg-white bg-opacity-25 rounded-circle p-3">
-                                <i class="fas fa-users fa-2x"></i>
-                            </div>
-                        </div>
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-users me-1 small"></i>
-                            <small class="opacity-75">Inscrits cette année</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Garçons -->
-            <div class="col-12 col-sm-6 col-xl-3">
-                <div class="card shadow-lg border-0 h-100 animate-fade-in" 
-                     style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); animation-delay: 0.3s;">
-                    <div class="card-body text-white p-4">
-                        <div class="d-flex justify-content-between align-items-start mb-3">
-                            <div>
-                                <div class="small opacity-75 text-uppercase mb-1">Garçons</div>
-                                <div class="h2 fw-bold mb-0">{{ $totalBoys ?? 0 }}</div>
-                            </div>
-                            <div class="bg-white bg-opacity-25 rounded-circle p-3">
-                                <i class="fas fa-mars fa-2x"></i>
-                            </div>
-                        </div>
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-percent me-1 small"></i>
-                            <small class="opacity-75">
-                                {{ $totalStudents > 0 ? number_format(($totalBoys / $totalStudents) * 100, 1) : 0 }}% du total
-                            </small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Filles -->
-            <div class="col-12 col-sm-6 col-xl-3">
-                <div class="card shadow-lg border-0 h-100 animate-fade-in" 
-                     style="background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%); animation-delay: 0.4s;">
-                    <div class="card-body text-white p-4">
-                        <div class="d-flex justify-content-between align-items-start mb-3">
-                            <div>
-                                <div class="small opacity-75 text-uppercase mb-1">Filles</div>
-                                <div class="h2 fw-bold mb-0">{{ $totalGirls ?? 0 }}</div>
-                            </div>
-                            <div class="bg-white bg-opacity-25 rounded-circle p-3">
-                                <i class="fas fa-venus fa-2x"></i>
-                            </div>
-                        </div>
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-percent me-1 small"></i>
-                            <small class="opacity-75">
-                                {{ $totalStudents > 0 ? number_format(($totalGirls / $totalStudents) * 100, 1) : 0 }}% du total
-                            </small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Graphiques et Informations -->
-        <div class="row g-4 mb-4">
-            <!-- Répartition par Classe -->
-            <div class="col-lg-8">
-                <div class="card shadow-lg h-100 animate-fade-in" style="animation-delay: 0.5s;">
-                    <div class="card-header bg-white border-0 py-3">
-                        <h5 class="mb-0">
-                            <i class="fas fa-chart-bar text-primary me-2"></i>
-                            Répartition des Élèves par Classe
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Classe</th>
-                                        <th class="text-center">Total</th>
-                                        <th class="text-center">Garçons</th>
-                                        <th class="text-center">Filles</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse($classes ?? [] as $classe)
-                                    <tr>
-                                        <td class="fw-semibold">
-                                            <i class="fas fa-chalkboard-teacher text-primary me-2"></i>
-                                            {{ $classe->nom }}
-                                        </td>
-                                        <td class="text-center">
-                                            <span class="badge bg-primary rounded-pill">{{ $classe->etudiants_count }}</span>
-                                        </td>
-                                        <td class="text-center">
-                                            <span class="badge bg-info rounded-pill">{{ $classe->effectif_garcons }}</span>
-                                        </td>
-                                        <td class="text-center">
-                                            <span class="badge bg-danger rounded-pill">{{ $classe->effectif_filles }}</span>
-                                        </td>
-                                       
-                                    </tr>
-                                    @empty
-                                    <tr>
-                                        <td colspan="5" class="text-center text-muted py-4">
-                                            <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
-                                            Aucune classe disponible
-                                        </td>
-                                    </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Statistiques Supplémentaires -->
-            <div class="col-lg-4">
-                <!-- Ratio Garçons/Filles -->
-                <div class="card shadow-lg mb-4 animate-fade-in" style="animation-delay: 0.6s;">
-                    <div class="card-header bg-white border-0 py-3">
-                        <h5 class="mb-0">
-                            <i class="fas fa-balance-scale text-primary me-2"></i>
-                            Ratio Garçons/Filles
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="text-center mb-3">
-                            <div class="position-relative d-inline-block">
-                                <svg width="150" height="150" viewBox="0 0 150 150">
-                                    <circle cx="75" cy="75" r="65" fill="none" stroke="#e5e7eb" stroke-width="15"/>
-                                    <circle cx="75" cy="75" r="65" fill="none" stroke="#6366f1" stroke-width="15"
-                                            stroke-dasharray="{{ $totalStudents > 0 ? (($totalBoys / $totalStudents) * 408) : 0 }} 408"
-                                            stroke-dashoffset="102"
-                                            transform="rotate(-90 75 75)"/>
-                                </svg>
-                                <div class="position-absolute top-50 start-50 translate-middle text-center">
-                                    <div class="h4 mb-0">{{ $totalStudents > 0 ? number_format(($totalBoys / $totalStudents) * 100, 0) : 0 }}%</div>
-                                    <small class="text-muted">Garçons</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row text-center">
-                            <div class="col-6">
-                                <div class="bg-primary bg-opacity-10 rounded p-3">
-                                    <i class="fas fa-mars text-primary fa-2x mb-2"></i>
-                                    <div class="h5 mb-0">{{ $totalBoys ?? 0 }}</div>
-                                    <small class="text-muted">Garçons</small>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="bg-danger bg-opacity-10 rounded p-3">
-                                    <i class="fas fa-venus text-danger fa-2x mb-2"></i>
-                                    <div class="h5 mb-0">{{ $totalGirls ?? 0 }}</div>
-                                    <small class="text-muted">Filles</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Cartes Générées -->
-                <div class="card shadow-lg animate-fade-in" style="animation-delay: 0.7s;">
-                    <div class="card-header bg-white border-0 py-3">
-                        <h5 class="mb-0">
-                            <i class="fas fa-id-card text-success me-2"></i>
-                            Cartes Générées
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <span class="text-muted">Photos disponibles</span>
-                            <span class="badge bg-success rounded-pill fs-6">{{ $totalWithPhotos ?? 0 }}</span>
-                        </div>
-                        <div class="progress mb-3" style="height: 10px;">
-                            <div class="progress-bar bg-success" 
-                                 style="width: {{ $totalStudents > 0 ? (($totalWithPhotos / $totalStudents) * 100) : 0 }}%">
-                            </div>
-                        </div>
-                        <div class="text-center">
-                            <small class="text-muted">
-                                {{ $totalStudents > 0 ? number_format(($totalWithPhotos / $totalStudents) * 100, 1) : 0 }}% 
-                                des élèves ont une photo
-                            </small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Actions Rapides -->
-        <div class="row g-4">
-            <div class="col-12">
-                <div class="card shadow-lg animate-fade-in" style="animation-delay: 0.8s;">
-                    <div class="card-header bg-white border-0 py-3">
-                        <h5 class="mb-0">
-                            <i class="fas fa-bolt text-warning me-2"></i>
-                            Actions Rapides
-                        </h5>
-                    </div>
-                    <div class="card-body p-4">
-                        <div class="row g-3">
-                            <!-- Nouvelle Classe -->
-                            <div class="col-12 col-md-6 col-lg-3">
-                                <a href="{{ route('classes.create') }}" 
-                                   class="card border-0 text-decoration-none h-100 quick-action-card"
-                                   style="background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);">
-                                    <div class="card-body text-white text-center p-4">
-                                        <i class="fas fa-plus-circle fa-3x mb-3"></i>
-                                        <h6 class="fw-bold mb-2">Nouvelle Classe</h6>
-                                        <small class="opacity-75">Créer une nouvelle classe</small>
-                                    </div>
-                                </a>
-                            </div>
-
-                            <!-- Importer Excel -->
-                            <div class="col-12 col-md-6 col-lg-3">
-                                <a href="{{ route('import.index') }}" 
-                                   class="card border-0 text-decoration-none h-100 quick-action-card"
-                                   style="background: linear-gradient(135deg, #198754 0%, #20c997 100%);">
-                                    <div class="card-body text-white text-center p-4">
-                                        <i class="fas fa-file-excel fa-3x mb-3"></i>
-                                        <h6 class="fw-bold mb-2">Importer Excel</h6>
-                                        <small class="opacity-75">Importer des listes d'élèves</small>
-                                    </div>
-                                </a>
-                            </div>
-
-                            <!-- Générer Cartes -->
-                            <div class="col-12 col-md-6 col-lg-3">
-                                <a href="{{ route('cards.index') }}" 
-                                   class="card border-0 text-decoration-none h-100 quick-action-card"
-                                   style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);">
-                                    <div class="card-body text-white text-center p-4">
-                                        <i class="fas fa-id-card fa-3x mb-3"></i>
-                                        <h6 class="fw-bold mb-2">Générer Cartes</h6>
-                                        <small class="opacity-75">Créer les cartes scolaires</small>
-                                    </div>
-                                </a>
-                            </div>
-
-                            <!-- Statistiques -->
-                            <div class="col-12 col-md-6 col-lg-3">
-                                <a href="{{ route('statistics.index') }}" 
-                                   class="card border-0 text-decoration-none h-100 quick-action-card"
-                                   style="background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);">
-                                    <div class="card-body text-white text-center p-4">
-                                        <i class="fas fa-chart-line fa-3x mb-3"></i>
-                                        <h6 class="fw-bold mb-2">Statistiques</h6>
-                                        <small class="opacity-75">Voir les rapports détaillés</small>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            </section>
         </div>
     </div>
 
-    <style>
-        @keyframes fade-in {
-            from { 
-                opacity: 0; 
-                transform: translateY(-10px); 
-            }
-            to { 
-                opacity: 1; 
-                transform: translateY(0); 
-            }
-        }
-        
-        .animate-fade-in {
-            animation: fade-in 0.5s ease-out forwards;
-        }
+    {{-- Acces rapides --}}
+    <h2 class="acid-section-title">Acces rapides</h2>
 
-        .bg-opacity-25 {
-            background-color: rgba(255, 255, 255, 0.25) !important;
-        }
+    <div class="acid-grid acid-grid--cards">
 
-        .bg-opacity-10 {
-            background-color: rgba(var(--bs-primary-rgb), 0.1) !important;
-        }
+        <a href="{{ route('classes.create') }}" class="acid-card acid-card--hover"
+           style="padding:var(--acid-space-5);display:flex;gap:var(--acid-space-4);align-items:flex-start;">
+            <span class="acid-stat__icon" aria-hidden="true"><i class="fas fa-plus"></i></span>
+            <span>
+                <strong style="display:block;color:var(--acid-text-strong);font-weight:var(--acid-fw-bold);">
+                    Nouvelle classe
+                </strong>
+                <span class="acid-stat__hint">Creer une classe et son effectif</span>
+            </span>
+        </a>
 
-        .bg-danger.bg-opacity-10 {
-            background-color: rgba(var(--bs-danger-rgb), 0.1) !important;
-        }
+        <a href="{{ route('import.index') }}" class="acid-card acid-card--hover"
+           style="padding:var(--acid-space-5);display:flex;gap:var(--acid-space-4);align-items:flex-start;">
+            <span class="acid-stat__icon" aria-hidden="true" style="background:var(--acid-teal-50);color:var(--acid-teal-700);">
+                <i class="fas fa-file-import"></i>
+            </span>
+            <span>
+                <strong style="display:block;color:var(--acid-text-strong);font-weight:var(--acid-fw-bold);">
+                    Importer une liste
+                </strong>
+                <span class="acid-stat__hint">Charger un fichier Excel d'eleves</span>
+            </span>
+        </a>
 
-        .opacity-75 {
-            opacity: 0.75;
-        }
+        <a href="{{ route('cards.index') }}" class="acid-card acid-card--hover"
+           style="padding:var(--acid-space-5);display:flex;gap:var(--acid-space-4);align-items:flex-start;">
+            <span class="acid-stat__icon" aria-hidden="true" style="background:var(--acid-coral-50);color:var(--acid-coral-700);">
+                <i class="fas fa-id-card"></i>
+            </span>
+            <span>
+                <strong style="display:block;color:var(--acid-text-strong);font-weight:var(--acid-fw-bold);">
+                    Cartes &amp; documents
+                </strong>
+                <span class="acid-stat__hint">Generer cartes, photos et planches</span>
+            </span>
+        </a>
 
-        .shadow-lg {
-            box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
-        }
-
-        .quick-action-card {
-            transition: all 0.3s ease;
-        }
-
-        .quick-action-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.2) !important;
-        }
-
-        .table thead {
-            background: #f8f9fa;
-        }
-
-        .table tbody tr:hover {
-            background-color: #f8f9fa;
-        }
-
-        .progress {
-            background-color: #e9ecef;
-        }
-
-        @media (max-width: 768px) {
-            .h2 {
-                font-size: 1.5rem;
-            }
-            
-            .quick-action-card .fa-3x {
-                font-size: 2rem;
-            }
-        }
-    </style>
-
-    <script>
-        // Animation au scroll
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('animate-fade-in');
-                }
-            });
-        }, observerOptions);
-
-        // Observer tous les éléments avec la classe animate-fade-in
-        document.querySelectorAll('.animate-fade-in').forEach(el => {
-            observer.observe(el);
-        });
-    </script>
+        <a href="{{ route('statistics.index') }}" class="acid-card acid-card--hover"
+           style="padding:var(--acid-space-5);display:flex;gap:var(--acid-space-4);align-items:flex-start;">
+            <span class="acid-stat__icon" aria-hidden="true" style="background:var(--acid-sky-50);color:var(--acid-sky-600);">
+                <i class="fas fa-chart-column"></i>
+            </span>
+            <span>
+                <strong style="display:block;color:var(--acid-text-strong);font-weight:var(--acid-fw-bold);">
+                    Statistiques
+                </strong>
+                <span class="acid-stat__hint">Suivi detaille par classe</span>
+            </span>
+        </a>
+    </div>
 </x-app-layout>

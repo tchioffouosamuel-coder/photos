@@ -10,6 +10,7 @@ use App\Http\Controllers\StatisticsController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CandidatLibreController;
+use App\Http\Controllers\TransfertController;
 // Route de bienvenue
 Route::get('/welcome', function () {
     return view('welcome');
@@ -81,6 +82,10 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 
     // Etudiants Routes (CRUD)
     Route::prefix('classes/{classe}')->group(function () {
+        // Transfert d'un ou plusieurs eleves vers une autre classe
+        Route::post('/etudiants/transfert', [TransfertController::class, 'store'])
+            ->name('etudiants.transfert');
+
         Route::get('/etudiants/create', [EtudiantController::class, 'create'])->name('etudiants.create');
         Route::post('/etudiants', [EtudiantController::class, 'store'])->name('etudiants.store');
         Route::get('/etudiants/{etudiant}/edit', [EtudiantController::class, 'edit'])->name('etudiants.edit');

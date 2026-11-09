@@ -1,27 +1,31 @@
 <x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
-        {{ __('This is a secure area of the application. Please confirm your password before continuing.') }}
+    <div class="acid-alert acid-alert--navy" style="margin-block-end:var(--acid-space-6);">
+        <i class="fas fa-shield-halved acid-alert__icon" aria-hidden="true"></i>
+        <div class="acid-alert__body">
+            <p class="acid-alert__title">Zone securisee</p>
+            <p style="margin:0;font-size:var(--acid-text-sm);">
+                Confirmez votre mot de passe pour continuer.
+            </p>
+        </div>
     </div>
 
     <form method="POST" action="{{ route('password.confirm') }}">
         @csrf
 
-        <!-- Password -->
-        <div>
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+        <div class="acid-field">
+            <x-input-label for="password" value="Mot de passe" class="acid-label--required" />
+            <div class="acid-input-group">
+                <i class="fas fa-lock acid-input-group__icon" aria-hidden="true"></i>
+                <x-text-input id="password" type="password" name="password"
+                              class="{{ $errors->get('password') ? 'is-invalid' : '' }}"
+                              required autocomplete="current-password" autofocus />
+            </div>
+            <x-input-error :messages="$errors->get('password')" />
         </div>
 
-        <div class="flex justify-end mt-4">
-            <x-primary-button>
-                {{ __('Confirm') }}
-            </x-primary-button>
-        </div>
+        <x-primary-button class="acid-btn--lg acid-btn--block">
+            <i class="fas fa-check" aria-hidden="true"></i>
+            Confirmer
+        </x-primary-button>
     </form>
 </x-guest-layout>

@@ -1,322 +1,224 @@
 <x-app-layout>
-    <div class="container-fluid py-4">
-        <!-- Header -->
-        <div class="card shadow-lg mb-4 animate-fade-in">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-                    <div>
-                        <h1 class="h2 mb-1">
-                            <i class="fas fa-school text-primary"></i>
-                            Gestion des Classes
-                        </h1>
-                        <p class="text-muted mb-0">Gérez vos classes et leurs élèves</p>
-                    </div>
-                    <a href="{{ route('classes.create') }}" class="btn btn-primary btn-lg shadow">
-                        <i class="fas fa-plus me-2"></i> Nouvelle Classe
-                    </a>
-                </div>
-            </div>
+
+    <div class="acid-page-header">
+        <div class="acid-page-header__text">
+            <span class="acid-page-header__eyebrow">Gestion scolaire</span>
+            <h1 class="acid-page-header__title">Classes &amp; eleves</h1>
+            <p class="acid-page-header__lead">
+                Organisez vos classes, suivez leurs effectifs et accedez a la prise de vue.
+            </p>
         </div>
-
-        <!-- Messages de succès -->
-        @if(session('success'))
-        <div class="alert alert-success shadow-lg animate-fade-in mb-4" id="successAlert">
-            <div class="d-flex align-items-center">
-                <i class="fas fa-check-circle fs-4 me-3"></i>
-                <span class="fw-semibold">{{ session('success') }}</span>
-            </div>
-        </div>
-        @endif
-
-        <!-- Barre de recherche -->
-        <div class="card shadow-lg mb-4 animate-fade-in">
-            <div class="card-body">
-                <div class="position-relative">
-                    <i class="fas fa-search position-absolute text-muted" 
-                       style="left: 25px; top: 50%; transform: translateY(-50%);"></i>
-                    <input type="text" 
-                           class="form-control form-control-lg ps-5" 
-                           id="searchInput"
-                           placeholder="Rechercher une classe par nom, année scolaire ou examen...">
-                </div>
-                <div class="mt-2 text-muted small d-none" id="searchInfo">
-                    <i class="fas fa-info-circle me-1"></i>
-                    <span id="resultCount"></span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Cartes de statistiques -->
-        <div class="row g-3 mb-4">
-            <div class="col-12 col-sm-6 col-lg-3">
-                <div class="card shadow-lg border-0 animate-fade-in" style="background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);">
-                    <div class="card-body text-white text-center p-4">
-                        <i class="fas fa-school fa-3x mb-3"></i>
-                        <div class="fs-2 fw-bold">{{ $classes->count() }}</div>
-                        <div class="opacity-75">Total Classes</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-sm-6 col-lg-3">
-                <div class="card shadow-lg border-0 animate-fade-in" style="background: linear-gradient(135deg, #198754 0%, #20c997 100%);">
-                    <div class="card-body text-white text-center p-4">
-                        <i class="fas fa-users fa-3x mb-3"></i>
-                        <div class="fs-2 fw-bold">{{ $classes->sum('etudiants_count') }}</div>
-                        <div class="opacity-75">Total Élèves</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-sm-6 col-lg-3">
-                <div class="card shadow-lg border-0 animate-fade-in" style="background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);">
-                    <div class="card-body text-white text-center p-4">
-                        <i class="fas fa-mars fa-3x mb-3"></i>
-                        <div class="fs-2 fw-bold">{{ $classes->sum('effectif_garcons') }}</div>
-                        <div class="opacity-75">Garçons</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-sm-6 col-lg-3">
-                <div class="card shadow-lg border-0 animate-fade-in" style="background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);">
-                    <div class="card-body text-white text-center p-4">
-                        <i class="fas fa-venus fa-3x mb-3"></i>
-                        <div class="fs-2 fw-bold">{{ $classes->sum('effectif_filles') }}</div>
-                        <div class="opacity-75">Filles</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Message "Aucun résultat" -->
-        <div class="card shadow-lg text-center py-5 d-none" id="noResults">
-            <div class="card-body">
-                <i class="fas fa-search text-muted" style="font-size: 4rem;"></i>
-                <h4 class="mt-3 text-muted">Aucune classe trouvée</h4>
-                <p class="text-muted">Essayez avec d'autres termes de recherche</p>
-            </div>
-        </div>
-
-        <!-- Grille des classes -->
-        <div class="row g-4" id="classesGrid">
-            @forelse($classes as $classe)
-            <div class="col-12 col-md-6 col-lg-4 classe-card" 
-                 data-nom="{{ strtolower($classe->nom) }}" 
-                 data-annee="{{ strtolower($classe->annee_scolaire) }}"
-                 data-exam="{{ strtolower($classe->exam ?? '') }}">
-                <div class="card shadow-lg h-100 animate-fade-in" style="transition: all 0.3s ease;">
-                    <div class="card-header text-white py-3" style="background: linear-gradient(135deg, #16a34a 0%, #14b8a6 100%);">
-                        <h3 class="h5 mb-1">
-                            <i class="fas fa-chalkboard-teacher me-2"></i>
-                            {{ $classe->nom }}
-                        </h3>
-                        <small class="opacity-75">{{ $classe->annee_scolaire }}</small>
-                    </div>
-                    <div class="card-body">
-                        <!-- Stats -->
-                        <div class="row g-3 mb-3">
-                            <div class="col-4 text-center">
-                                <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-2" 
-                                     style="width: 48px; height: 48px;">
-                                    <i class="fas fa-users text-primary"></i>
-                                </div>
-                                <div class="fw-bold fs-4">{{ $classe->etudiants_count }}</div>
-                                <small class="text-muted">Total</small>
-                            </div>
-                            <div class="col-4 text-center">
-                                <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-2" 
-                                     style="width: 48px; height: 48px;">
-                                    <i class="fas fa-mars text-primary"></i>
-                                </div>
-                                <div class="fw-bold fs-4">{{ $classe->effectif_garcons }}</div>
-                                <small class="text-muted">Garçons</small>
-                            </div>
-                            <div class="col-4 text-center">
-                                <div class="bg-danger bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-2" 
-                                     style="width: 48px; height: 48px;">
-                                    <i class="fas fa-venus text-danger"></i>
-                                </div>
-                                <div class="fw-bold fs-4">{{ $classe->effectif_filles }}</div>
-                                <small class="text-muted">Filles</small>
-                            </div>
-                        </div>
-
-                        <!-- Examen -->
-                        @if($classe->exam)
-                        <div class="alert alert-warning mb-3 py-2">
-                            <small>
-                                <i class="fas fa-graduation-cap me-2"></i>
-                                <strong>Examen:</strong> {{ $classe->exam }}
-                            </small>
-                        </div>
-                        @endif
-
-                        <!-- Actions -->
-                        <div class="d-grid gap-2">
-                            <a href="{{ route('classes.show', $classe->id) }}" class="btn btn-primary shadow">
-                                <i class="fas fa-eye me-2"></i> Voir les élèves
-                            </a>
-                            <div class="row g-2">
-                                <div class="col-6">
-                                    <a href="{{ route('classes.edit', $classe) }}" class="btn btn-outline-primary btn-sm w-100">
-                                        <i class="fas fa-edit me-1"></i> Modifier
-                                    </a>
-                                </div>
-                                <div class="col-6">
-                                    <form action="{{ route('classes.destroy', $classe) }}" method="POST" 
-                                          onsubmit="return confirm('Supprimer cette classe et tous ses élèves ?');" class="w-100">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-outline-danger btn-sm w-100">
-                                            <i class="fas fa-trash me-1"></i> Supprimer
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            @empty
-            <div class="col-12">
-                <div class="card shadow-lg h-100 text-center animate-fade-in">
-                    <div class="card-body d-flex flex-column justify-content-center py-5">
-                        <i class="fas fa-inbox text-muted" style="font-size: 4rem;"></i>
-                        <h5 class="mt-3">Aucune classe disponible</h5>
-                        <p class="text-muted">Créez votre première classe pour commencer</p>
-                        <a href="{{ route('classes.create') }}" class="btn btn-primary mt-2 shadow">
-                            <i class="fas fa-plus me-2"></i> Créer votre première classe
-                        </a>
-                    </div>
-                </div>
-            </div>
-            @endforelse
-        </div>
-
-        <!-- Actions rapides -->
-        <div class="mt-5 animate-fade-in">
-            <h2 class="h4 mb-4 text-light">
-                <i class="fas fa-bolt me-2 text-light"></i> Actions rapides
-            </h2>
-            <div class="row g-3">
-                <div class="col-12 col-md-6">
-                    <a href="{{ route('import.index') }}" class="card shadow-lg text-decoration-none h-100" style="background: linear-gradient(135deg, #198754 0%, #20c997 100%);">
-                        <div class="card-body text-white p-4">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-file-excel fa-3x me-3"></i>
-                                <div>
-                                    <div class="fw-bold fs-5">Importer Excel</div>
-                                    <small class="opacity-75">Ajoutez des élèves par lots</small>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-              
-                <div class="col-12 col-md-6">
-                    <a href="{{ route('statistics.index') }}" class="card shadow-lg text-decoration-none h-100" style="background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);">
-                        <div class="card-body text-white p-4">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-chart-line fa-3x me-3"></i>
-                                <div>
-                                    <div class="fw-bold fs-5">Statistiques</div>
-                                    <small class="opacity-75">Voir les rapports</small>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            </div>
+        <div class="acid-page-header__actions">
+            <a href="{{ route('import.index') }}" class="acid-btn acid-btn--neutral">
+                <i class="fas fa-file-import" aria-hidden="true"></i>
+                Importer une liste
+            </a>
+            <a href="{{ route('classes.create') }}" class="acid-btn acid-btn--primary">
+                <i class="fas fa-plus" aria-hidden="true"></i>
+                Nouvelle classe
+            </a>
         </div>
     </div>
 
-    <style>
-        @keyframes fade-in {
-            from { 
-                opacity: 0; 
-                transform: translateY(-10px); 
-            }
-            to { 
-                opacity: 1; 
-                transform: translateY(0); 
-            }
-        }
-        
-        .animate-fade-in {
-            animation: fade-in 0.5s ease-out;
-        }
+    {{-- Indicateurs --}}
+    <div class="acid-grid acid-grid--stats" style="margin-block-end:var(--acid-space-6);">
+        <article class="acid-stat">
+            <span class="acid-stat__icon" aria-hidden="true"><i class="fas fa-school"></i></span>
+            <div class="acid-stat__body">
+                <span class="acid-stat__label">Classes</span>
+                <span class="acid-stat__value">{{ $classes->count() }}</span>
+            </div>
+        </article>
 
-        .classe-card .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.2) !important;
-        }
+        <article class="acid-stat acid-stat--teal">
+            <span class="acid-stat__icon" aria-hidden="true"><i class="fas fa-users"></i></span>
+            <div class="acid-stat__body">
+                <span class="acid-stat__label">Eleves</span>
+                <span class="acid-stat__value">{{ number_format($classes->sum('etudiants_count'), 0, ',', ' ') }}</span>
+            </div>
+        </article>
 
-        .bg-opacity-10 {
-            background-color: rgba(var(--bs-primary-rgb), 0.1) !important;
-        }
+        <article class="acid-stat acid-stat--sky">
+            <span class="acid-stat__icon" aria-hidden="true"><i class="fas fa-mars"></i></span>
+            <div class="acid-stat__body">
+                <span class="acid-stat__label">Garcons</span>
+                <span class="acid-stat__value">{{ number_format($classes->sum('effectif_garcons'), 0, ',', ' ') }}</span>
+            </div>
+        </article>
 
-        .bg-danger.bg-opacity-10 {
-            background-color: rgba(var(--bs-danger-rgb), 0.1) !important;
-        }
+        <article class="acid-stat acid-stat--coral">
+            <span class="acid-stat__icon" aria-hidden="true"><i class="fas fa-venus"></i></span>
+            <div class="acid-stat__body">
+                <span class="acid-stat__label">Filles</span>
+                <span class="acid-stat__value">{{ number_format($classes->sum('effectif_filles'), 0, ',', ' ') }}</span>
+            </div>
+        </article>
+    </div>
 
-        .opacity-75 {
-            opacity: 0.75;
-        }
+    {{-- Recherche locale --}}
+    <div class="acid-card" style="margin-block-end:var(--acid-space-5);">
+        <div class="acid-toolbar" style="border-block-end:0;">
+            <div class="acid-toolbar__grow">
+                <div class="acid-input-group">
+                    <i class="fas fa-magnifying-glass acid-input-group__icon" aria-hidden="true"></i>
+                    <input type="search" id="classeSearch" class="acid-input"
+                           placeholder="Rechercher par nom, annee scolaire ou examen..."
+                           autocomplete="off" aria-label="Rechercher une classe">
+                </div>
+            </div>
+            <span class="acid-toolbar__count" id="classeSearchInfo" hidden>
+                <strong id="classeSearchCount">0</strong> classe(s) trouvee(s)
+            </span>
+        </div>
+    </div>
 
-        .shadow-lg {
-            box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
-        }
-    </style>
+    {{-- Grille des classes --}}
+    <div class="acid-grid acid-grid--cards" id="classesGrid">
+        @forelse ($classes as $classe)
+            @php
+                $effectif = (int) $classe->etudiants_count;
+            @endphp
 
-    <script>
-        const searchInput = document.getElementById('searchInput');
-        const searchInfo = document.getElementById('searchInfo');
-        const resultCount = document.getElementById('resultCount');
-        const noResults = document.getElementById('noResults');
-        const classesGrid = document.getElementById('classesGrid');
-        const classeCards = document.querySelectorAll('.classe-card');
+            <article class="acid-card acid-card--hover classe-card"
+                     data-acid-searchable="{{ $classe->nom }} {{ $classe->annee_scolaire }} {{ $classe->exam ?? '' }}">
 
-        function filterClasses() {
-            const searchTerm = searchInput.value.toLowerCase().trim();
-            let visibleCount = 0;
+                <div class="acid-card__header" style="align-items:flex-start;">
+                    <span class="acid-stat__icon" aria-hidden="true">
+                        <i class="fas fa-chalkboard-user"></i>
+                    </span>
+                    <div style="min-width:0;">
+                        <h2 class="acid-card__title acid-truncate">{{ $classe->nom }}</h2>
+                        <p class="acid-card__subtitle">{{ $classe->annee_scolaire }}</p>
+                    </div>
+                    @if ($classe->exam)
+                        <span class="acid-badge acid-badge--amber" style="margin-inline-start:auto;"
+                              title="Examen officiel : {{ $classe->exam }}">
+                            <i class="fas fa-graduation-cap" aria-hidden="true"></i>
+                            {{ $classe->exam }}
+                        </span>
+                    @endif
+                </div>
 
-            classeCards.forEach(card => {
-                const nom = card.dataset.nom;
-                const annee = card.dataset.annee;
-                const exam = card.dataset.exam;
+                <div class="acid-card__body">
+                    <div class="acid-form-grid" style="grid-template-columns:repeat(3,minmax(0,1fr));
+                                                       gap:var(--acid-space-2);text-align:center;">
+                        <div>
+                            <div class="acid-stat__value" style="font-size:var(--acid-text-xl);">{{ $effectif }}</div>
+                            <span class="acid-stat__label">Total</span>
+                        </div>
+                        <div>
+                            <div class="acid-stat__value" style="font-size:var(--acid-text-xl);color:var(--acid-sky-600);">
+                                {{ $classe->effectif_garcons }}
+                            </div>
+                            <span class="acid-stat__label">Garcons</span>
+                        </div>
+                        <div>
+                            <div class="acid-stat__value" style="font-size:var(--acid-text-xl);color:var(--acid-coral-600);">
+                                {{ $classe->effectif_filles }}
+                            </div>
+                            <span class="acid-stat__label">Filles</span>
+                        </div>
+                    </div>
+                </div>
 
-                const matches = nom.includes(searchTerm) || 
-                              annee.includes(searchTerm) || 
-                              exam.includes(searchTerm);
+                <div class="acid-card__footer" style="flex-wrap:wrap;">
+                    <a href="{{ route('classes.show', $classe->id) }}"
+                       class="acid-btn acid-btn--primary acid-btn--sm" style="flex:1 1 auto;">
+                        <i class="fas fa-camera-retro" aria-hidden="true"></i>
+                        Eleves &amp; photos
+                    </a>
 
-                if (matches) {
-                    card.style.display = 'block';
-                    visibleCount++;
-                } else {
-                    card.style.display = 'none';
+                    <a href="{{ route('classes.edit', $classe) }}"
+                       class="acid-btn acid-btn--neutral acid-btn--sm acid-btn--icon"
+                       title="Modifier la classe" aria-label="Modifier la classe">
+                        <i class="fas fa-pen" aria-hidden="true"></i>
+                    </a>
+
+                    <form action="{{ route('classes.destroy', $classe) }}" method="POST"
+                          data-acid-confirm="Supprimer la classe {{ $classe->nom }} et tous ses eleves ? Cette action est irreversible."
+                          style="display:inline;">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="acid-btn acid-btn--outline-coral acid-btn--sm acid-btn--icon"
+                                title="Supprimer la classe" aria-label="Supprimer la classe">
+                            <i class="fas fa-trash-can" aria-hidden="true"></i>
+                        </button>
+                    </form>
+                </div>
+            </article>
+        @empty
+            <div style="grid-column:1/-1;">
+                <div class="acid-card">
+                    <div class="acid-empty">
+                        <span class="acid-empty__icon" aria-hidden="true"><i class="fas fa-school"></i></span>
+                        <h2 class="acid-empty__title">Aucune classe enregistree</h2>
+                        <p class="acid-empty__text">
+                            Creez votre premiere classe, ou importez directement une liste d'eleves
+                            depuis un fichier Excel.
+                        </p>
+                        <div class="acid-empty__actions">
+                            <a href="{{ route('classes.create') }}" class="acid-btn acid-btn--primary">
+                                <i class="fas fa-plus" aria-hidden="true"></i> Creer une classe
+                            </a>
+                            <a href="{{ route('import.index') }}" class="acid-btn acid-btn--neutral">
+                                <i class="fas fa-file-import" aria-hidden="true"></i> Importer une liste
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endforelse
+    </div>
+
+    {{-- Aucun resultat de recherche --}}
+    <div class="acid-card" id="classeNoResults" hidden>
+        <div class="acid-empty">
+            <span class="acid-empty__icon" aria-hidden="true"><i class="fas fa-magnifying-glass"></i></span>
+            <h2 class="acid-empty__title">Aucune classe ne correspond</h2>
+            <p class="acid-empty__text">Essayez un autre nom, une autre annee scolaire ou un autre examen.</p>
+        </div>
+    </div>
+
+    @push('scripts')
+        <script>
+            /* Filtre local de la grille des classes */
+            (function () {
+                const input = document.getElementById('classeSearch');
+                if (!input) return;
+
+                const cards     = Array.from(document.querySelectorAll('.classe-card'));
+                const grid      = document.getElementById('classesGrid');
+                const noResults = document.getElementById('classeNoResults');
+                const info      = document.getElementById('classeSearchInfo');
+                const count     = document.getElementById('classeSearchCount');
+
+                const normalize = (v) => (v || '').toString()
+                    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+                    .toLowerCase().trim();
+
+                function filter() {
+                    const needle = normalize(input.value);
+                    let visible = 0;
+
+                    cards.forEach((card) => {
+                        const match = !needle ||
+                            normalize(card.getAttribute('data-acid-searchable')).includes(needle);
+                        card.hidden = !match;
+                        if (match) visible++;
+                    });
+
+                    info.hidden = !needle;
+                    count.textContent = visible;
+                    noResults.hidden = !(needle && visible === 0);
+                    if (grid) grid.hidden = Boolean(needle) && visible === 0;
                 }
-            });
 
-            if (searchTerm !== '') {
-                searchInfo.classList.remove('d-none');
-                resultCount.textContent = `${visibleCount} classe${visibleCount !== 1 ? 's' : ''} trouvée${visibleCount !== 1 ? 's' : ''}`;
-                
-                noResults.classList.toggle('d-none', visibleCount > 0);
-                classesGrid.classList.toggle('d-none', visibleCount === 0);
-            } else {
-                searchInfo.classList.add('d-none');
-                noResults.classList.add('d-none');
-                classesGrid.classList.remove('d-none');
-            }
-        }
-
-        searchInput.addEventListener('input', filterClasses);
-
-        // Auto-hide success message
-        const successAlert = document.getElementById('successAlert');
-        if (successAlert) {
-            setTimeout(() => {
-                successAlert.style.opacity = '0';
-                setTimeout(() => successAlert.remove(), 300);
-            }, 5000);
-        }
-    </script>
+                let timer = null;
+                input.addEventListener('input', () => {
+                    clearTimeout(timer);
+                    timer = setTimeout(filter, 120);
+                });
+            })();
+        </script>
+    @endpush
 </x-app-layout>

@@ -1,163 +1,166 @@
 <x-app-layout>
-    <div class="container py-4">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <!-- Header -->
-                <div class="card shadow-lg mb-4 animate-fade-in">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <a href="{{ route('classes.show', $classe) }}" class="btn btn-link text-primary me-3">
-                                <i class="fas fa-arrow-left fs-4"></i>
-                            </a>
-                            <div>
-                                <h1 class="h2 mb-1">
-                                    <i class="fas fa-edit text-primary me-2"></i>
-                                    Modifier la Classe
-                                </h1>
-                                <p class="text-muted mb-0">{{ $classe->nom }}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Form -->
-                <div class="card shadow-lg animate-fade-in" style="animation-delay: 0.1s;">
-                    <div class="card-body p-4">
-                        <form action="{{ route('classes.update', $classe) }}" method="POST">
-                            @csrf
-                            @method('PUT')
+    <nav aria-label="Fil d'Ariane">
+        <ol class="acid-breadcrumb">
+            <li><a href="{{ route('classes.index') }}">Classes</a></li>
+            <li><a href="{{ route('classes.show', $classe) }}">{{ $classe->nom }}</a></li>
+            <li aria-current="page">Modifier</li>
+        </ol>
+    </nav>
 
-                            <div class="mb-4">
-                                <label class="form-label fw-bold">
-                                    <i class="fas fa-chalkboard-teacher text-primary me-2"></i>
-                                    Nom de la Classe
-                                    <span class="text-danger">*</span>
-                                </label>
-                                <input type="text" 
-                                       name="nom" 
-                                       value="{{ old('nom', $classe->nom) }}" 
-                                       required
-                                       class="form-control form-control-lg @error('nom') is-invalid @enderror">
-                                @error('nom')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="mb-4">
-                                <label class="form-label fw-bold">
-                                    <i class="fas fa-graduation-cap text-primary me-2"></i>
-                                    Examen / Diplôme
-                                </label>
-                                <input type="text" 
-                                       name="exam" 
-                                       value="{{ old('exam', $classe->exam) }}"
-                                       class="form-control form-control-lg"
-                                       placeholder="Saisir l'examen (ex: BAC, BEPC, CEP)">
-                            </div>
-
-                            <div class="mb-4">
-                                <label class="form-label fw-bold">
-                                    <i class="fas fa-calendar-alt text-primary me-2"></i>
-                                    Année Scolaire
-                                    <span class="text-danger">*</span>
-                                </label>
-                                <input type="text" 
-                                       name="annee_scolaire"
-                                       value="{{ old('annee_scolaire', $classe->annee_scolaire) }}" 
-                                       required 
-                                       pattern="\d{4}-\d{4}"
-                                       placeholder="2024-2025"
-                                       class="form-control form-control-lg @error('annee_scolaire') is-invalid @enderror">
-                                @error('annee_scolaire')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <!-- Stats (Read-only) -->
-                            <div class="card bg-light border shadow-sm mb-4">
-                                <div class="card-body">
-                                    <h3 class="h6 fw-bold mb-3">
-                                        <i class="fas fa-chart-bar text-primary me-2"></i>
-                                        Statistiques actuelles
-                                    </h3>
-                                    <div class="row g-3 text-center">
-                                        <div class="col-4">
-                                            <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-2" 
-                                                 style="width: 60px; height: 60px;">
-                                                <i class="fas fa-users text-primary fs-4"></i>
-                                            </div>
-                                            <div class="fs-2 fw-bold text-primary">{{ $classe->effectif_total }}</div>
-                                            <small class="text-muted">Total élèves</small>
-                                        </div>
-                                        <div class="col-4">
-                                            <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-2" 
-                                                 style="width: 60px; height: 60px;">
-                                                <i class="fas fa-mars text-primary fs-4"></i>
-                                            </div>
-                                            <div class="fs-2 fw-bold text-primary">{{ $classe->effectif_garcons }}</div>
-                                            <small class="text-muted">Garçons</small>
-                                        </div>
-                                        <div class="col-4">
-                                            <div class="bg-danger bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-2" 
-                                                 style="width: 60px; height: 60px;">
-                                                <i class="fas fa-venus text-danger fs-4"></i>
-                                            </div>
-                                            <div class="fs-2 fw-bold text-danger">{{ $classe->effectif_filles }}</div>
-                                            <small class="text-muted">Filles</small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="d-flex gap-3">
-                                <button type="submit"
-                                    class="btn btn-primary btn-lg flex-fill shadow">
-                                    <i class="fas fa-save me-2"></i>
-                                    Enregistrer les Modifications
-                                </button>
-                                <a href="{{ route('classes.show', $classe) }}"
-                                    class="btn btn-secondary btn-lg shadow">
-                                    <i class="fas fa-times me-2"></i>
-                                    Annuler
-                                </a>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
+    <div class="acid-page-header">
+        <div class="acid-page-header__text">
+            <span class="acid-page-header__eyebrow">Gestion scolaire</span>
+            <h1 class="acid-page-header__title">Modifier la classe</h1>
+            <p class="acid-page-header__lead">{{ $classe->nom }} &middot; {{ $classe->annee_scolaire }}</p>
+        </div>
+        <div class="acid-page-header__actions">
+            <a href="{{ route('classes.show', $classe) }}" class="acid-btn acid-btn--ghost">
+                <i class="fas fa-arrow-left" aria-hidden="true"></i>
+                Retour a la classe
+            </a>
         </div>
     </div>
 
-    <style>
-        @keyframes fade-in {
-            from { 
-                opacity: 0; 
-                transform: translateY(-10px); 
-            }
-            to { 
-                opacity: 1; 
-                transform: translateY(0); 
-            }
-        }
-        
-        .animate-fade-in {
-            animation: fade-in 0.5s ease-out;
-        }
+    <div class="acid-grid" style="grid-template-columns:minmax(0,2fr) minmax(260px,1fr);align-items:start;">
 
-        .bg-opacity-10 {
-            background-color: rgba(var(--bs-primary-rgb), 0.1) !important;
-        }
+        <section class="acid-card">
+            <div class="acid-card__header">
+                <div>
+                    <h2 class="acid-card__title">Informations de la classe</h2>
+                    <p class="acid-card__subtitle">Les champs marques d'une etoile sont obligatoires.</p>
+                </div>
+            </div>
 
-        .bg-danger.bg-opacity-10 {
-            background-color: rgba(var(--bs-danger-rgb), 0.1) !important;
-        }
+            <form action="{{ route('classes.update', $classe) }}" method="POST">
+                @csrf
+                @method('PUT')
 
-        .shadow-lg {
-            box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
-        }
+                <div class="acid-card__body">
 
-        .shadow-sm {
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
-        }
-    </style>
+                    <div class="acid-field">
+                        <label for="nom" class="acid-label acid-label--required">Nom de la classe</label>
+                        <div class="acid-input-group">
+                            <i class="fas fa-chalkboard-user acid-input-group__icon" aria-hidden="true"></i>
+                            <input type="text" id="nom" name="nom" value="{{ old('nom', $classe->nom) }}" required
+                                   class="acid-input @error('nom') is-invalid @enderror">
+                        </div>
+                        @error('nom')
+                            <div class="acid-error" role="alert">
+                                <i class="fas fa-circle-exclamation" aria-hidden="true"></i>
+                                <span>{{ $message }}</span>
+                            </div>
+                        @enderror
+                    </div>
+
+                    <div class="acid-field">
+                        <label for="exam" class="acid-label">Examen / diplome</label>
+                        <div class="acid-input-group">
+                            <i class="fas fa-graduation-cap acid-input-group__icon" aria-hidden="true"></i>
+                            <input type="text" id="exam" name="exam" value="{{ old('exam', $classe->exam) }}"
+                                   placeholder="Ex. BAC, BEPC, CEP"
+                                   class="acid-input @error('exam') is-invalid @enderror">
+                        </div>
+                        <span class="acid-hint">
+                            Conditionne le format des photos labellisees pour les fiches d'examen.
+                        </span>
+                        @error('exam')
+                            <div class="acid-error" role="alert">
+                                <i class="fas fa-circle-exclamation" aria-hidden="true"></i>
+                                <span>{{ $message }}</span>
+                            </div>
+                        @enderror
+                    </div>
+
+                    <div class="acid-field">
+                        <label for="annee_scolaire" class="acid-label acid-label--required">Annee scolaire</label>
+                        <div class="acid-input-group">
+                            <i class="fas fa-calendar-days acid-input-group__icon" aria-hidden="true"></i>
+                            <input type="text" id="annee_scolaire" name="annee_scolaire"
+                                   value="{{ old('annee_scolaire', $classe->annee_scolaire) }}"
+                                   required pattern="\d{4}-\d{4}" placeholder="2024-2025"
+                                   class="acid-input @error('annee_scolaire') is-invalid @enderror">
+                        </div>
+                        <span class="acid-hint">Format AAAA-AAAA.</span>
+                        @error('annee_scolaire')
+                            <div class="acid-error" role="alert">
+                                <i class="fas fa-circle-exclamation" aria-hidden="true"></i>
+                                <span>{{ $message }}</span>
+                            </div>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="acid-card__footer">
+                    <a href="{{ route('classes.show', $classe) }}" class="acid-btn acid-btn--neutral">
+                        Annuler
+                    </a>
+                    <button type="submit" class="acid-btn acid-btn--primary" style="margin-inline-start:auto;">
+                        <i class="fas fa-floppy-disk" aria-hidden="true"></i>
+                        Enregistrer les modifications
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <aside class="acid-stack">
+            <section class="acid-card">
+                <div class="acid-card__header">
+                    <div>
+                        <h2 class="acid-card__title">Effectifs actuels</h2>
+                        <p class="acid-card__subtitle">Donnees en lecture seule</p>
+                    </div>
+                </div>
+                <div class="acid-card__body">
+                    <div class="acid-stack" style="gap:var(--acid-space-3);">
+                        <div class="acid-row acid-row--between">
+                            <span class="acid-stat__label">Total eleves</span>
+                            <strong class="acid-num" style="font-size:var(--acid-text-lg);color:var(--acid-navy);">
+                                {{ $classe->effectif_total }}
+                            </strong>
+                        </div>
+                        <hr class="acid-divider" style="margin:0;">
+                        <div class="acid-row acid-row--between">
+                            <span class="acid-stat__label">Garcons</span>
+                            <strong class="acid-num" style="font-size:var(--acid-text-lg);color:var(--acid-sky-600);">
+                                {{ $classe->effectif_garcons }}
+                            </strong>
+                        </div>
+                        <hr class="acid-divider" style="margin:0;">
+                        <div class="acid-row acid-row--between">
+                            <span class="acid-stat__label">Filles</span>
+                            <strong class="acid-num" style="font-size:var(--acid-text-lg);color:var(--acid-coral-600);">
+                                {{ $classe->effectif_filles }}
+                            </strong>
+                        </div>
+                    </div>
+
+                    <a href="{{ route('classes.show', $classe) }}"
+                       class="acid-btn acid-btn--outline acid-btn--sm acid-btn--block"
+                       style="margin-block-start:var(--acid-space-5);">
+                        <i class="fas fa-users" aria-hidden="true"></i>
+                        Gerer les eleves
+                    </a>
+                </div>
+            </section>
+
+            <section class="acid-card" style="border-color:var(--acid-coral-100);">
+                <div class="acid-card__body">
+                    <h3 class="acid-card__title" style="margin-block-end:.375rem;">Zone sensible</h3>
+                    <p class="acid-card__subtitle" style="margin-block-end:var(--acid-space-4);">
+                        La suppression retire la classe et tous ses eleves, photos incluses.
+                    </p>
+                    <form action="{{ route('classes.destroy', $classe) }}" method="POST"
+                          data-acid-confirm="Supprimer la classe {{ $classe->nom }} et tous ses eleves ? Cette action est irreversible.">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="acid-btn acid-btn--outline-coral acid-btn--sm acid-btn--block">
+                            <i class="fas fa-trash-can" aria-hidden="true"></i>
+                            Supprimer la classe
+                        </button>
+                    </form>
+                </div>
+            </section>
+        </aside>
+    </div>
 </x-app-layout>

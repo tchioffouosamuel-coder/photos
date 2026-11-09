@@ -7,6 +7,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class CandidatLibre extends Model
 {
+    /*
+     | Table declaree explicitement : la convention Laravel deduirait
+     | "candidat_libres" du nom de classe, alors que la migration cree
+     | "candidats_libres". Voir la migration de consolidation
+     | 2026_11_09_000000_consolidate_candidats_libres_table.
+     */
+    protected $table = 'candidats_libres';
+
     protected $fillable = [
         'classe_id',
         'nom',

@@ -1,9 +1,12 @@
 @props(['messages'])
 
 @if ($messages)
-    <ul {{ $attributes->merge(['class' => 'text-sm text-red-600 dark:text-red-400 space-y-1']) }}>
-        @foreach ((array) $messages as $message)
-            <li>{{ $message }}</li>
-        @endforeach
-    </ul>
+    <div {{ $attributes->merge(['class' => 'acid-error']) }} role="alert">
+        <i class="fas fa-circle-exclamation" aria-hidden="true" style="margin-top:.15rem;"></i>
+        <span>
+            @foreach ((array) $messages as $message)
+                <span style="display:block;">{{ $message }}</span>
+            @endforeach
+        </span>
+    </div>
 @endif

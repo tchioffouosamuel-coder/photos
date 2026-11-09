@@ -3,10 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Classe;
+use App\Services\PhotoStorageService;
 use Illuminate\Http\Request;
 
 class ClasseController extends Controller
 {
+    public function __construct(private readonly PhotoStorageService $photos)
+    {
+    }
+
     public function index()
     {
         $classes = Classe::withCount('etudiants')->orderBy('nom')->get();
@@ -36,8 +41,13 @@ class ClasseController extends Controller
         $classe->load(['etudiants' => function($query) {
             $query->orderBy('nom');
         }]);
-        
-        return view('classes.show', compact('classe'));
+
+        // Classes disponibles comme destination de transfert
+        $autresClasses = Classe::where('id', '!=', $classe->id)
+            ->orderBy('nom')
+            ->get(['id', 'nom', 'annee_scolaire']);
+
+        return view('classes.show', compact('classe', 'autresClasses'));
     }
     
     public function edit(Classe $classe)
@@ -52,9 +62,20 @@ class ClasseController extends Controller
             'exam' => 'nullable|string|max:255',
             'annee_scolaire' => 'required|string|max:20'
         ]);
-        
+
+        $ancienNom = $classe->nom;
+
         $classe->update($validated);
-        
+
+        /*
+         | Le nom de la classe fait partie du chemin de stockage des photos
+         | (photos/{classe}/...). Sans ce deplacement, un simple renommage
+         | rendait introuvables toutes les photos de la classe.
+         */
+        if ($ancienNom !== $classe->nom) {
+            $this->photos->renameClassFolders($ancienNom, $classe->nom);
+        }
+
         return redirect()->route('classes.show', $classe)->with('success', 'Classe mise à jour');
     }
     

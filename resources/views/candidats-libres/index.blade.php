@@ -1,186 +1,232 @@
+@php
+    $avecPhoto = $candidats->whereNotNull('photo')->count();
+    $sansPhoto = max(0, $candidats->count() - $avecPhoto);
+@endphp
+
 <x-app-layout>
-    <div class="container-fluid py-4">
-        <!-- Header -->
-        <div class="card shadow-lg mb-4">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-                    <div class="d-flex align-items-center">
-                        <a href="{{ route('classes.show', $classe) }}" class="text-primary me-3">
-                            <i class="fas fa-arrow-left fs-3"></i>
-                        </a>
-                        <div>
-                            <h1 class="h2 mb-1">
-                                <i class="fas fa-user-graduate text-warning"></i>
-                                Candidats Libres
-                            </h1>
-                            <p class="text-muted mb-0">{{ $classe->nom }} - {{ $classe->exam }}</p>
-                        </div>
+
+    <nav aria-label="Fil d'Ariane">
+        <ol class="acid-breadcrumb">
+            <li><a href="{{ route('classes.index') }}">Classes</a></li>
+            <li><a href="{{ route('classes.show', $classe) }}">{{ $classe->nom }}</a></li>
+            <li aria-current="page">Candidats libres</li>
+        </ol>
+    </nav>
+
+    <div class="acid-page-header">
+        <div class="acid-page-header__text">
+            <span class="acid-page-header__eyebrow">
+                {{ $classe->nom }}
+                @if ($classe->exam)
+                    &middot; {{ $classe->exam }}
+                @endif
+            </span>
+            <h1 class="acid-page-header__title">Candidats libres</h1>
+            <p class="acid-page-header__lead">
+                Candidats rattaches a cette session d'examen sans etre inscrits dans la classe.
+            </p>
+        </div>
+        <div class="acid-page-header__actions">
+            <a href="{{ route('classes.show', $classe) }}" class="acid-btn acid-btn--ghost">
+                <i class="fas fa-arrow-left" aria-hidden="true"></i>
+                Retour a la classe
+            </a>
+            <a href="{{ route('candidats-libres.create', $classe) }}" class="acid-btn acid-btn--primary">
+                <i class="fas fa-plus" aria-hidden="true"></i>
+                Nouveau candidat
+            </a>
+        </div>
+    </div>
+
+    {{-- Indicateurs --}}
+    <div class="acid-grid acid-grid--stats" style="margin-block-end:var(--acid-space-5);">
+        <article class="acid-stat">
+            <span class="acid-stat__icon" aria-hidden="true"><i class="fas fa-user-tag"></i></span>
+            <div class="acid-stat__body">
+                <span class="acid-stat__label">Candidats</span>
+                <span class="acid-stat__value">{{ $candidats->count() }}</span>
+            </div>
+        </article>
+
+        <article class="acid-stat acid-stat--sky">
+            <span class="acid-stat__icon" aria-hidden="true"><i class="fas fa-mars"></i></span>
+            <div class="acid-stat__body">
+                <span class="acid-stat__label">Garcons</span>
+                <span class="acid-stat__value">{{ $candidats->where('sexe', 'M')->count() }}</span>
+            </div>
+        </article>
+
+        <article class="acid-stat acid-stat--coral">
+            <span class="acid-stat__icon" aria-hidden="true"><i class="fas fa-venus"></i></span>
+            <div class="acid-stat__body">
+                <span class="acid-stat__label">Filles</span>
+                <span class="acid-stat__value">{{ $candidats->where('sexe', 'F')->count() }}</span>
+            </div>
+        </article>
+
+        <article class="acid-stat acid-stat--teal">
+            <span class="acid-stat__icon" aria-hidden="true"><i class="fas fa-camera-retro"></i></span>
+            <div class="acid-stat__body">
+                <span class="acid-stat__label">Avec photo</span>
+                <span class="acid-stat__value">{{ $avecPhoto }}</span>
+                @if ($sansPhoto > 0)
+                    <span class="acid-stat__hint">{{ $sansPhoto }} sans photo</span>
+                @endif
+            </div>
+        </article>
+    </div>
+
+    {{-- Production de documents --}}
+    <section class="acid-card" style="margin-block-end:var(--acid-space-5);">
+        <div class="acid-card__header">
+            <span class="acid-stat__icon" aria-hidden="true"
+                  style="background:var(--acid-sky-50);color:var(--acid-sky-600);">
+                <i class="fas fa-print"></i>
+            </span>
+            <div>
+                <h2 class="acid-card__title">Documents a generer</h2>
+                <p class="acid-card__subtitle">Photos labellisees pour les fiches d'inscription</p>
+            </div>
+        </div>
+        <div class="acid-card__body acid-card__body--tight">
+            @if ($avecPhoto === 0)
+                <div class="acid-alert acid-alert--warning">
+                    <i class="fas fa-triangle-exclamation acid-alert__icon" aria-hidden="true"></i>
+                    <div class="acid-alert__body">
+                        <p class="acid-alert__title">Aucune photo disponible</p>
+                        <p style="margin:0;font-size:var(--acid-text-sm);">
+                            Ajoutez au moins une photo de candidat pour pouvoir generer les documents.
+                        </p>
                     </div>
-                    <a href="{{ route('candidats-libres.create', $classe) }}" class="btn btn-warning btn-lg shadow">
-                        <i class="fas fa-plus me-2"></i> Nouveau Candidat Libre
+                </div>
+            @else
+                <div class="acid-btn-group">
+                    <a href="{{ route('candidats-libres.photos-4x4', $classe) }}" class="acid-btn acid-btn--primary">
+                        <i class="fas fa-table-cells" aria-hidden="true"></i>
+                        Planche de photos 4x4
+                    </a>
+                    <a href="{{ route('candidats-libres.photos-pdf', $classe) }}" class="acid-btn acid-btn--neutral">
+                        <i class="fas fa-file-pdf" aria-hidden="true"></i>
+                        Photos au format PDF
+                    </a>
+                </div>
+            @endif
+        </div>
+    </section>
+
+    {{-- Liste --}}
+    @if ($candidats->isEmpty())
+        <div class="acid-card">
+            <div class="acid-empty">
+                <span class="acid-empty__icon" aria-hidden="true"><i class="fas fa-user-tag"></i></span>
+                <h2 class="acid-empty__title">Aucun candidat libre</h2>
+                <p class="acid-empty__text">
+                    Enregistrez les candidats libres de cette session pour produire
+                    leurs photos d'examen.
+                </p>
+                <div class="acid-empty__actions">
+                    <a href="{{ route('candidats-libres.create', $classe) }}" class="acid-btn acid-btn--primary">
+                        <i class="fas fa-plus" aria-hidden="true"></i> Ajouter un candidat
                     </a>
                 </div>
             </div>
         </div>
-
-        <!-- Messages -->
-        @if(session('success'))
-        <div class="alert alert-success shadow-lg mb-4">
-            <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
-        </div>
-        @endif
-
-        @if(session('error'))
-        <div class="alert alert-danger shadow-lg mb-4">
-            <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
-        </div>
-        @endif
-
-        <!-- Stats -->
-        <div class="row g-3 mb-4">
-            <div class="col-md-3">
-                <div class="card shadow-lg border-0" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
-                    <div class="card-body text-white text-center p-4">
-                        <i class="fas fa-user-graduate fa-3x mb-3"></i>
-                        <div class="fs-2 fw-bold">{{ $candidats->count() }}</div>
-                        <div class="opacity-75">Total Candidats</div>
-                    </div>
+    @else
+        <section class="acid-card">
+            <div class="acid-card__header">
+                <div>
+                    <h2 class="acid-card__title">Liste des candidats</h2>
+                </div>
+                <div class="acid-card__actions">
+                    <span class="acid-badge acid-badge--navy">{{ $candidats->count() }}</span>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card shadow-lg border-0" style="background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);">
-                    <div class="card-body text-white text-center p-4">
-                        <i class="fas fa-mars fa-3x mb-3"></i>
-                        <div class="fs-2 fw-bold">{{ $candidats->where('sexe', 'M')->count() }}</div>
-                        <div class="opacity-75">Garçons</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card shadow-lg border-0" style="background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);">
-                    <div class="card-body text-white text-center p-4">
-                        <i class="fas fa-venus fa-3x mb-3"></i>
-                        <div class="fs-2 fw-bold">{{ $candidats->where('sexe', 'F')->count() }}</div>
-                        <div class="opacity-75">Filles</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card shadow-lg border-0" style="background: linear-gradient(135deg, #198754 0%, #20c997 100%);">
-                    <div class="card-body text-white text-center p-4">
-                        <i class="fas fa-camera fa-3x mb-3"></i>
-                        <div class="fs-2 fw-bold">{{ $candidats->whereNotNull('photo')->count() }}</div>
-                        <div class="opacity-75">Avec Photo</div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <!-- Actions rapides -->
-        <div class="card shadow-lg mb-4">
-            <div class="card-body">
-                <h5 class="card-title mb-3">
-                    <i class="fas fa-bolt text-warning me-2"></i>
-                    Actions rapides
-                </h5>
-                <div class="d-flex gap-2 flex-wrap">
-                    <a href="{{ route('candidats-libres.photos-4x4', $classe) }}" 
-                       class="btn btn-primary"
-                       @if($candidats->whereNotNull('photo')->isEmpty()) disabled @endif>
-                        <i class="fas fa-print me-2"></i>Photos 4x4
-                    </a>
-                    <a href="{{ route('candidats-libres.photos-pdf', $classe) }}" 
-                       class="btn btn-info"
-                       @if($candidats->whereNotNull('photo')->isEmpty()) disabled @endif>
-                        <i class="fas fa-file-pdf me-2"></i>Photos PDF
-                    </a>
-                </div>
-            </div>
-        </div>
+            <div class="acid-table-wrap">
+                <table class="acid-table acid-table--stack">
+                    <thead>
+                        <tr>
+                            <th scope="col">Candidat</th>
+                            <th scope="col">Naissance</th>
+                            <th scope="col">Lieu</th>
+                            <th scope="col">Sexe</th>
+                            <th scope="col" class="acid-table__actions">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($candidats as $candidat)
+                            <tr data-acid-searchable="{{ $candidat->nom }} {{ $candidat->lieu_naissance }}">
 
-        <!-- Liste des candidats -->
-        @if($candidats->isEmpty())
-        <div class="card shadow-lg text-center py-5">
-            <div class="card-body">
-                <i class="fas fa-user-graduate text-muted" style="font-size: 4rem;"></i>
-                <h4 class="mt-3 text-muted">Aucun candidat libre</h4>
-                <p class="text-muted">Ajoutez votre premier candidat libre</p>
-                <a href="{{ route('candidats-libres.create', $classe) }}" class="btn btn-warning mt-2">
-                    <i class="fas fa-plus me-2"></i>Ajouter un candidat
-                </a>
-            </div>
-        </div>
-        @else
-        <div class="card shadow-lg">
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th style="width: 80px;">Photo</th>
-                                <th>Nom</th>
-                                <th>Date Naissance</th>
-                                <th>Lieu</th>
-                                <th>Sexe</th>
-                                <th style="width: 200px;">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($candidats as $candidat)
-                            <tr>
-                                <td>
-                                    @if($candidat->photo)
-                                        <img src="{{ $candidat->photo_url }}" 
-                                             alt="{{ $candidat->nom }}"
-                                             class="rounded"
-                                             style="width: 60px; height: 60px; object-fit: cover;">
+                                <td data-label="Candidat">
+                                    <div class="acid-identity">
+                                        <span class="acid-avatar acid-avatar--navy">
+                                            @if ($candidat->photo)
+                                                <img src="{{ $candidat->photo_url }}" alt="">
+                                            @else
+                                                <i class="fas fa-user" aria-hidden="true"></i>
+                                            @endif
+                                        </span>
+                                        <span class="acid-identity__text">
+                                            <strong>{{ strtoupper($candidat->nom) }}</strong>
+                                            <span>Candidat libre</span>
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <td data-label="Naissance" class="acid-num">
+                                    {{ $candidat->date_naissance ? $candidat->date_naissance->format('d/m/Y') : '—' }}
+                                </td>
+
+                                <td data-label="Lieu">
+                                    {{ $candidat->lieu_naissance ? strtoupper($candidat->lieu_naissance) : '—' }}
+                                </td>
+
+                                <td data-label="Sexe">
+                                    @if ($candidat->sexe === 'M')
+                                        <span class="acid-badge acid-badge--sky">
+                                            <i class="fas fa-mars" aria-hidden="true"></i> Masculin
+                                        </span>
                                     @else
-                                        <div class="bg-light rounded d-flex align-items-center justify-content-center"
-                                             style="width: 60px; height: 60px;">
-                                            <i class="fas fa-user text-muted"></i>
-                                        </div>
+                                        <span class="acid-badge acid-badge--coral">
+                                            <i class="fas fa-venus" aria-hidden="true"></i> Feminin
+                                        </span>
                                     @endif
                                 </td>
-                                <td class="align-middle">
-                                    <div class="fw-bold">{{ $candidat->nom }}</div>
-                                    <small class="text-muted">Code: CL</small>
-                                </td>
-                                <td class="align-middle">
-                                    {{ $candidat->date_naissance->format('d/m/Y') }}
-                                </td>
-                                <td class="align-middle">{{ $candidat->lieu_naissance }}</td>
-                                <td class="align-middle">
-                                    @if($candidat->sexe === 'M')
-                                        <span class="badge bg-primary">Masculin</span>
-                                    @else
-                                        <span class="badge bg-danger">Féminin</span>
-                                    @endif
-                                </td>
-                                <td class="align-middle">
-                                    <div class="btn-group" role="group">
-                                        <a href="{{ route('candidats-libres.edit', [$classe, $candidat]) }}" 
-                                           class="btn btn-sm btn-outline-primary">
-                                            <i class="fas fa-edit"></i>
+
+                                <td data-label="Actions" class="acid-table__actions">
+                                    <div class="acid-btn-group" style="justify-content:flex-end;">
+                                        <a href="{{ route('candidats-libres.edit', [$classe, $candidat]) }}"
+                                           class="acid-btn acid-btn--neutral acid-btn--sm acid-btn--icon"
+                                           title="Modifier le candidat" aria-label="Modifier le candidat">
+                                            <i class="fas fa-pen" aria-hidden="true"></i>
                                         </a>
-                                        <form action="{{ route('candidats-libres.destroy', [$classe, $candidat]) }}" 
-                                              method="POST"
-                                              onsubmit="return confirm('Supprimer ce candidat ?');"
-                                              class="d-inline">
+
+                                        <form action="{{ route('candidats-libres.destroy', [$classe, $candidat]) }}"
+                                              method="POST" style="display:inline;"
+                                              data-acid-confirm="Supprimer le candidat {{ $candidat->nom }} ?">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                <i class="fas fa-trash"></i>
+                                            <button type="submit"
+                                                    class="acid-btn acid-btn--outline-coral acid-btn--sm acid-btn--icon"
+                                                    title="Supprimer le candidat" aria-label="Supprimer le candidat">
+                                                <i class="fas fa-trash-can" aria-hidden="true"></i>
                                             </button>
                                         </form>
                                     </div>
                                 </td>
                             </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+            <div data-acid-search-empty hidden>
+                <div class="acid-empty">
+                    <span class="acid-empty__icon" aria-hidden="true"><i class="fas fa-magnifying-glass"></i></span>
+                    <h3 class="acid-empty__title">Aucun candidat ne correspond</h3>
+                    <p class="acid-empty__text">Modifiez votre recherche dans la barre superieure.</p>
                 </div>
             </div>
-        </div>
-        @endif
-    </div>
+        </section>
+    @endif
 </x-app-layout>
