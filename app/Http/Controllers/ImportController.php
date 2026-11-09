@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Classe;
 use App\Models\ImportHistory;
 use App\Services\ExcelImportService;
+use App\Services\ExcelTemplateService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ImportController extends Controller
 {
@@ -49,11 +51,35 @@ class ImportController extends Controller
         }
     }
     
-    public function template()
+    /**
+     * Telechargement du modele de liste d'eleves.
+     *
+     * Le classeur est genere a la demande plutot que lu dans public/templates/ :
+     * ce fichier n'etait livre sur aucun environnement, et la route repondait
+     * donc une erreur 500. Le generer garantit aussi qu'il reste conforme a ce
+     * que ExcelImportService sait relire.
+     */
+    public function template(ExcelTemplateService $templates)
     {
-        return response()->download(
-            public_path('templates/liste_eleves_template.xlsx'),
-            'modele_liste_eleves.xlsx'
-        );
+        $nom = 'modele_liste_eleves_' . now()->format('Y-m-d') . '.xlsx';
+
+        try {
+            $contenu = $templates->build();
+        } catch (\Throwable $e) {
+            Log::error('[import] generation du modele impossible', [
+                'error' => $e->getMessage(),
+            ]);
+
+            return redirect()
+                ->route('import.index')
+                ->with('error', 'Le modele n\'a pas pu etre genere. Reessayez ou signalez l\'incident.');
+        }
+
+        return response($contenu, 200, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Disposition' => 'attachment; filename="' . $nom . '"',
+            'Content-Length' => (string) strlen($contenu),
+            'Cache-Control' => 'no-store, no-cache, must-revalidate',
+        ]);
     }
 }

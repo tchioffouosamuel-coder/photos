@@ -1677,6 +1677,88 @@ body.acid-nav-open { overflow: hidden; }
 .modal-backdrop.show { opacity: 0.5; }
 .btn-close:focus { box-shadow: var(--acid-ring-navy); }
 
+/* ---- SweetAlert2 : alignement sur l'identite ACID -------------------- */
+
+/*
+ | La bibliotheque est habillee ici plutot que configuree en JS : les reglages
+ | restent au meme endroit que le reste du theme, et une boite de dialogue
+ | ouverte par un code tiers adopte malgre tout l'identite de l'application.
+ */
+.swal2-container { z-index: 1080; }
+.swal2-container.swal2-backdrop-show { background: rgba(4, 22, 46, 0.5); }
+
+.swal2-popup.acid-swal,
+.swal2-popup {
+    width: min(28rem, calc(100vw - 2rem));
+    padding: var(--acid-space-6) var(--acid-space-5) var(--acid-space-5);
+    border: 1px solid var(--acid-border);
+    border-radius: var(--acid-radius-xl);
+    background: var(--acid-surface);
+    box-shadow: var(--acid-shadow-lg);
+    font-family: var(--acid-font);
+    color: var(--acid-text);
+}
+
+.swal2-title {
+    padding: 0 0 var(--acid-space-2);
+    font-size: var(--acid-text-lg);
+    font-weight: var(--acid-fw-bold);
+    color: var(--acid-text-strong);
+}
+.swal2-html-container {
+    margin: 0;
+    padding: 0;
+    font-size: var(--acid-text-base);
+    line-height: 1.55;
+    color: var(--acid-text-muted);
+}
+
+.swal2-actions {
+    gap: var(--acid-space-2);
+    margin-block-start: var(--acid-space-6);
+    width: 100%;
+}
+/* Les boutons portent deja .acid-btn : on neutralise la mise en forme native */
+.swal2-styled { margin: 0; }
+.swal2-actions .acid-btn { flex: 0 1 auto; }
+
+.swal2-icon { margin-block: 0 var(--acid-space-4); }
+.swal2-icon.swal2-warning { border-color: var(--acid-amber-500); color: var(--acid-amber-600); }
+.swal2-icon.swal2-error   { border-color: var(--acid-coral-500); color: var(--acid-coral-600); }
+.swal2-icon.swal2-success { border-color: var(--acid-teal-500);  color: var(--acid-teal-700); }
+.swal2-icon.swal2-info,
+.swal2-icon.swal2-question { border-color: var(--acid-sky-600); color: var(--acid-sky-600); }
+.swal2-icon.swal2-success .swal2-success-ring { border-color: var(--acid-teal-500); }
+.swal2-icon.swal2-success [class^="swal2-success-line"] { background-color: var(--acid-teal-500); }
+
+.swal2-close { color: var(--acid-text-subtle); }
+.swal2-close:hover { color: var(--acid-coral-600); }
+.swal2-close:focus { box-shadow: var(--acid-ring-navy); outline: none; }
+
+/* Notifications */
+.swal2-popup.acid-swal-toast {
+    width: auto;
+    max-width: min(23rem, calc(100vw - 1.5rem));
+    padding: var(--acid-space-3) var(--acid-space-4);
+    border: 1px solid var(--acid-border);
+    border-inline-start: 3px solid var(--acid-navy);
+    border-radius: var(--acid-radius);
+    box-shadow: var(--acid-shadow-md);
+}
+.swal2-popup.acid-swal-toast .swal2-title {
+    padding: 0;
+    font-size: var(--acid-text-base);
+    font-weight: var(--acid-fw-medium);
+    color: var(--acid-text);
+    text-align: start;
+    line-height: 1.45;
+}
+.swal2-popup.acid-swal-toast .swal2-timer-progress-bar { background: var(--acid-teal-500); }
+.swal2-popup.acid-swal-toast.swal2-icon-success { border-inline-start-color: var(--acid-teal-500); }
+.swal2-popup.acid-swal-toast.swal2-icon-error   { border-inline-start-color: var(--acid-coral-500); }
+.swal2-popup.acid-swal-toast.swal2-icon-warning { border-inline-start-color: var(--acid-amber-500); }
+.swal2-popup.acid-swal-toast.swal2-icon-info    { border-inline-start-color: var(--acid-sky-600); }
+
 /* Icone d'en-tete de modale */
 .acid-modal-icon {
     display: inline-flex;
@@ -2800,8 +2882,44 @@ body.acid-nav-open { overflow: hidden; }
     .acid-toolbar > * { flex: 1 1 calc(50% - var(--acid-space-3)) !important; min-width: 0; }
     .acid-toolbar__grow { flex: 1 1 100% !important; }
     .acid-toolbar__count { flex: 1 1 100% !important; }
+    /*
+     | Grilles a deux ou trois colonnes : repliees sur une seule.
+     |
+     | Le !important est indispensable : six vues posent leur
+     | grid-template-columns en style inline (par ex. « minmax(0,2fr)
+     | minmax(260px,1fr) » sur la fiche de modification de classe), et un style
+     | inline l'emporte sur une media query. Sans cela, la colonne de gauche
+     | tombait a une centaine de pixels et le formulaire se lisait un mot par
+     | ligne.
+     */
+    .acid-grid:not(.acid-grid--stats):not(.acid-grid--cards),
     .acid-form-grid,
-    .acid-form-grid--2 { grid-template-columns: minmax(0, 1fr); }
+    .acid-form-grid--2 { grid-template-columns: minmax(0, 1fr) !important; }
+
+    /*
+     | Tuiles d'indicateurs : deux par ligne et disposition verticale. En une
+     | seule colonne pleine largeur, quatre indicateurs occupaient tout l'ecran
+     | et repoussaient le contenu utile hors de vue.
+     */
+    .acid-grid--stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: var(--acid-space-3);
+    }
+    .acid-grid--cards { grid-template-columns: minmax(0, 1fr) !important; }
+
+    .acid-stat {
+        flex-direction: column;
+        gap: var(--acid-space-2);
+        padding: var(--acid-space-4);
+    }
+    .acid-stat__icon {
+        width: 2.25rem;
+        height: 2.25rem;
+        font-size: var(--acid-text-base);
+    }
+    .acid-stat__label { font-size: 0.6875rem; letter-spacing: 0.04em; }
+    .acid-stat__value { font-size: var(--acid-text-xl); }
+    .acid-stat__hint { font-size: var(--acid-text-xs); }
     .acid-form-actions { flex-direction: column; align-items: stretch; }
     .acid-form-actions__end { margin-inline-start: 0; flex-direction: column-reverse; }
     .acid-form-actions .acid-btn,
@@ -3062,20 +3180,40 @@ body.acid-nav-open { overflow: hidden; }
         border-block-start: 1px solid var(--acid-border-soft);
     }
     .acid-table--tiles tbody td[data-cell="actions"]::before { display: none; }
+
+    /*
+     | Les vues posent « justify-content: flex-end » en style inline sur ce
+     | groupe : il faut donc !important pour etaler les boutons. Sans cela ils
+     | gardaient leur largeur fixe d'icone, se tassaient a droite et le dernier
+     | (la suppression) sortait de l'ecran.
+     */
     .acid-table--tiles tbody td[data-cell="actions"] .acid-btn-group {
+        display: flex;
         width: 100%;
-        justify-content: stretch;
+        max-width: 100%;
+        flex-wrap: wrap;
+        justify-content: stretch !important;
         gap: var(--acid-space-2);
     }
     .acid-table--tiles tbody td[data-cell="actions"] .acid-btn-group > *,
     .acid-table--tiles tbody td[data-cell="actions"] .acid-btn-group > form {
-        flex: 1 1 0;
         display: flex;
+        flex: 1 1 3.5rem;
+        min-width: 0;
     }
     .acid-table--tiles tbody td[data-cell="actions"] .acid-btn {
         flex: 1 1 auto;
+        width: auto;          /* annule la largeur fixe de .acid-btn--icon */
+        min-width: 0;
         min-height: var(--acid-touch);
     }
+
+    /* Une tuile est fluide : elle ne doit jamais provoquer de defilement
+       horizontal, contrairement a un vrai tableau. */
+    .acid-table--tiles { max-width: 100%; }
+    .acid-table--tiles tbody tr { max-width: 100%; }
+    .acid-card:has(> .acid-table-wrap > .acid-table--tiles) > .acid-table-wrap,
+    .acid-table-wrap:has(> .acid-table--tiles) { overflow-x: visible; }
 
     /* Cellule sans interet sur un petit ecran */
     .acid-table--tiles tbody td[data-cell="off"] { display: none; }
@@ -3088,6 +3226,52 @@ body.acid-nav-open { overflow: hidden; }
     .acid-card:has(> .acid-table-wrap > .acid-table--tiles) > .acid-table-wrap {
         padding: var(--acid-space-3);
         background: var(--acid-surface-soft);
+    }
+
+    /* Notifications : pleine largeur en haut, hors de portee du pouce */
+    .swal2-container.swal2-top-end,
+    .swal2-container.swal2-top-right {
+        padding: var(--acid-space-3);
+        inset-inline: 0;
+    }
+    .swal2-popup.acid-swal-toast { max-width: none; width: 100%; }
+
+    /* Boites de dialogue : boutons empiles, pleine largeur */
+    .swal2-popup { padding: var(--acid-space-5) var(--acid-space-4) var(--acid-space-4); }
+    .swal2-actions { flex-direction: column-reverse; width: 100%; }
+    .swal2-actions .acid-btn { width: 100%; flex: 1 1 auto; }
+}
+
+/* ---- Telephone ------------------------------------------------------- */
+@media (max-width: 575.98px) {
+    /*
+     | Actions d'en-tete : deux par ligne plutot qu'une rangee defilante.
+     | Le defilement horizontal n'offrait aucun indice visuel et coupait la
+     | derniere action en bord d'ecran, qui passait pour un bogue d'affichage.
+     */
+    .acid-page-header__actions {
+        flex-wrap: wrap;
+        overflow-x: visible;
+        scroll-snap-type: none;
+    }
+    .acid-page-header__actions > *,
+    .acid-page-header__actions > form {
+        flex: 1 1 calc(50% - var(--acid-space-2));
+        min-width: 0;
+    }
+    .acid-page-header__actions > form { display: flex; }
+    .acid-page-header__actions > form > .acid-btn { flex: 1 1 auto; width: 100%; }
+    .acid-page-header__actions .acid-btn {
+        justify-content: center;
+        padding-inline: var(--acid-space-3);
+    }
+
+    /* Libelles longs : on garde le mot entier plutot que de deborder */
+    .acid-page-header__actions .acid-btn > span,
+    .acid-page-header__actions .acid-btn {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 }
 

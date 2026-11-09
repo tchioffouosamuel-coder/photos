@@ -6,6 +6,10 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
         crossorigin="anonymous"></script>
 
+{{-- SweetAlert2 : notifications et confirmations --}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.all.min.js"
+        crossorigin="anonymous"></script>
+
 <script>
 (function () {
     'use strict';
@@ -18,9 +22,90 @@
     };
 
     /* ---------------------------------------------------------------
-     | Notifications (toasts)
+     | Notifications et confirmations : SweetAlert2
+     |
+     | SweetAlert2 est charge par CDN. Si ce chargement echoue (coupure,
+     | filtrage reseau), on retombe sur l'implementation maison de toasts et
+     | sur window.confirm : une notification ou une demande de confirmation ne
+     | doit jamais disparaitre silencieusement.
      * ------------------------------------------------------------- */
+
+    const hasSwal = () => typeof window.Swal !== 'undefined';
+
+    /* Boutons habilles avec les classes ACID plutot que celles de la
+       bibliotheque : une seule identite visuelle dans toute l'application. */
+    const SWAL_BUTTONS = {
+        popup: 'acid-swal',
+        title: 'acid-swal__title',
+        htmlContainer: 'acid-swal__text',
+        actions: 'acid-swal__actions',
+        confirmButton: 'acid-btn acid-btn--primary',
+        cancelButton: 'acid-btn acid-btn--neutral',
+        denyButton: 'acid-btn acid-btn--coral',
+    };
+
+    function swalToast(message, type, timeout) {
+        return window.Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: ICONS[type] ? type : 'info',
+            title: message,
+            showConfirmButton: false,
+            timer: timeout > 0 ? timeout : undefined,
+            timerProgressBar: timeout > 0,
+            customClass: { popup: 'acid-swal-toast' },
+            didOpen: (el) => {
+                /* Laisser le temps de lire : le minuteur se suspend au survol */
+                el.addEventListener('mouseenter', window.Swal.stopTimer);
+                el.addEventListener('mouseleave', window.Swal.resumeTimer);
+            },
+        });
+    }
+
     function notify(message, type = 'success', timeout = 5000) {
+        if (!message) return null;
+
+        if (hasSwal()) {
+            return swalToast(message, type, timeout);
+        }
+
+        return notifyFallback(message, type, timeout);
+    }
+
+    /**
+     * Demande de confirmation. Renvoie toujours une promesse resolue par un
+     * booleen, que SweetAlert2 soit disponible ou non.
+     */
+    function confirmAction(message, options = {}) {
+        if (!hasSwal()) {
+            return Promise.resolve(window.confirm(message));
+        }
+
+        const destructive = options.destructive !== false;
+
+        return window.Swal.fire({
+            title: options.title || 'Confirmation requise',
+            text: message,
+            icon: destructive ? 'warning' : 'question',
+            showCancelButton: true,
+            confirmButtonText: options.confirmText || (destructive ? 'Oui, continuer' : 'Confirmer'),
+            cancelButtonText: options.cancelText || 'Annuler',
+            reverseButtons: true,
+            focusCancel: destructive,
+            buttonsStyling: false,
+            customClass: {
+                ...SWAL_BUTTONS,
+                confirmButton: destructive
+                    ? 'acid-btn acid-btn--coral'
+                    : 'acid-btn acid-btn--primary',
+            },
+        }).then((resultat) => resultat.isConfirmed === true);
+    }
+
+    /* ---------------------------------------------------------------
+     | Repli : toasts maison, si SweetAlert2 n'a pas pu etre charge
+     * ------------------------------------------------------------- */
+    function notifyFallback(message, type = 'success', timeout = 5000) {
         const container = document.getElementById('acidToasts');
         if (!container || !message) return null;
 
@@ -54,8 +139,17 @@
         return toast;
     }
 
+    /**
+     * Ferme une notification. Accepte l'element renvoye par le repli, ou rien
+     * pour fermer la notification SweetAlert2 en cours.
+     */
     function dismiss(toast) {
-        if (!toast || !toast.parentNode) return;
+        if (!toast) {
+            if (hasSwal()) window.Swal.close();
+            return;
+        }
+
+        if (!toast.parentNode) return;
         toast.classList.add('is-leaving');
         setTimeout(() => toast.remove(), 220);
     }
@@ -270,9 +364,37 @@
         document.addEventListener('submit', (e) => {
             const form = e.target.closest('[data-acid-confirm]');
             if (!form) return;
-            if (!window.confirm(form.getAttribute('data-acid-confirm'))) {
-                e.preventDefault();
+
+            /*
+             | Deuxieme passage : l'utilisateur vient de confirmer, on laisse
+             | la soumission suivre son cours (et initBusyButtons s'activer).
+             */
+            if (form.dataset.acidConfirmed === '1') {
+                delete form.dataset.acidConfirmed;
+                return;
             }
+
+            /* La boite de dialogue est asynchrone : on arrete la soumission */
+            e.preventDefault();
+
+            confirmAction(form.getAttribute('data-acid-confirm'), {
+                confirmText: form.getAttribute('data-acid-confirm-label') || undefined,
+            }).then((confirme) => {
+                if (! confirme) return;
+
+                form.dataset.acidConfirmed = '1';
+
+                /*
+                 | requestSubmit() et non submit() : submit() ne declenche pas
+                 | l'evenement, donc ni la validation du navigateur ni l'etat
+                 | de chargement des boutons.
+                 */
+                if (typeof form.requestSubmit === 'function') {
+                    form.requestSubmit();
+                } else {
+                    form.submit();
+                }
+            });
         });
     }
 
@@ -318,7 +440,7 @@
     /* ---------------------------------------------------------------
      | API publique
      * ------------------------------------------------------------- */
-    window.AcidUI = { notify, dismiss };
+    window.AcidUI = { notify, dismiss, confirm: confirmAction };
 
     /* Compatibilite avec le code existant */
     window.showNotification = notify;

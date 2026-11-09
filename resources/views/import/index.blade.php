@@ -157,7 +157,10 @@
                             </tr>
                             <tr>
                                 <td><span class="acid-badge acid-badge--solid-navy">D</span></td>
-                                <td><span class="acid-table__primary">Noms et prenoms</span></td>
+                                <td><span class="acid-table__primary">Nom et prenoms</span>
+                                    <span class="acid-table__meta">
+                                        Nom de famille en MAJUSCULES, puis prenoms
+                                    </span></td>
                             </tr>
                             <tr>
                                 <td><span class="acid-badge acid-badge--solid-navy">E</span></td>
@@ -191,8 +194,15 @@
                         <li>L'en-tete de classe peut commencer en ligne 1.</li>
                         <li>Les donnees doivent suivre la ligne intitulee &laquo; N&deg; &raquo;.</li>
                         <li>L'ordre des colonnes doit etre respecte.</li>
+                        <li>
+                            Colonne D : &laquo; MBALLA Paul &raquo; donne le nom MBALLA et le
+                            prenom Paul. Un nom compose en majuscules est reconnu.
+                        </li>
                         <li>Les dates sont au format JJ/MM/AAAA (ex. 15/08/2008).</li>
-                        <li>Les doublons sont mis a jour automatiquement.</li>
+                        <li>
+                            Les doublons sont mis a jour : par matricule national, ou a defaut
+                            par nom, prenoms et date de naissance.
+                        </li>
                     </ul>
                 </div>
             </div>

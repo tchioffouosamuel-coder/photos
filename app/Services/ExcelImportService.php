@@ -46,15 +46,15 @@ class ExcelImportService
                     if (empty($data['nom'])) {
                         continue; // Ligne vide
                     }
-                    
-                    Etudiant::updateOrCreate(
-                        [
-                            'matricule_national' => $data['matricule_national'],
-                            'classe_id' => $classeId
-                        ],
-                        $data
-                    );
-                    
+
+                    $existant = $this->findExisting($data, $classeId);
+
+                    if ($existant) {
+                        $existant->fill($data)->save();
+                    } else {
+                        Etudiant::create($data + ['classe_id' => $classeId]);
+                    }
+
                     $imported++;
                 } catch (\Exception $e) {
                     $failed++;
@@ -107,16 +107,135 @@ class ExcelImportService
     
     private function extractRowData($worksheet, $row)
     {
+        [$nom, $prenoms] = $this->splitFullName($this->getCellValue($worksheet, "D$row"));
+
+        $matriculeNational = $this->getCellValue($worksheet, "B$row");
+        $matriculeInterne = $this->getCellValue($worksheet, "C$row");
+
         return [
-            'matricule_national' => $this->getCellValue($worksheet, "B$row"),
-            'matricule_interne' => $this->getCellValue($worksheet, "C$row"),
-            'nom' => strtoupper($this->getCellValue($worksheet, "D$row")),
-            'prenoms' => $this->getCellValue($worksheet, "D$row"), // Nom complet dans colonne D
+            /*
+             | Un matricule absent est enregistre a null et non en chaine vide :
+             | la contrainte d'unicite porte sur (matricule_national, classe_id),
+             | et MySQL tolere plusieurs NULL mais une seule chaine vide. Des
+             | eleves sans matricule s'ecrasaient donc les uns les autres.
+             */
+            'matricule_national' => $matriculeNational !== '' ? $matriculeNational : null,
+            'matricule_interne' => $matriculeInterne !== '' ? $matriculeInterne : null,
+            'nom' => $nom,
+            'prenoms' => $prenoms,
             'date_naissance' => $this->parseDate($this->getCellValue($worksheet, "E$row")),
-            'lieu_naissance' => strtoupper($this->getCellValue($worksheet, "F$row")),
-            'sexe' => strtoupper($this->getCellValue($worksheet, "G$row")),
-            'statut' => strtoupper($this->getCellValue($worksheet, "H$row")) ?: 'N',
+            'lieu_naissance' => mb_strtoupper($this->getCellValue($worksheet, "F$row")),
+            'sexe' => mb_strtoupper($this->getCellValue($worksheet, "G$row")),
+            'statut' => mb_strtoupper($this->getCellValue($worksheet, "H$row")) ?: 'N',
         ];
+    }
+
+    /**
+     * Separe le contenu de la colonne D en nom de famille et prenoms.
+     *
+     * La colonne porte le nom complet, selon l'usage des listes scolaires :
+     * nom de famille en MAJUSCULES, prenoms en casse normale. Les mots en
+     * capitales de tete forment donc le nom, le reste les prenoms, ce qui
+     * traite correctement les noms composes :
+     *
+     *     "MBALLA Paul Eric"           -> MBALLA            / Paul Eric
+     *     "NGO BALEPA Amelie Therese"  -> NGO BALEPA        / Amelie Therese
+     *     "N'DIAYE Amelie"             -> N'DIAYE           / Amelie
+     *
+     * Sans indice de casse exploitable, on retombe sur la convention la plus
+     * repandue : le premier mot est le nom.
+     *
+     *     "Mballa Paul"                -> MBALLA            / Paul
+     *     "MBALLA PAUL"                -> MBALLA            / PAUL
+     *
+     * Auparavant les deux champs recevaient la meme chaine complete, ce qui
+     * affichait et imprimait le nom en double sur les cartes.
+     *
+     * @return array{0: string, 1: string} [nom, prenoms]
+     */
+    private function splitFullName($complet)
+    {
+        $complet = preg_replace('/\s+/u', ' ', trim((string) $complet));
+
+        if ($complet === '') {
+            return ['', ''];
+        }
+
+        $mots = explode(' ', $complet);
+
+        if (count($mots) === 1) {
+            return [mb_strtoupper($mots[0]), ''];
+        }
+
+        /* Mots en capitales de tete, en laissant toujours au moins un prenom */
+        $nom = [];
+        foreach ($mots as $mot) {
+            if (count($nom) >= count($mots) - 1 || ! $this->isUpperCaseWord($mot)) {
+                break;
+            }
+            $nom[] = $mot;
+        }
+
+        if ($nom === []) {
+            $nom = [array_shift($mots)];
+            $prenoms = $mots;
+        } else {
+            $prenoms = array_slice($mots, count($nom));
+        }
+
+        return [
+            mb_strtoupper(implode(' ', $nom)),
+            implode(' ', $prenoms),
+        ];
+    }
+
+    /**
+     * Le mot est-il ecrit tout en capitales ? (apostrophes et traits d'union
+     * admis : N'DIAYE, NGO-BALEPA)
+     */
+    private function isUpperCaseWord($mot)
+    {
+        if (! preg_match('/\p{L}/u', $mot)) {
+            return false;
+        }
+
+        return mb_strtoupper($mot) === $mot;
+    }
+
+    /**
+     * Retrouve l'eleve deja enregistre que cette ligne doit mettre a jour.
+     *
+     * Le matricule national reste le critere de reference. En son absence, on
+     * se rabat sur l'identite complete, plutot que sur un matricule vide : la
+     * contrainte d'unicite portant sur (matricule_national, classe_id), toutes
+     * les lignes sans matricule convergeaient vers un seul et meme eleve, qui
+     * etait reecrit a chaque ligne.
+     *
+     * La date est comparee avec whereDate et non par egalite stricte : le cast
+     * "date" du modele enregistre la valeur au format Y-m-d H:i:s, qui ne
+     * correspond jamais a la chaine Y-m-d lue dans le fichier.
+     *
+     * @return \App\Models\Etudiant|null
+     */
+    private function findExisting(array $data, $classeId)
+    {
+        if (! empty($data['matricule_national'])) {
+            return Etudiant::where('classe_id', $classeId)
+                ->where('matricule_national', $data['matricule_national'])
+                ->first();
+        }
+
+        $requete = Etudiant::where('classe_id', $classeId)
+            ->where('nom', $data['nom'])
+            ->where('prenoms', $data['prenoms']);
+
+        if (! empty($data['date_naissance'])) {
+            $requete->whereDate('date_naissance', $data['date_naissance']);
+        } else {
+            $requete->whereNull('date_naissance');
+        }
+
+        return $requete->first();
     }
     
     private function getCellValue($worksheet, $cell)
