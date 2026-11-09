@@ -109,7 +109,7 @@
         </div>
 
         <div class="acid-table-wrap" id="tableContainer">
-            <table class="acid-table acid-table--stack">
+            <table class="acid-table acid-table--tiles">
                 <thead>
                     <tr>
                         <th scope="col" class="acid-table__num">N&deg;</th>
@@ -130,9 +130,9 @@
                             data-matricule="{{ strtolower($etudiant->matricule_national ?? '') }}"
                             data-sexe="{{ $etudiant->sexe }}">
 
-                            <td data-label="N&deg;" class="acid-table__num">{{ $index + 1 }}</td>
+                            <td data-label="N&deg;" data-cell="rank" class="acid-table__num">{{ $index + 1 }}</td>
 
-                            <td data-label="Classe">
+                            <td data-label="Classe" data-cell="meta">
                                 @if ($etudiant->classe)
                                     <a href="{{ route('classes.show', $etudiant->classe) }}"
                                        class="acid-table__primary">
@@ -143,11 +143,11 @@
                                 @endif
                             </td>
 
-                            <td data-label="Matricule">
+                            <td data-label="Matricule" data-cell="meta">
                                 <code class="acid-text-muted">{{ $etudiant->matricule_national ?: '—' }}</code>
                             </td>
 
-                            <td data-label="Eleve">
+                            <td data-label="Eleve" data-cell="identity">
                                 <div class="acid-identity">
                                     <span class="acid-avatar acid-avatar--sky" aria-hidden="true">
                                         <i class="fas fa-user"></i>
@@ -159,11 +159,11 @@
                                 </div>
                             </td>
 
-                            <td data-label="Naissance" class="acid-num">
+                            <td data-label="Naissance" data-cell="meta" class="acid-num">
                                 {{ $etudiant->date_naissance ? $etudiant->date_naissance->format('d/m/Y') : '—' }}
                             </td>
 
-                            <td data-label="Sexe">
+                            <td data-label="Sexe" data-cell="meta">
                                 @if ($etudiant->sexe === 'M')
                                     <span class="acid-badge acid-badge--sky">
                                         <i class="fas fa-mars" aria-hidden="true"></i> M
@@ -175,7 +175,7 @@
                                 @endif
                             </td>
 
-                            <td data-label="Action" class="acid-table__actions acid-no-print">
+                            <td data-label="Action" data-cell="actions" class="acid-table__actions acid-no-print">
                                 <button type="button" class="acid-btn acid-btn--secondary acid-btn--sm"
                                         onclick="openPhotoModal({{ $etudiant->id }}, @js($etudiant->nom), @js($etudiant->prenoms), '', @js($etudiant->classe->nom ?? ''))">
                                     <i class="fas fa-camera-retro" aria-hidden="true"></i>

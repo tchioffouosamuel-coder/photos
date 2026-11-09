@@ -143,7 +143,7 @@
             </div>
 
             <div class="acid-table-wrap">
-                <table class="acid-table acid-table--stack">
+                <table class="acid-table acid-table--tiles">
                     <thead>
                         <tr>
                             <th scope="col">Candidat</th>
@@ -157,7 +157,7 @@
                         @foreach ($candidats as $candidat)
                             <tr data-acid-searchable="{{ $candidat->nom }} {{ $candidat->lieu_naissance }}">
 
-                                <td data-label="Candidat">
+                                <td data-label="Candidat" data-cell="identity">
                                     <div class="acid-identity">
                                         <span class="acid-avatar acid-avatar--navy">
                                             @if ($candidat->photo)
@@ -173,15 +173,15 @@
                                     </div>
                                 </td>
 
-                                <td data-label="Naissance" class="acid-num">
+                                <td data-label="Naissance" data-cell="meta" class="acid-num">
                                     {{ $candidat->date_naissance ? $candidat->date_naissance->format('d/m/Y') : '—' }}
                                 </td>
 
-                                <td data-label="Lieu">
+                                <td data-label="Lieu" data-cell="meta">
                                     {{ $candidat->lieu_naissance ? strtoupper($candidat->lieu_naissance) : '—' }}
                                 </td>
 
-                                <td data-label="Sexe">
+                                <td data-label="Sexe" data-cell="meta">
                                     @if ($candidat->sexe === 'M')
                                         <span class="acid-badge acid-badge--sky">
                                             <i class="fas fa-mars" aria-hidden="true"></i> Masculin
@@ -193,7 +193,7 @@
                                     @endif
                                 </td>
 
-                                <td data-label="Actions" class="acid-table__actions">
+                                <td data-label="Actions" data-cell="actions" class="acid-table__actions">
                                     <div class="acid-btn-group" style="justify-content:flex-end;">
                                         <a href="{{ route('candidats-libres.edit', [$classe, $candidat]) }}"
                                            class="acid-btn acid-btn--neutral acid-btn--sm acid-btn--icon"

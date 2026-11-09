@@ -190,7 +190,7 @@
         @endif
 
         <div class="acid-table-wrap">
-            <table class="acid-table acid-table--stack" id="studentsTable">
+            <table class="acid-table acid-table--tiles" id="studentsTable">
                 <thead>
                     <tr>
                         <th scope="col" class="acid-table__select acid-no-print">
@@ -225,7 +225,7 @@
                             data-photo="{{ $etudiant->photo ? '1' : '0' }}"
                             data-nom-complet="{{ trim(strtoupper($etudiant->nom) . ' ' . $etudiant->prenoms) }}">
 
-                            <td data-label="Selection" class="acid-table__select acid-no-print">
+                            <td data-label="Selection" data-cell="select" class="acid-table__select acid-no-print">
                                 <label class="acid-check" style="margin:0;">
                                     <input type="checkbox" class="student-select" value="{{ $etudiant->id }}"
                                            @checked(in_array((string) $etudiant->id, array_map('strval', (array) old('etudiants', [])), true))
@@ -233,9 +233,9 @@
                                 </label>
                             </td>
 
-                            <td data-label="N&deg;" class="acid-table__num">{{ $index + 1 }}</td>
+                            <td data-label="N&deg;" data-cell="rank" class="acid-table__num">{{ $index + 1 }}</td>
 
-                            <td data-label="Eleve">
+                            <td data-label="Eleve" data-cell="identity">
                                 <div class="acid-identity">
                                     <button type="button" class="acid-avatar acid-avatar--navy"
                                             style="border:0;cursor:pointer;padding:0;"
@@ -259,7 +259,7 @@
                                 </div>
                             </td>
 
-                            <td data-label="Matricules">
+                            <td data-label="Matricules" data-cell="meta">
                                 <span class="acid-table__primary acid-num">
                                     {{ $etudiant->matricule_national ?: '—' }}
                                 </span>
@@ -268,7 +268,7 @@
                                 </span>
                             </td>
 
-                            <td data-label="Naissance" class="acid-hide-md">
+                            <td data-label="Naissance" data-cell="meta" class="acid-hide-md">
                                 <span class="acid-num">
                                     {{ $etudiant->date_naissance ? $etudiant->date_naissance->format('d/m/Y') : '—' }}
                                 </span>
@@ -277,7 +277,7 @@
                                 </span>
                             </td>
 
-                            <td data-label="Sexe">
+                            <td data-label="Sexe" data-cell="meta">
                                 @if ($etudiant->sexe === 'M')
                                     <span class="acid-badge acid-badge--sky">
                                         <i class="fas fa-mars" aria-hidden="true"></i> M
@@ -289,7 +289,7 @@
                                 @endif
                             </td>
 
-                            <td data-label="Statut" class="acid-hide-md">
+                            <td data-label="Statut" data-cell="meta" class="acid-hide-md">
                                 @if ($etudiant->statut === 'R')
                                     <span class="acid-badge acid-badge--amber">Redoublant</span>
                                 @else
@@ -297,7 +297,7 @@
                                 @endif
                             </td>
 
-                            <td data-label="Actions" class="acid-table__actions">
+                            <td data-label="Actions" data-cell="actions" class="acid-table__actions">
                                 <div class="acid-btn-group" style="justify-content:flex-end;">
                                     <button type="button" class="acid-btn acid-btn--neutral acid-btn--sm acid-btn--icon"
                                             title="Photo de l'eleve" aria-label="Photo de l'eleve"
@@ -673,21 +673,6 @@
 
     {{-- Module partage de prise de vue (modale camera + galerie) --}}
     @include('partials.photo-capture')
-
-    @push('styles')
-        <style>
-            /* Masquage de colonnes secondaires sur petits ecrans */
-            @media (max-width: 991.98px) {
-                .acid-hide-md { display: none; }
-            }
-            @media (max-width: 767.98px) {
-                /* En mode liste empilee, les colonnes masquees redeviennent utiles */
-                .acid-table--stack .acid-hide-md { display: flex; }
-            }
-
-            .acid-avatar img { width: 100%; height: 100%; object-fit: cover; }
-        </style>
-    @endpush
 
     @push('scripts')
         <script>

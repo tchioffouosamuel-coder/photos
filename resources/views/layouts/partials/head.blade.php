@@ -3,7 +3,10 @@
   | Source unique des dependances front : toute addition se fait ici.
 --}}
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+{{-- viewport-fit=cover : indispensable pour que env(safe-area-inset-*) soit
+     renseigne, et donc pour que la navigation basse evite l'encoche et la
+     barre gestuelle sur iPhone. --}}
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <meta name="theme-color" content="#082B59">
 <meta name="description" content="{{ $description ?? 'ACID - plateforme de gestion de l\'identification scolaire : eleves, photographies, cartes scolaires et documents d\'examen.' }}">

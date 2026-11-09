@@ -64,17 +64,25 @@
      | Navigation mobile
      * ------------------------------------------------------------- */
     function initNav() {
-        const toggle  = document.getElementById('acidNavToggle');
+        /* Deux declencheurs pour le meme tiroir : hamburger de la topbar et
+           entree "Menu" de la navigation basse. */
+        const toggles = [
+            document.getElementById('acidNavToggle'),
+            document.getElementById('acidNavToggleBottom'),
+        ].filter(Boolean);
+
         const overlay = document.getElementById('acidOverlay');
-        if (!toggle) return;
+        if (!toggles.length) return;
 
         const setOpen = (open) => {
             document.body.classList.toggle('acid-nav-open', open);
-            toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            toggles.forEach((t) => t.setAttribute('aria-expanded', open ? 'true' : 'false'));
         };
 
-        toggle.addEventListener('click', () => {
-            setOpen(!document.body.classList.contains('acid-nav-open'));
+        toggles.forEach((toggle) => {
+            toggle.addEventListener('click', () => {
+                setOpen(!document.body.classList.contains('acid-nav-open'));
+            });
         });
 
         if (overlay) overlay.addEventListener('click', () => setOpen(false));
@@ -91,6 +99,112 @@
         window.addEventListener('resize', () => {
             if (window.innerWidth > 991.98) setOpen(false);
         });
+    }
+
+    /* ---------------------------------------------------------------
+     | Modales : rattachement au <body>
+     |
+     | Bootstrap ajoute le fond (.modal-backdrop) directement sous <body>,
+     | alors que la modale reste la ou elle est ecrite dans la page. Si un
+     | ancetre de la modale forme un contexte d'empilement (transform, filter,
+     | opacity, position + z-index...), le z-index de la modale est enferme
+     | dans ce contexte et la modale passe SOUS le fond : elle reste visible au
+     | travers, mais tous les clics atteignent le fond.
+     |
+     | Deplacer chaque modale a la racine du <body> -- ce que recommande la
+     | documentation de Bootstrap -- supprime la dependance au CSS environnant.
+     | Les ecouteurs deja poses survivent au deplacement, et aucun script de la
+     | base ne depend des ancetres d'une modale.
+     * ------------------------------------------------------------- */
+    function initModalHoisting() {
+        document.querySelectorAll('.modal').forEach((modal) => {
+            if (modal.parentElement !== document.body) {
+                document.body.appendChild(modal);
+            }
+        });
+    }
+
+    /* ---------------------------------------------------------------
+     | Feuilles du bas : glisser vers le bas pour fermer
+     |
+     | Sur mobile, acid.css ancre toutes les modales en bas de l'ecran.
+     | On y ajoute le geste attendu : un glissement vers le bas depuis
+     | l'en-tete (ou la poignee) referme la feuille.
+     |
+     | Le geste n'est actif que sous 768px et uniquement si le glissement
+     | part du haut de la feuille, afin de ne jamais voler le defilement du
+     | contenu ni gener une saisie de formulaire.
+     * ------------------------------------------------------------- */
+    function initSheets() {
+        if (!window.bootstrap) return;
+
+        const SEUIL_FERMETURE = 110;   /* px parcourus avant fermeture */
+        const ZONE_PRISE = 72;         /* px depuis le haut de la feuille */
+
+        let dialog = null;
+        let depart = 0;
+        let delta = 0;
+        let actif = false;
+
+        const estMobile = () => window.matchMedia('(max-width: 767.98px)').matches;
+
+        document.addEventListener('touchstart', (e) => {
+            if (!estMobile() || e.touches.length !== 1) return;
+
+            const candidat = e.target.closest('.modal.show .modal-dialog:not(.modal-dialog--plain)');
+            if (!candidat) return;
+
+            const contenu = candidat.querySelector('.modal-content');
+            if (!contenu) return;
+
+            /* Uniquement si le doigt se pose dans la zone de prehension */
+            const haut = contenu.getBoundingClientRect().top;
+            if (e.touches[0].clientY - haut > ZONE_PRISE) return;
+
+            dialog = candidat;
+            depart = e.touches[0].clientY;
+            delta = 0;
+            actif = true;
+        }, { passive: true });
+
+        document.addEventListener('touchmove', (e) => {
+            if (!actif || !dialog) return;
+
+            delta = e.touches[0].clientY - depart;
+
+            /* Glissement vers le haut : on ne fait rien */
+            if (delta <= 0) {
+                dialog.style.transform = '';
+                return;
+            }
+
+            dialog.classList.add('is-dragging');
+            dialog.style.transform = 'translateY(' + delta + 'px)';
+        }, { passive: true });
+
+        const terminer = () => {
+            if (!actif || !dialog) return;
+
+            const cible = dialog;
+            const parcours = delta;
+
+            cible.classList.remove('is-dragging');
+            cible.style.transform = '';
+
+            actif = false;
+            dialog = null;
+            delta = 0;
+
+            if (parcours > SEUIL_FERMETURE) {
+                const modal = cible.closest('.modal');
+                if (modal) {
+                    window.bootstrap.Modal.getOrCreateInstance(modal).hide();
+                }
+            }
+        };
+
+        document.addEventListener('touchend', terminer, { passive: true });
+        document.addEventListener('touchcancel', terminer, { passive: true });
     }
 
     /* ---------------------------------------------------------------
@@ -209,8 +323,19 @@
     /* Compatibilite avec le code existant */
     window.showNotification = notify;
 
+    /*
+     | Rattachement immediat, et non au DOMContentLoaded : ce partial est
+     | inclus apres le contenu de la page, donc toutes les modales sont deja
+     | dans le DOM, mais les scripts propres aux pages (@push('scripts')) ne se
+     | sont pas encore executes. Certains ouvrent une modale des le chargement
+     | (retour d'une validation en echec) : elle doit deja etre a sa place.
+     */
+    initModalHoisting();
+
     document.addEventListener('DOMContentLoaded', () => {
         initNav();
+        initModalHoisting();   /* idempotent : couvre les modales ajoutees ensuite */
+        initSheets();
         initSearch();
         initConfirm();
         initBusyButtons();

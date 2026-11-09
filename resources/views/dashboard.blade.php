@@ -101,7 +101,7 @@
             </div>
 
             <div class="acid-table-wrap">
-                <table class="acid-table acid-table--stack">
+                <table class="acid-table acid-table--tiles">
                     <thead>
                         <tr>
                             <th scope="col">Classe</th>
@@ -113,18 +113,18 @@
                     <tbody>
                         @forelse ($classes ?? [] as $classe)
                             <tr data-acid-searchable="{{ $classe->nom }}">
-                                <td data-label="Classe">
+                                <td data-label="Classe" data-cell="identity">
                                     <a href="{{ route('classes.show', $classe) }}" class="acid-table__primary">
                                         {{ $classe->nom }}
                                     </a>
                                 </td>
-                                <td data-label="Effectif" class="acid-table__num">
+                                <td data-label="Effectif" data-cell="meta" class="acid-table__num">
                                     <span class="acid-badge acid-badge--navy">{{ $classe->etudiants_count }}</span>
                                 </td>
-                                <td data-label="Garcons" class="acid-table__num">
+                                <td data-label="Garcons" data-cell="meta" class="acid-table__num">
                                     <span class="acid-badge acid-badge--sky">{{ $classe->effectif_garcons }}</span>
                                 </td>
-                                <td data-label="Filles" class="acid-table__num">
+                                <td data-label="Filles" data-cell="meta" class="acid-table__num">
                                     <span class="acid-badge acid-badge--coral">{{ $classe->effectif_filles }}</span>
                                 </td>
                             </tr>

@@ -14,7 +14,13 @@
 --}}
 
 <div class="modal fade" id="photoModal" tabindex="-1" aria-labelledby="modalStudentName" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered modal-fullscreen-sm-down">
+    {{--
+      | Exception assumee au comportement en feuille du bas : un viseur camera
+      | a besoin de toute la hauteur. modal-dialog--plain neutralise donc les
+      | regles de feuille d'acid.css, et modal-fullscreen-md-down passe la
+      | modale en plein ecran sur exactement la meme plage (sous 768px).
+    --}}
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-fullscreen-md-down modal-dialog--plain">
         <div class="modal-content">
 
             <div class="modal-header">

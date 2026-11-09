@@ -204,7 +204,7 @@
         </div>
 
         <div class="acid-table-wrap">
-            <table class="acid-table acid-table--stack">
+            <table class="acid-table acid-table--tiles">
                 <thead>
                     <tr>
                         <th scope="col">Classe</th>
@@ -220,32 +220,32 @@
                 <tbody>
                     @forelse ($classes as $classe)
                         <tr data-acid-searchable="{{ $classe->nom }} {{ $classe->annee_scolaire }}">
-                            <td data-label="Classe">
+                            <td data-label="Classe" data-cell="identity">
                                 <span class="acid-identity__text">
                                     <strong>{{ $classe->nom }}</strong>
                                     <span>{{ $classe->annee_scolaire }}</span>
                                 </span>
                             </td>
-                            <td data-label="Total" class="acid-table__num">
+                            <td data-label="Total" data-cell="meta" class="acid-table__num">
                                 <strong>{{ $classe->effectif_total }}</strong>
                             </td>
-                            <td data-label="Garcons" class="acid-table__num">
+                            <td data-label="Garcons" data-cell="meta" class="acid-table__num">
                                 <span class="acid-badge acid-badge--sky">{{ $classe->effectif_garcons }}</span>
                             </td>
-                            <td data-label="Filles" class="acid-table__num">
+                            <td data-label="Filles" data-cell="meta" class="acid-table__num">
                                 <span class="acid-badge acid-badge--coral">{{ $classe->effectif_filles }}</span>
                             </td>
-                            <td data-label="Avec photo" class="acid-table__num">
+                            <td data-label="Avec photo" data-cell="meta" class="acid-table__num">
                                 <span class="acid-badge acid-badge--teal">{{ $classe->students_with_photos }}</span>
                             </td>
-                            <td data-label="Sans photo" class="acid-table__num">
+                            <td data-label="Sans photo" data-cell="meta" class="acid-table__num">
                                 @if ($classe->students_without_photos > 0)
                                     <span class="acid-badge acid-badge--amber">{{ $classe->students_without_photos }}</span>
                                 @else
                                     <span class="acid-badge acid-badge--teal">0</span>
                                 @endif
                             </td>
-                            <td data-label="Couverture">
+                            <td data-label="Couverture" data-cell="full">
                                 <div class="acid-row" style="gap:var(--acid-space-2);flex-wrap:nowrap;">
                                     <div class="acid-progress" style="flex:1 1 5rem;min-width:4rem;"
                                          role="progressbar" aria-valuenow="{{ $classe->photo_percentage }}"
@@ -259,7 +259,7 @@
                                     </strong>
                                 </div>
                             </td>
-                            <td data-label="Actions" class="acid-table__actions">
+                            <td data-label="Actions" data-cell="actions" class="acid-table__actions">
                                 <a href="{{ route('classes.show', $classe) }}"
                                    class="acid-btn acid-btn--neutral acid-btn--sm acid-btn--icon"
                                    title="Ouvrir la classe" aria-label="Ouvrir la classe {{ $classe->nom }}">

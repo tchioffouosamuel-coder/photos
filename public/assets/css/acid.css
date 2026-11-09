@@ -151,10 +151,21 @@
     --acid-sidebar-w:           264px;
     --acid-sidebar-w-collapsed: 78px;
     --acid-topbar-h:            64px;
+
+    /* Barre de navigation basse : affichee seulement en mobile / tablette.
+       La marge de securite iOS (encoche, barre gestuelle) est ajoutee a part
+       pour que la hauteur reste utilisable dans les calculs. */
+    --acid-bottomnav-h:         3.75rem;
+    --acid-safe-b:              env(safe-area-inset-bottom, 0px);
+
+    /* Cible tactile minimale recommandee (WCAG 2.5.5) */
+    --acid-touch:               2.75rem;
     --acid-content-max:         1480px;
     --acid-z-sidebar:           1040;
     --acid-z-topbar:            1030;
     --acid-z-overlay:           1035;
+    --acid-z-bottomnav:         1032;
+    --acid-z-bulkbar:           1033;
     --acid-z-toast:             1090;
 }
 
@@ -618,6 +629,103 @@ code, pre, kbd, samp {
 /* Etat : sidebar ouverte en mobile */
 body.acid-nav-open .acid-overlay { opacity: 1; visibility: visible; }
 body.acid-nav-open { overflow: hidden; }
+
+/* ---- Navigation basse (mobile / tablette) ---------------------------- */
+
+/*
+ | Masquee par defaut : elle n'apparait qu'en dessous de 992px, ou la sidebar
+ | devient un tiroir. Les destinations les plus utilisees restent ainsi
+ | atteignables au pouce, sans ouvrir le tiroir.
+ */
+.acid-bottomnav {
+    display: none;
+    position: fixed;
+    inset-inline: 0;
+    inset-block-end: 0;
+    z-index: var(--acid-z-bottomnav);
+    padding-block-end: var(--acid-safe-b);
+    background: var(--acid-surface);
+    border-block-start: 1px solid var(--acid-border);
+    box-shadow: 0 -2px 12px rgba(8, 43, 89, 0.06);
+}
+
+.acid-bottomnav__list {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    align-items: stretch;
+    height: var(--acid-bottomnav-h);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.acid-bottomnav__link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.1875rem;
+    width: 100%;
+    height: 100%;
+    padding: 0 0.125rem;
+    border: 0;
+    background: transparent;
+    font-family: var(--acid-font);
+    font-size: 0.6875rem;
+    font-weight: var(--acid-fw-medium);
+    line-height: 1.2;
+    text-align: center;
+    color: var(--acid-text-muted);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: color var(--acid-transition);
+}
+.acid-bottomnav__link:hover { color: var(--acid-navy); }
+
+.acid-bottomnav__icon {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 1.625rem;
+    border-radius: var(--acid-radius-pill);
+    font-size: 1.0625rem;
+    transition: background-color var(--acid-transition), color var(--acid-transition);
+}
+
+/* Element actif : pastille turquoise derriere l'icone, libelle en marine */
+.acid-bottomnav__link.is-active { color: var(--acid-navy); font-weight: var(--acid-fw-bold); }
+.acid-bottomnav__link.is-active .acid-bottomnav__icon {
+    background: var(--acid-teal-50);
+    color: var(--acid-teal-700);
+}
+
+.acid-bottomnav__label {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Compteur d'alerte (eleves sans photo) */
+.acid-bottomnav__dot {
+    position: absolute;
+    inset-block-start: -0.125rem;
+    inset-inline-end: 0.25rem;
+    min-width: 1rem;
+    height: 1rem;
+    padding-inline: 0.1875rem;
+    border-radius: var(--acid-radius-pill);
+    background: var(--acid-coral-500);
+    color: var(--acid-text-invert);
+    font-size: 0.625rem;
+    font-weight: var(--acid-fw-bold);
+    line-height: 1rem;
+    text-align: center;
+}
 
 /* ==========================================================================
    4. BOUTONS
@@ -1086,7 +1194,8 @@ body.acid-nav-open { overflow: hidden; }
     padding: var(--acid-space-3) var(--acid-space-5);
     background: var(--acid-navy);
     color: var(--acid-text-invert);
-    animation: acid-fade-in 200ms var(--acid-ease) both;
+    /* Pas de fill-mode : voir la note sur .acid-fade-in (contexte d'empilement) */
+    animation: acid-fade-in 200ms var(--acid-ease);
 }
 .acid-bulkbar__count {
     display: inline-flex;
@@ -2562,8 +2671,23 @@ body.acid-nav-open { overflow: hidden; }
     border: 0;
 }
 
-/* Animation d'entree sobre */
-.acid-fade-in { animation: acid-fade-in 320ms var(--acid-ease) both; }
+/*
+ | Animation d'entree sobre.
+ |
+ | Volontairement SANS animation-fill-mode : "both" maintiendrait l'animation
+ | "en vigueur" indefiniment apres sa fin, et un transform ainsi maintenu fait
+ | de l'element un contexte d'empilement permanent.
+ |
+ | Comme cette classe est posee sur <main>, qui contient les modales, cela
+ | enfermait le z-index des modales (1055) dans le contexte de <main> : elles
+ | se retrouvaient peintes SOUS le fond semi-transparent de Bootstrap
+ | (.modal-backdrop, 1050), donc visibles au travers mais impossibles a
+ | cliquer, chaque clic atteignant le fond.
+ |
+ | Sans fill-mode, l'animation cesse d'etre en vigueur des qu'elle se termine
+ | et le contexte d'empilement disparait avec elle.
+ */
+.acid-fade-in { animation: acid-fade-in 320ms var(--acid-ease); }
 @keyframes acid-fade-in {
     from { opacity: 0; transform: translateY(6px); }
     to   { opacity: 1; transform: none; }
@@ -2580,7 +2704,7 @@ body.acid-nav-open { overflow: hidden; }
     .acid-search { flex-basis: 220px; max-width: 220px; }
 }
 
-/* ---- Tablette / mobile : sidebar escamotable ------------------------- */
+/* ---- Tablette / mobile : sidebar escamotable + navigation basse ------ */
 @media (max-width: 991.98px) {
     .acid-sidebar {
         transform: translateX(-100%);
@@ -2589,10 +2713,66 @@ body.acid-nav-open { overflow: hidden; }
     body.acid-nav-open .acid-sidebar { transform: translateX(0); }
     .acid-main { margin-inline-start: 0; }
     .acid-topbar__toggle { display: inline-flex; }
-    .acid-content { padding: var(--acid-space-5) var(--acid-space-4) var(--acid-space-8); }
     .acid-search { display: none; }
     .acid-usermenu__name { display: none; }
     .acid-page-header__actions { margin-inline-start: 0; width: 100%; }
+
+    /* La navigation basse prend le relais de la sidebar */
+    .acid-bottomnav { display: block; }
+
+    /*
+     | Colonnes secondaires d'un tableau : masquees des que la largeur manque.
+     | Elles reapparaissent sous 768px sous forme de pastilles, ou la place
+     | verticale ne coute plus rien (voir .acid-table--tiles).
+     */
+    .acid-hide-md { display: none; }
+
+    /* Le contenu se termine au-dessus de la barre, jamais dessous */
+    .acid-content {
+        padding: var(--acid-space-5) var(--acid-space-4)
+                 calc(var(--acid-bottomnav-h) + var(--acid-safe-b) + var(--acid-space-6));
+    }
+
+    /*
+     | Barre d'actions en masse : remontee au-dessus de la navigation basse
+     | et detachee du tableau, pour rester atteignable pendant le defilement.
+     */
+    .acid-bulkbar {
+        position: fixed;
+        inset-inline: var(--acid-space-3);
+        inset-block-end: calc(var(--acid-bottomnav-h) + var(--acid-safe-b) + var(--acid-space-3));
+        z-index: var(--acid-z-bulkbar);
+        border-radius: var(--acid-radius-lg);
+        box-shadow: var(--acid-shadow-lg);
+    }
+
+    /* Cibles tactiles : jamais en dessous du minimum recommande */
+    .acid-btn,
+    .acid-icon-btn,
+    .acid-input,
+    .acid-select,
+    .acid-bottomnav__link { min-height: var(--acid-touch); }
+    .acid-btn--sm { min-height: 2.5rem; }
+
+    /*
+     | Actions d'en-tete de page : rangee defilante plutot qu'une pile de
+     | boutons pleine largeur, qui repoussait le contenu hors de l'ecran.
+     */
+    .acid-page-header__actions {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scrollbar-width: none;
+        padding-block-end: var(--acid-space-1);
+        margin-inline: calc(var(--acid-space-1) * -1);
+        padding-inline: var(--acid-space-1);
+        scroll-snap-type: x proximity;
+    }
+    .acid-page-header__actions::-webkit-scrollbar { display: none; }
+    .acid-page-header__actions > *,
+    .acid-page-header__actions > form > .acid-btn {
+        flex: 0 0 auto;
+        scroll-snap-align: start;
+    }
 }
 
 /* ---- Mobile ---------------------------------------------------------- */
@@ -2609,6 +2789,17 @@ body.acid-nav-open { overflow: hidden; }
     .acid-toolbar { padding-inline: var(--acid-space-4); }
     .acid-hero { padding: var(--acid-space-5) var(--acid-space-4); }
     .acid-hero::after { display: none; }
+
+    /*
+     | Barre de filtres : deux colonnes au lieu de largeurs fixes en rem, qui
+     | laissaient de grands vides sur un ecran de 360px. Le !important est
+     | necessaire pour reprendre la main sur les largeurs posees en style
+     | inline dans les vues.
+     */
+    .acid-toolbar { padding-block: var(--acid-space-3); }
+    .acid-toolbar > * { flex: 1 1 calc(50% - var(--acid-space-3)) !important; min-width: 0; }
+    .acid-toolbar__grow { flex: 1 1 100% !important; }
+    .acid-toolbar__count { flex: 1 1 100% !important; }
     .acid-form-grid,
     .acid-form-grid--2 { grid-template-columns: minmax(0, 1fr); }
     .acid-form-actions { flex-direction: column; align-items: stretch; }
@@ -2622,6 +2813,72 @@ body.acid-nav-open { overflow: hidden; }
         inset-block-start: var(--acid-space-3);
     }
     .acid-empty { padding-block: var(--acid-space-8); }
+
+    /* ---- Modales en feuilles du bas (bottom sheets) ------------------- */
+
+    /*
+     | Sur mobile, une modale centree est malcommode : le contenu est loin du
+     | pouce et le clavier virtuel la fait sauter. Toutes les modales Bootstrap
+     | sont donc ancrees en bas de l'ecran, pleine largeur, avec une poignee de
+     | prehension et une animation de glissement vers le haut.
+     |
+     | Aucun balisage specifique n'est requis : une modale ecrite pour le
+     | bureau devient une feuille sur mobile. Ajouter la classe
+     | .modal-dialog--plain sur le .modal-dialog restitue le comportement
+     | centre d'origine.
+     */
+    .modal-dialog:not(.modal-dialog--plain) {
+        position: fixed;
+        inset-inline: 0;
+        inset-block-end: 0;
+        width: 100%;
+        max-width: none;
+        min-height: 0;
+        margin: 0;
+        align-items: flex-end;
+    }
+
+    .modal.fade .modal-dialog:not(.modal-dialog--plain) {
+        transform: translateY(100%);
+        transition: transform var(--acid-transition-slow);
+    }
+    .modal.show .modal-dialog:not(.modal-dialog--plain) { transform: none; }
+
+    .modal-dialog:not(.modal-dialog--plain) .modal-content {
+        max-height: 92vh;
+        max-height: 92dvh;
+        border-width: 1px 0 0;
+        border-radius: var(--acid-radius-xl) var(--acid-radius-xl) 0 0;
+        box-shadow: 0 -10px 34px rgba(8, 43, 89, 0.22);
+    }
+
+    /* Poignee de prehension : repere visuel du glissement vers le bas */
+    .modal-dialog:not(.modal-dialog--plain) .modal-content::before {
+        content: "";
+        flex: 0 0 auto;
+        width: 2.5rem;
+        height: 0.25rem;
+        margin: var(--acid-space-3) auto 0;
+        border-radius: var(--acid-radius-pill);
+        background: var(--acid-border-strong);
+    }
+
+    .modal-dialog:not(.modal-dialog--plain) .modal-header {
+        padding-block: var(--acid-space-3) var(--acid-space-4);
+    }
+    .modal-dialog:not(.modal-dialog--plain) .modal-body {
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+    }
+    .modal-dialog:not(.modal-dialog--plain) .modal-footer {
+        border-radius: 0;
+        padding-block-end: calc(var(--acid-space-4) + var(--acid-safe-b));
+    }
+
+    /* Pendant un glissement, on suit le doigt sans transition */
+    .modal-dialog.is-dragging { transition: none !important; }
+
     .modal-footer { flex-direction: column-reverse; }
     .modal-footer > * { width: 100%; margin: 0; }
 
@@ -2657,6 +2914,181 @@ body.acid-nav-open { overflow: hidden; }
         text-align: start;
     }
     .acid-table--stack .acid-identity { justify-content: flex-end; }
+
+    /* ---- Tableaux en tuiles ------------------------------------------- */
+
+    /*
+     | Variante plus lisible que le mode empile : au lieu d'une suite de
+     | paires libelle / valeur, chaque ligne devient une tuile structuree :
+     |
+     |     [ ] n°   AVATAR  NOM Prenoms          <- data-cell="identity"
+     |     chip  chip  chip                      <- data-cell="meta"
+     |     ------------------------------------
+     |     [ action ] [ action ] [ action ]      <- data-cell="actions"
+     |
+     | Le role de chaque cellule est porte par data-cell dans le balisage :
+     | identity, meta, actions, select, rank. Une cellule sans data-cell garde
+     | la presentation libelle / valeur. data-cell="off" la masque sur mobile.
+     |
+     | Le <tr> reste un <tr> : aucun balisage duplique, le tableau redevient
+     | un tableau des 768px, et l'impression n'est pas affectee.
+     */
+    .acid-table--tiles thead { display: none; }
+
+    .acid-table--tiles tbody tr {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--acid-space-2) var(--acid-space-2);
+        margin-block-end: var(--acid-space-3);
+        padding: var(--acid-space-4);
+        border: 1px solid var(--acid-border);
+        border-radius: var(--acid-radius-lg);
+        background: var(--acid-surface);
+        box-shadow: var(--acid-shadow-xs);
+    }
+    .acid-table--tiles tbody tr:last-child { margin-block-end: 0; }
+
+    /* Ligne vide (etat vide du tableau) : pas de tuile */
+    .acid-table--tiles tbody tr:has(> td[colspan]) {
+        display: block;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+    }
+
+    .acid-table--tiles tbody td {
+        display: flex;
+        align-items: center;
+        gap: var(--acid-space-2);
+        min-width: 0;
+        padding: 0;
+        border: 0;
+        text-align: start;
+    }
+    .acid-table--tiles tbody td::before {
+        content: attr(data-label);
+        flex: 0 0 auto;
+        font-size: var(--acid-text-xs);
+        font-weight: var(--acid-fw-semibold);
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--acid-text-subtle);
+    }
+
+    /* Case a cocher et numero d'ordre : en tete de tuile */
+    .acid-table--tiles tbody td[data-cell="select"] {
+        order: 0;
+        flex: 0 0 auto;
+        width: auto;
+    }
+    .acid-table--tiles tbody td[data-cell="select"]::before { display: none; }
+
+    .acid-table--tiles tbody td[data-cell="rank"] {
+        order: 0;
+        flex: 0 0 auto;
+        min-width: 1.5rem;
+        justify-content: center;
+        font-size: var(--acid-text-xs);
+        font-weight: var(--acid-fw-bold);
+        color: var(--acid-text-subtle);
+        font-variant-numeric: tabular-nums;
+    }
+    .acid-table--tiles tbody td[data-cell="rank"]::before { display: none; }
+
+    /* Identite : occupe le reste de la premiere ligne */
+    .acid-table--tiles tbody td[data-cell="identity"] {
+        order: 1;
+        flex: 1 1 auto;
+        min-width: 60%;
+    }
+    .acid-table--tiles tbody td[data-cell="identity"]::before { display: none; }
+    .acid-table--tiles tbody td[data-cell="identity"] .acid-identity { width: 100%; }
+
+    /* Metadonnees : pastilles qui s'enchainent sur la deuxieme ligne */
+    .acid-table--tiles tbody td[data-cell="meta"] {
+        order: 2;
+        flex: 0 0 auto;
+        gap: 0.375rem;
+        padding: 0.1875rem 0.5rem;
+        border-radius: var(--acid-radius-pill);
+        background: var(--acid-surface-muted);
+        font-size: var(--acid-text-sm);
+    }
+    .acid-table--tiles tbody td[data-cell="meta"]:empty { display: none; }
+    .acid-table--tiles tbody td[data-cell="meta"] .acid-table__primary,
+    .acid-table--tiles tbody td[data-cell="meta"] .acid-table__secondary {
+        font-size: var(--acid-text-sm);
+    }
+
+    /*
+     | Pastille a deux niveaux (ex. matricule national + interne, date + lieu
+     | de naissance) : on empile a l'interieur de la pastille plutot que de
+     | masquer la ligne secondaire, afin de ne rien perdre sur mobile.
+     */
+    .acid-table--tiles tbody td[data-cell="meta"]:has(.acid-table__meta) {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0;
+        padding: 0.3125rem 0.625rem;
+        line-height: 1.35;
+    }
+    .acid-table--tiles tbody td[data-cell="meta"]:has(.acid-table__meta)::before {
+        display: none;
+    }
+
+    /* Une pastille deja stylee (badge) n'a pas besoin du fond gris */
+    .acid-table--tiles tbody td[data-cell="meta"]:has(> .acid-badge) {
+        padding: 0;
+        background: transparent;
+    }
+    .acid-table--tiles tbody td[data-cell="meta"]:has(> .acid-badge)::before { display: none; }
+
+    /* Contenu large (barre de progression, resume) : sa propre rangee */
+    .acid-table--tiles tbody td[data-cell="full"] {
+        order: 2;
+        flex: 1 1 100%;
+        justify-content: space-between;
+        gap: var(--acid-space-3);
+    }
+
+    /* Actions : rangee complete en pied de tuile, boutons egaux */
+    .acid-table--tiles tbody td[data-cell="actions"] {
+        order: 3;
+        flex: 1 1 100%;
+        margin-block-start: var(--acid-space-1);
+        padding-block-start: var(--acid-space-3);
+        border-block-start: 1px solid var(--acid-border-soft);
+    }
+    .acid-table--tiles tbody td[data-cell="actions"]::before { display: none; }
+    .acid-table--tiles tbody td[data-cell="actions"] .acid-btn-group {
+        width: 100%;
+        justify-content: stretch;
+        gap: var(--acid-space-2);
+    }
+    .acid-table--tiles tbody td[data-cell="actions"] .acid-btn-group > *,
+    .acid-table--tiles tbody td[data-cell="actions"] .acid-btn-group > form {
+        flex: 1 1 0;
+        display: flex;
+    }
+    .acid-table--tiles tbody td[data-cell="actions"] .acid-btn {
+        flex: 1 1 auto;
+        min-height: var(--acid-touch);
+    }
+
+    /* Cellule sans interet sur un petit ecran */
+    .acid-table--tiles tbody td[data-cell="off"] { display: none; }
+
+    /* Les colonnes masquees en tablette redeviennent des pastilles */
+    .acid-table--tiles .acid-hide-md { display: flex; }
+
+    /* Plus de cadre autour d'une liste de tuiles */
+    .acid-table--tiles { background: transparent; }
+    .acid-card:has(> .acid-table-wrap > .acid-table--tiles) > .acid-table-wrap {
+        padding: var(--acid-space-3);
+        background: var(--acid-surface-soft);
+    }
 }
 
 /* ==========================================================================
@@ -2843,6 +3275,7 @@ body.acid-nav-open { overflow: hidden; }
 
     .acid-sidebar,
     .acid-topbar,
+    .acid-bottomnav,
     .acid-overlay,
     .acid-toasts,
     .acid-page-header__actions,

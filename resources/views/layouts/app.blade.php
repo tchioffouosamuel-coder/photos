@@ -27,6 +27,9 @@
         </main>
     </div>
 
+    {{-- Navigation basse : mobile et tablette uniquement --}}
+    @include('layouts.partials.bottomnav')
+
     @include('layouts.partials.scripts')
 </body>
 </html>
