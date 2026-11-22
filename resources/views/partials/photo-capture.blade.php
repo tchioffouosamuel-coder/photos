@@ -66,6 +66,19 @@
                     </div>
                 </div>
 
+                {{-- Retrait de la photo : visible seulement si l'eleve en a une --}}
+                @can(\App\Support\Permissions::PHOTOS_SUPPRIMER)
+                    <div id="deletePhotoRow" class="d-none"
+                         style="margin-block-start:calc(-1 * var(--acid-space-3));
+                                margin-block-end:var(--acid-space-5);">
+                        <button type="button" onclick="deleteCurrentPhoto()"
+                                class="acid-btn acid-btn--coral acid-btn--sm">
+                            <i class="fas fa-trash-can" aria-hidden="true"></i>
+                            Supprimer la photo actuelle
+                        </button>
+                    </div>
+                @endcan
+
                 {{-- Onglets --}}
                 <ul class="nav nav-pills nav-fill" style="margin-block-end:var(--acid-space-4);" role="tablist">
                     <li class="nav-item" role="presentation">
@@ -263,6 +276,7 @@ function openPhotoModal(id, nom, prenoms, photoUrl = '', classeNom = '') {
         placeholder.classList.remove('d-none');
     }
 
+    setPhotoDeletionVisible(Boolean(photoUrl));
     hideError();
 
     if (!photoModal) {
@@ -357,6 +371,15 @@ async function previewUploadedPhoto(event) {
 }
 
 /* ---------------- Envoi au serveur ---------------- */
+/* En-tetes communs aux appels JSON de ce module */
+function requeteHeaders() {
+    return {
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+    };
+}
+
 async function sendPhoto(blob, filename) {
     const formData = new FormData();
     formData.append('photo', blob, filename);
@@ -365,11 +388,7 @@ async function sendPhoto(blob, filename) {
         method: 'POST',
         body: formData,
         credentials: 'same-origin',
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
-            'Accept': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
-        }
+        headers: requeteHeaders()
     });
 
     const data = await response.json();
@@ -384,6 +403,55 @@ function onPhotoSaved(data) {
         photoModal.hide();
         location.reload();
     }, 1200);
+}
+
+/* Affiche ou masque le bouton de suppression. Absent du DOM si le compte
+   n'a pas la permission : la fonction ne fait alors rien. */
+function setPhotoDeletionVisible(visible) {
+    const row = document.getElementById('deletePhotoRow');
+    if (row) row.classList.toggle('d-none', !visible);
+}
+
+/* ---------------- Suppression de la photo ---------------- */
+async function deleteCurrentPhoto() {
+    if (!currentStudentId) return;
+
+    const confirme = await window.AcidUI.confirm(
+        'La photo de cet élève sera définitivement supprimée.',
+        { title: 'Supprimer la photo ?', confirmText: 'Oui, supprimer' }
+    );
+
+    if (!confirme) return;
+
+    hideError();
+    showLoading('Suppression...', 'Retrait de la photo');
+
+    try {
+        const response = await fetch(`/etudiants/${currentStudentId}/photo`, {
+            method: 'DELETE',
+            credentials: 'same-origin',
+            headers: requeteHeaders()
+        });
+
+        const data = await response.json();
+        hideLoading();
+
+        if (response.ok && data.success) {
+            setPhotoDeletionVisible(false);
+            showToast('Photo supprimée.', 'success');
+
+            setTimeout(() => {
+                photoModal.hide();
+                location.reload();
+            }, 1200);
+        } else {
+            showError(data.message || 'Erreur lors de la suppression.');
+        }
+    } catch (error) {
+        console.error('Delete error:', error);
+        hideLoading();
+        showError('Erreur : ' + error.message);
+    }
 }
 
 async function uploadPhoto() {
@@ -652,6 +720,7 @@ document.getElementById('photoModal').addEventListener('hidden.bs.modal', functi
     document.getElementById('captureGuide').classList.remove('d-none');
     document.getElementById('photoInput').value = '';
     document.getElementById('uploadPreviewSection').classList.add('d-none');
+    setPhotoDeletionVisible(false);
     setCameraStatus(false);
 });
 

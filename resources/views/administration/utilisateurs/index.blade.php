@@ -152,7 +152,6 @@
                                     @can('delete', $utilisateur)
                                         <form method="POST"
                                               action="{{ route('administration.utilisateurs.destroy', $utilisateur) }}"
-                                              style="display:inline;"
                                               data-acid-confirm="Supprimer le compte de {{ $utilisateur->name }} ? Ses traces resteront au journal.">
                                             @csrf
                                             @method('DELETE')

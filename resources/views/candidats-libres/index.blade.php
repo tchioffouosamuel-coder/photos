@@ -202,7 +202,7 @@
                                         </a>
 
                                         <form action="{{ route('candidats-libres.destroy', [$classe, $candidat]) }}"
-                                              method="POST" style="display:inline;"
+                                              method="POST"
                                               data-acid-confirm="Supprimer le candidat {{ $candidat->nom }} ?">
                                             @csrf
                                             @method('DELETE')

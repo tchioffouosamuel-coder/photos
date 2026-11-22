@@ -55,7 +55,7 @@
                 </button>
             @endif
             @can('genererDocuments', $classe)
-                <form action="{{ route('cards.generate', $classe) }}" method="POST" style="display:inline;">
+                <form action="{{ route('cards.generate', $classe) }}" method="POST">
                     @csrf
                     <button type="submit" class="acid-btn acid-btn--primary">
                         <i class="fas fa-id-card" aria-hidden="true"></i>
