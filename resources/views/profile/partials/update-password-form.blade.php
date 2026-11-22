@@ -18,7 +18,7 @@
             <x-text-input id="update_password_password" name="password" type="password"
                           class="{{ $errors->updatePassword->get('password') ? 'is-invalid' : '' }}"
                           autocomplete="new-password" />
-            <span class="acid-hint">8 caracteres minimum.</span>
+            <span class="acid-hint">8 caractères minimum.</span>
             <x-input-error :messages="$errors->updatePassword->get('password')" />
         </div>
 
@@ -36,12 +36,12 @@
     <div class="acid-form-actions">
         <x-primary-button>
             <i class="fas fa-key" aria-hidden="true"></i>
-            Mettre a jour le mot de passe
+            Mettre à jour le mot de passe
         </x-primary-button>
 
         @if (session('status') === 'password-updated')
             <span class="acid-badge acid-badge--teal">
-                <i class="fas fa-check" aria-hidden="true"></i> Mot de passe modifie
+                <i class="fas fa-check" aria-hidden="true"></i> Mot de passe modifié
             </span>
         @endif
     </div>

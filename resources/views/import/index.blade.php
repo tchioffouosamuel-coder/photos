@@ -3,16 +3,16 @@
     <div class="acid-page-header">
         <div class="acid-page-header__text">
             <span class="acid-page-header__eyebrow">Gestion scolaire</span>
-            <h1 class="acid-page-header__title">Importer une liste d'eleves</h1>
+            <h1 class="acid-page-header__title">Importer une liste d'élèves</h1>
             <p class="acid-page-header__lead">
-                Chargez un fichier Excel pour creer ou mettre a jour l'effectif d'une classe.
-                Les listes generees par SYGEST sont prises en charge telles quelles.
+                Chargez un fichier Excel pour créer ou mettre à jour l'effectif d'une classe.
+                Les listes générées par SYGEST sont prises en charge telles quelles.
             </p>
         </div>
         <div class="acid-page-header__actions">
             <a href="{{ route('import.template') }}" class="acid-btn acid-btn--neutral">
                 <i class="fas fa-download" aria-hidden="true"></i>
-                Telecharger le modele
+                Télécharger le modèle
             </a>
         </div>
     </div>
@@ -20,8 +20,8 @@
     {{-- Etapes --}}
     <ol class="acid-steps" style="margin-block-end:var(--acid-space-6);">
         <li class="acid-steps__item is-active">Choisir la classe</li>
-        <li class="acid-steps__item">Deposer le fichier Excel</li>
-        <li class="acid-steps__item">Verifier le resultat</li>
+        <li class="acid-steps__item">Déposer le fichier Excel</li>
+        <li class="acid-steps__item">Vérifier le résultat</li>
     </ol>
 
     {{-- Erreurs de validation --}}
@@ -29,7 +29,7 @@
         <div class="acid-alert acid-alert--danger" style="margin-block-end:var(--acid-space-5);" role="alert">
             <i class="fas fa-triangle-exclamation acid-alert__icon" aria-hidden="true"></i>
             <div class="acid-alert__body">
-                <p class="acid-alert__title">Le fichier n'a pas pu etre importe</p>
+                <p class="acid-alert__title">Le fichier n'a pas pu être importé</p>
                 <ul style="margin:0;padding-inline-start:1.125rem;font-size:var(--acid-text-sm);">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -49,7 +49,7 @@
                     <i class="fas fa-file-import"></i>
                 </span>
                 <div>
-                    <h2 class="acid-card__title">Fichier a importer</h2>
+                    <h2 class="acid-card__title">Fichier à importer</h2>
                     <p class="acid-card__subtitle">Excel .xlsx ou .xls, 10 Mo maximum</p>
                 </div>
             </div>
@@ -64,15 +64,15 @@
                         <label for="classe_id" class="acid-label acid-label--required">Classe de destination</label>
                         <select id="classe_id" name="classe_id" required
                                 class="acid-select @error('classe_id') is-invalid @enderror">
-                            <option value="">Selectionnez une classe</option>
+                            <option value="">Sélectionnez une classe</option>
                             @foreach ($classes as $classe)
                                 <option value="{{ $classe->id }}" {{ old('classe_id') == $classe->id ? 'selected' : '' }}>
-                                    {{ $classe->nom }}@if ($classe->eleves_count) &nbsp;({{ $classe->eleves_count }} eleves)@endif
+                                    {{ $classe->nom }}@if ($classe->eleves_count) &nbsp;({{ $classe->eleves_count }} élèves)@endif
                                 </option>
                             @endforeach
                         </select>
                         <span class="acid-hint">
-                            Les eleves deja presents sont mis a jour, pas dupliques.
+                            Les élèves déjà présents sont mis à jour, pas dupliqués.
                         </span>
                         @error('classe_id')
                             <div class="acid-error" role="alert">
@@ -86,14 +86,14 @@
                         <span class="acid-label acid-label--required">Fichier Excel</span>
 
                         <div class="acid-dropzone" id="dropzone" role="button" tabindex="0"
-                             aria-label="Selectionner un fichier Excel">
+                             aria-label="Sélectionner un fichier Excel">
                             <input type="file" name="excel_file" id="fileInput" accept=".xlsx,.xls" hidden required>
 
                             <span class="acid-dropzone__icon" aria-hidden="true">
                                 <i class="fas fa-file-excel"></i>
                             </span>
-                            <span class="acid-dropzone__title">Cliquez ou glissez-deposez votre fichier</span>
-                            <p class="acid-dropzone__hint">Formats acceptes : .xlsx, .xls &middot; 10 Mo maximum</p>
+                            <span class="acid-dropzone__title">Cliquez ou glissez-déposez votre fichier</span>
+                            <p class="acid-dropzone__hint">Formats acceptés : .xlsx, .xls &middot; 10 Mo maximum</p>
 
                             <span id="fileNameDisplay" class="acid-badge acid-badge--solid-teal d-none"
                                   style="margin-block-start:var(--acid-space-2);">
@@ -145,7 +145,7 @@
                             <tr>
                                 <td><span class="acid-badge acid-badge--solid-navy">A</span></td>
                                 <td><span class="acid-table__primary">N&deg;</span>
-                                    <span class="acid-table__meta">Numero de ligne</span></td>
+                                    <span class="acid-table__meta">Numéro de ligne</span></td>
                             </tr>
                             <tr>
                                 <td><span class="acid-badge acid-badge--solid-navy">B</span></td>
@@ -157,9 +157,9 @@
                             </tr>
                             <tr>
                                 <td><span class="acid-badge acid-badge--solid-navy">D</span></td>
-                                <td><span class="acid-table__primary">Nom et prenoms</span>
+                                <td><span class="acid-table__primary">Nom et prénoms</span>
                                     <span class="acid-table__meta">
-                                        Nom de famille en MAJUSCULES, puis prenoms
+                                        Nom de famille en MAJUSCULES, puis prénoms
                                     </span></td>
                             </tr>
                             <tr>
@@ -191,17 +191,17 @@
                 <div class="acid-alert__body">
                     <p class="acid-alert__title">Points de vigilance</p>
                     <ul style="margin:0;padding-inline-start:1.125rem;font-size:var(--acid-text-sm);">
-                        <li>L'en-tete de classe peut commencer en ligne 1.</li>
-                        <li>Les donnees doivent suivre la ligne intitulee &laquo; N&deg; &raquo;.</li>
-                        <li>L'ordre des colonnes doit etre respecte.</li>
+                        <li>L'en-tête de classe peut commencer en ligne 1.</li>
+                        <li>Les données doivent suivre la ligne intitulée &laquo; N&deg; &raquo;.</li>
+                        <li>L'ordre des colonnes doit être respecté.</li>
                         <li>
                             Colonne D : &laquo; MBALLA Paul &raquo; donne le nom MBALLA et le
-                            prenom Paul. Un nom compose en majuscules est reconnu.
+                            prénom Paul. Un nom composé en majuscules est reconnu.
                         </li>
                         <li>Les dates sont au format JJ/MM/AAAA (ex. 15/08/2008).</li>
                         <li>
-                            Les doublons sont mis a jour : par matricule national, ou a defaut
-                            par nom, prenoms et date de naissance.
+                            Les doublons sont mis à jour : par matricule national, ou à défaut
+                            par nom, prénoms et date de naissance.
                         </li>
                     </ul>
                 </div>
@@ -210,13 +210,13 @@
             <div class="acid-alert acid-alert--navy">
                 <i class="fas fa-circle-info acid-alert__icon" aria-hidden="true"></i>
                 <div class="acid-alert__body">
-                    <p class="acid-alert__title">Besoin d'un point de depart ?</p>
+                    <p class="acid-alert__title">Besoin d'un point de départ ?</p>
                     <p style="margin:0 0 var(--acid-space-3);font-size:var(--acid-text-sm);">
-                        Telechargez le modele deja structure et completez-le.
+                        Téléchargez le modèle déjà structure et complétez-le.
                     </p>
                     <a href="{{ route('import.template') }}" class="acid-btn acid-btn--outline acid-btn--sm">
                         <i class="fas fa-download" aria-hidden="true"></i>
-                        Modele Excel
+                        Modèle Excel
                     </a>
                 </div>
             </div>
@@ -232,9 +232,9 @@
                         <i class="fas fa-triangle-exclamation"></i>
                     </span>
                     <div>
-                        <h2 class="modal-title" id="errorsModalLabel">Detail des erreurs</h2>
+                        <h2 class="modal-title" id="errorsModalLabel">Détail des erreurs</h2>
                         <p style="margin:.125rem 0 0;font-size:var(--acid-text-sm);color:var(--acid-text-muted);">
-                            Lignes du fichier qui n'ont pas pu etre importees
+                            Lignes du fichier qui n'ont pas pu être importées
                         </p>
                     </div>
                     <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal"
@@ -311,7 +311,7 @@
                 uploadForm.addEventListener('submit', (e) => {
                     if (!fileInput.files || fileInput.files.length === 0) {
                         e.preventDefault();
-                        window.AcidUI.notify('Veuillez selectionner un fichier Excel.', 'error');
+                        window.AcidUI.notify('Veuillez sélectionner un fichier Excel.', 'error');
                         return;
                     }
 

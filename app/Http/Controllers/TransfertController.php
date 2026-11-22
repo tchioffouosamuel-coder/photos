@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Classe;
 use App\Models\Etudiant;
+use App\Services\AuditLogger;
 use App\Services\PhotoStorageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -20,8 +21,10 @@ use Illuminate\Validation\Rule;
  */
 class TransfertController extends Controller
 {
-    public function __construct(private readonly PhotoStorageService $photos)
-    {
+    public function __construct(
+        private readonly PhotoStorageService $photos,
+        private readonly AuditLogger $journal,
+    ) {
     }
 
     /**
@@ -40,13 +43,34 @@ class TransfertController extends Controller
             'etudiants.*' => ['integer', Rule::exists('etudiants', 'id')],
         ], [
             'classe_destination_id.required' => 'Veuillez choisir la classe de destination.',
-            'classe_destination_id.not_in' => 'La classe de destination doit etre differente de la classe actuelle.',
+            'classe_destination_id.not_in' => 'La classe de destination doit être différente de la classe actuelle.',
             'classe_destination_id.exists' => 'La classe de destination est introuvable.',
-            'etudiants.required' => 'Veuillez selectionner au moins un eleve a transferer.',
-            'etudiants.min' => 'Veuillez selectionner au moins un eleve a transferer.',
+            'etudiants.required' => 'Veuillez sélectionner au moins un élève à transférer.',
+            'etudiants.min' => 'Veuillez sélectionner au moins un élève à transférer.',
         ]);
 
         $destination = Classe::findOrFail($validated['classe_destination_id']);
+
+        /*
+         | Un transfert ne franchit pas une frontiere d'etablissement.
+         |
+         | La portee globale filtre deja les classes visibles, donc le cas ne
+         | se presente que pour un compte a portee globale qui regarde « tous
+         | les etablissements ». Pour lui, les deux classes sont a l'ecran et
+         | rien ne l'empeche de les apparier. Or deplacer un eleve d'un
+         | etablissement vers un autre n'est pas un transfert de classe :
+         | c'est une radiation suivie d'une inscription, avec un dossier
+         | administratif a la cle. L'application refuse de le faire passer
+         | pour un simple changement de classe.
+         */
+        if ((int) $classe->etablissement_id !== (int) $destination->etablissement_id) {
+            return back()->with(
+                'error',
+                'Les deux classes n\'appartiennent pas au même établissement. '
+                . 'Un changement d\'établissement se fait par radiation puis nouvelle inscription, '
+                . 'pas par un transfert de classe.'
+            );
+        }
 
         /*
          | On ne transfere que les eleves appartenant reellement a la classe
@@ -57,7 +81,7 @@ class TransfertController extends Controller
             ->get();
 
         if ($etudiants->isEmpty()) {
-            return back()->with('error', "Aucun eleve valide a transferer : la selection ne correspond pas a la classe {$classe->nom}.");
+            return back()->with('error', "Aucun élève valide à transférer : la sélection ne correspond pas à la classe {$classe->nom}.");
         }
 
         $transferes = 0;
@@ -72,8 +96,8 @@ class TransfertController extends Controller
                     if (! empty($photoOrigine)) {
                         $nouveauFichier = $this->photos->moveStudentPhoto(
                             $etudiant,
-                            $classe->nom,
-                            $destination->nom
+                            $classe->segment_photos,
+                            $destination->segment_photos
                         );
 
                         if ($nouveauFichier === null) {
@@ -93,16 +117,34 @@ class TransfertController extends Controller
                 }
             });
         } catch (\Throwable $e) {
-            Log::error('[transfert] echec', [
+            Log::error('[transfert] échec', [
                 'classe_source' => $classe->id,
                 'classe_destination' => $destination->id,
                 'erreur' => $e->getMessage(),
             ]);
 
-            return back()->with('error', 'Le transfert a echoue : ' . $e->getMessage());
+            return back()->with('error', 'Le transfert a échoué : ' . $e->getMessage());
         }
 
-        Log::info('[transfert] eleves transferes', [
+        /*
+         | Trace d'audit : un transfert deplace des eleves ET leurs fichiers
+         | photo d'un dossier a l'autre. C'est l'operation la plus difficile a
+         | reconstituer apres coup si elle n'est pas journalisee.
+         */
+        $this->journal->enregistrer(
+            AuditLogger::TRANSFERT,
+            $destination,
+            ['classe' => $classe->nom, 'effectif_deplace' => $transferes],
+            [
+                'classe' => $destination->nom,
+                'eleves' => $etudiants->map(fn ($e) => trim($e->nom . ' ' . $e->prenoms))->values()->all(),
+                'photos_deplacees' => $photosDeplacees,
+                'photos_introuvables' => $photosIntrouvables,
+            ],
+            "De {$classe->nom} vers {$destination->nom}"
+        );
+
+        Log::info('[transfert] élèves transférés', [
             'de' => $classe->nom,
             'vers' => $destination->nom,
             'eleves' => $transferes,
@@ -110,13 +152,13 @@ class TransfertController extends Controller
         ]);
 
         $message = $transferes === 1
-            ? "1 eleve transfere vers {$destination->nom}."
-            : "{$transferes} eleves transferes vers {$destination->nom}.";
+            ? "1 élève transféré vers {$destination->nom}."
+            : "{$transferes} élèves transférés vers {$destination->nom}.";
 
         if ($photosDeplacees > 0) {
             $message .= $photosDeplacees === 1
                 ? ' 1 photo deplacee.'
-                : " {$photosDeplacees} photos deplacees.";
+                : " {$photosDeplacees} photos déplacées.";
         }
 
         $response = redirect()
@@ -131,7 +173,7 @@ class TransfertController extends Controller
 
             $response->with(
                 'warning',
-                "Photo introuvable sur le disque pour : {$noms}{$suite}. Ces eleves ont ete transferes sans photo."
+                "Photo introuvable sur le disque pour : {$noms}{$suite}. Ces élèves ont été transférés sans photo."
             );
         }
 

@@ -18,13 +18,13 @@
             </span>
             <h1 class="acid-page-header__title">Nouveau candidat libre</h1>
             <p class="acid-page-header__lead">
-                Les informations saisies alimentent directement les photos labellisees d'examen.
+                Les informations saisies alimentent directement les photos labellisées d'examen.
             </p>
         </div>
         <div class="acid-page-header__actions">
             <a href="{{ route('candidats-libres.index', $classe) }}" class="acid-btn acid-btn--ghost">
                 <i class="fas fa-arrow-left" aria-hidden="true"></i>
-                Retour a la liste
+                Retour à la liste
             </a>
         </div>
     </div>
@@ -39,7 +39,7 @@
                 <div class="acid-card__header">
                     <span class="acid-stat__icon" aria-hidden="true"><i class="fas fa-user-tag"></i></span>
                     <div>
-                        <h2 class="acid-card__title">Identite du candidat</h2>
+                        <h2 class="acid-card__title">Identité du candidat</h2>
                         <p class="acid-card__subtitle">Telle qu'elle figurera sur la fiche d'examen</p>
                     </div>
                 </div>
@@ -88,9 +88,9 @@
                             <label for="sexe" class="acid-label acid-label--required">Sexe</label>
                             <select id="sexe" name="sexe" required
                                     class="acid-select @error('sexe') is-invalid @enderror">
-                                <option value="">Selectionner...</option>
+                                <option value="">Sélectionner...</option>
                                 <option value="M" {{ old('sexe') === 'M' ? 'selected' : '' }}>Masculin</option>
-                                <option value="F" {{ old('sexe') === 'F' ? 'selected' : '' }}>Feminin</option>
+                                <option value="F" {{ old('sexe') === 'F' ? 'selected' : '' }}>Féminin</option>
                             </select>
                             @error('sexe')
                                 <div class="acid-error" role="alert">
@@ -111,7 +111,7 @@
                     </span>
                     <div>
                         <h2 class="acid-card__title">Photographie</h2>
-                        <p class="acid-card__subtitle">Facultatif a cette etape</p>
+                        <p class="acid-card__subtitle">Facultatif à cette étape</p>
                     </div>
                 </div>
                 <div class="acid-card__body">
@@ -121,7 +121,7 @@
                         <label for="photoInput" style="cursor:pointer;display:block;margin:0;">
                             <span id="photoPreviewContainer" class="d-none"
                                   style="display:block;margin-block-end:var(--acid-space-3);">
-                                <img id="photoPreview" alt="Apercu de la photo"
+                                <img id="photoPreview" alt="Aperçu de la photo"
                                      style="max-width:220px;max-height:220px;object-fit:cover;
                                             border-radius:var(--acid-radius);border:1px solid var(--acid-border);">
                             </span>
@@ -129,7 +129,7 @@
                                 <i class="fas fa-cloud-arrow-up"></i>
                             </span>
                             <span class="acid-dropzone__title" style="display:block;margin-block-start:var(--acid-space-3);">
-                                Selectionner une photo
+                                Sélectionner une photo
                             </span>
                             <span class="acid-dropzone__hint" style="display:block;">
                                 JPG ou PNG &middot; 10 Mo maximum

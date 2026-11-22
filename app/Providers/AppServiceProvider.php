@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use App\Models\Etudiant;
@@ -31,6 +32,16 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(\App\Services\Photo4x4Service::class, function ($app) {
             return new \App\Services\Photo4x4Service();
         });
+
+        /*
+         | Perimetre d'etablissement de la requete.
+         |
+         | scoped() et non singleton() : l'instance memorise l'etablissement
+         | resolu, ce qui est juste le temps d'une requete et faux au-dela.
+         | Sous un serveur persistant, un singleton servirait a la requete
+         | suivante le perimetre de l'utilisateur precedent.
+         */
+        $this->app->scoped(\App\Support\EtablissementContext::class);
     }
 
     /**
@@ -44,6 +55,14 @@ class AppServiceProvider extends ServiceProvider
         if (str_contains(url('/'), '/public')) {
             $this->app['url']->forceRootUrl(str_replace('/public', '', url('/')));
         }
+
+        /*
+         | Les vues de pagination livrees par Laravel sont ecrites pour
+         | Tailwind. L'application est batie sur Bootstrap, dont acid.css
+         | habille deja .pagination et .page-link : sans ce reglage, les liens
+         | de page s'afficheraient sans aucun style.
+         */
+        Paginator::useBootstrapFive();
 
         $this->sharePendingPhotosCount();
     }
@@ -65,9 +84,9 @@ class AppServiceProvider extends ServiceProvider
 
                 if ($compte === null) {
                     try {
-                        $compte = Etudiant::whereNull('photo')
-                            ->orWhere('photo', '')
-                            ->count();
+                        $compte = Etudiant::where(
+                            fn ($q) => $q->whereNull('photo')->orWhere('photo', '')
+                        )->count();
                     } catch (\Throwable $e) {
                         /*
                          | Base indisponible ou migrations non jouees : la

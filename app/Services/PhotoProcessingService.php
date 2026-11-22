@@ -36,7 +36,8 @@ class PhotoProcessingService
         }
         
         $date = date("d/m/Y");
-        $schoolCode = config('school.code', '1357');
+        /* Le code de l'etablissement de la classe, non celui du .env. */
+        $schoolCode = $classe->codeEtablissement();
         
         $successCount = 0;
         foreach ($etudiants as $etudiant) {
@@ -73,7 +74,7 @@ class PhotoProcessingService
     
     private function processPhoto($etudiant, $tempDir, $date, $schoolCode)
     {
-        $photoPath = storage_path("app/public/photos/{$etudiant->classe->nom}/{$etudiant->photo}");
+        $photoPath = storage_path("app/public/photos/{$etudiant->classe->segment_photos}/{$etudiant->photo}");
         
         if (!file_exists($photoPath)) {
             throw new \Exception("Photo introuvable: {$photoPath}");

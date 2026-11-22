@@ -22,7 +22,7 @@
         <div class="acid-page-header__actions">
             <a href="{{ route('candidats-libres.index', $classe) }}" class="acid-btn acid-btn--ghost">
                 <i class="fas fa-arrow-left" aria-hidden="true"></i>
-                Retour a la liste
+                Retour à la liste
             </a>
             <form action="{{ route('candidats-libres.destroy', [$classe, $candidatLibre]) }}" method="POST"
                   data-acid-confirm="Supprimer le candidat {{ $candidatLibre->nom }} ?">
@@ -47,7 +47,7 @@
                 <div class="acid-card__header">
                     <span class="acid-stat__icon" aria-hidden="true"><i class="fas fa-user-tag"></i></span>
                     <div>
-                        <h2 class="acid-card__title">Identite du candidat</h2>
+                        <h2 class="acid-card__title">Identité du candidat</h2>
                         <p class="acid-card__subtitle">Telle qu'elle figurera sur la fiche d'examen</p>
                     </div>
                 </div>
@@ -97,9 +97,9 @@
                             <label for="sexe" class="acid-label acid-label--required">Sexe</label>
                             <select id="sexe" name="sexe" required
                                     class="acid-select @error('sexe') is-invalid @enderror">
-                                <option value="">Selectionner...</option>
+                                <option value="">Sélectionner...</option>
                                 <option value="M" {{ old('sexe', $candidatLibre->sexe) === 'M' ? 'selected' : '' }}>Masculin</option>
-                                <option value="F" {{ old('sexe', $candidatLibre->sexe) === 'F' ? 'selected' : '' }}>Feminin</option>
+                                <option value="F" {{ old('sexe', $candidatLibre->sexe) === 'F' ? 'selected' : '' }}>Féminin</option>
                             </select>
                             @error('sexe')
                                 <div class="acid-error" role="alert">
@@ -138,7 +138,7 @@
                                     Photo actuelle
                                 </p>
                                 <p class="acid-hint" style="margin:0;">
-                                    Selectionnez une nouvelle image ci-dessous pour la remplacer.
+                                    Sélectionnez une nouvelle image ci-dessous pour la remplacer.
                                 </p>
                             </div>
                         </div>
@@ -150,7 +150,7 @@
                         <label for="photoInput" style="cursor:pointer;display:block;margin:0;">
                             <span id="photoPreviewContainer" class="d-none"
                                   style="display:block;margin-block-end:var(--acid-space-3);">
-                                <img id="photoPreview" alt="Apercu de la nouvelle photo"
+                                <img id="photoPreview" alt="Aperçu de la nouvelle photo"
                                      style="max-width:220px;max-height:220px;object-fit:cover;
                                             border-radius:var(--acid-radius);border:1px solid var(--acid-border);">
                             </span>

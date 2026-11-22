@@ -3,9 +3,9 @@
     <div class="acid-page-header">
         <div class="acid-page-header__text">
             <span class="acid-page-header__eyebrow">Gestion scolaire</span>
-            <h1 class="acid-page-header__title">Classes &amp; eleves</h1>
+            <h1 class="acid-page-header__title">Classes &amp; élèves</h1>
             <p class="acid-page-header__lead">
-                Organisez vos classes, suivez leurs effectifs et accedez a la prise de vue.
+                Organisez vos classes, suivez leurs effectifs et accédez à la prise de vue.
             </p>
         </div>
         <div class="acid-page-header__actions">
@@ -13,10 +13,12 @@
                 <i class="fas fa-file-import" aria-hidden="true"></i>
                 Importer une liste
             </a>
-            <a href="{{ route('classes.create') }}" class="acid-btn acid-btn--primary">
-                <i class="fas fa-plus" aria-hidden="true"></i>
-                Nouvelle classe
-            </a>
+            @can(\App\Support\Permissions::CLASSES_CREER)
+                <a href="{{ route('classes.create') }}" class="acid-btn acid-btn--primary">
+                    <i class="fas fa-plus" aria-hidden="true"></i>
+                    Nouvelle classe
+                </a>
+            @endcan
         </div>
     </div>
 
@@ -33,7 +35,7 @@
         <article class="acid-stat acid-stat--teal">
             <span class="acid-stat__icon" aria-hidden="true"><i class="fas fa-users"></i></span>
             <div class="acid-stat__body">
-                <span class="acid-stat__label">Eleves</span>
+                <span class="acid-stat__label">Élèves</span>
                 <span class="acid-stat__value">{{ number_format($classes->sum('etudiants_count'), 0, ',', ' ') }}</span>
             </div>
         </article>
@@ -41,7 +43,7 @@
         <article class="acid-stat acid-stat--sky">
             <span class="acid-stat__icon" aria-hidden="true"><i class="fas fa-mars"></i></span>
             <div class="acid-stat__body">
-                <span class="acid-stat__label">Garcons</span>
+                <span class="acid-stat__label">Garçons</span>
                 <span class="acid-stat__value">{{ number_format($classes->sum('effectif_garcons'), 0, ',', ' ') }}</span>
             </div>
         </article>
@@ -62,12 +64,12 @@
                 <div class="acid-input-group">
                     <i class="fas fa-magnifying-glass acid-input-group__icon" aria-hidden="true"></i>
                     <input type="search" id="classeSearch" class="acid-input"
-                           placeholder="Rechercher par nom, annee scolaire ou examen..."
+                           placeholder="Rechercher par nom, année scolaire ou examen..."
                            autocomplete="off" aria-label="Rechercher une classe">
                 </div>
             </div>
             <span class="acid-toolbar__count" id="classeSearchInfo" hidden>
-                <strong id="classeSearchCount">0</strong> classe(s) trouvee(s)
+                <strong id="classeSearchCount">0</strong> classe(s) trouvée(s)
             </span>
         </div>
     </div>
@@ -110,7 +112,7 @@
                             <div class="acid-stat__value" style="font-size:var(--acid-text-xl);color:var(--acid-sky-600);">
                                 {{ $classe->effectif_garcons }}
                             </div>
-                            <span class="acid-stat__label">Garcons</span>
+                            <span class="acid-stat__label">Garçons</span>
                         </div>
                         <div>
                             <div class="acid-stat__value" style="font-size:var(--acid-text-xl);color:var(--acid-coral-600);">
@@ -125,7 +127,7 @@
                     <a href="{{ route('classes.show', $classe->id) }}"
                        class="acid-btn acid-btn--primary acid-btn--sm" style="flex:1 1 auto;">
                         <i class="fas fa-camera-retro" aria-hidden="true"></i>
-                        Eleves &amp; photos
+                        Élèves &amp; photos
                     </a>
 
                     <a href="{{ route('classes.edit', $classe) }}"
@@ -134,8 +136,10 @@
                         <i class="fas fa-pen" aria-hidden="true"></i>
                     </a>
 
-                    <form action="{{ route('classes.destroy', $classe) }}" method="POST"
-                          data-acid-confirm="Supprimer la classe {{ $classe->nom }} et tous ses eleves ? Cette action est irreversible."
+                    @can('delete', $classe)
+
+                        <form action="{{ route('classes.destroy', $classe) }}" method="POST"
+                          data-acid-confirm="Supprimer la classe {{ $classe->nom }} et tous ses élèves ? Cette action est irréversible."
                           style="display:inline;">
                         @csrf
                         @method('DELETE')
@@ -144,6 +148,8 @@
                             <i class="fas fa-trash-can" aria-hidden="true"></i>
                         </button>
                     </form>
+
+                    @endcan
                 </div>
             </article>
         @empty
@@ -151,14 +157,14 @@
                 <div class="acid-card">
                     <div class="acid-empty">
                         <span class="acid-empty__icon" aria-hidden="true"><i class="fas fa-school"></i></span>
-                        <h2 class="acid-empty__title">Aucune classe enregistree</h2>
+                        <h2 class="acid-empty__title">Aucune classe enregistrée</h2>
                         <p class="acid-empty__text">
-                            Creez votre premiere classe, ou importez directement une liste d'eleves
+                            Créez votre première classe, ou importez directement une liste d'élèves
                             depuis un fichier Excel.
                         </p>
                         <div class="acid-empty__actions">
                             <a href="{{ route('classes.create') }}" class="acid-btn acid-btn--primary">
-                                <i class="fas fa-plus" aria-hidden="true"></i> Creer une classe
+                                <i class="fas fa-plus" aria-hidden="true"></i> Créer une classe
                             </a>
                             <a href="{{ route('import.index') }}" class="acid-btn acid-btn--neutral">
                                 <i class="fas fa-file-import" aria-hidden="true"></i> Importer une liste
@@ -175,7 +181,7 @@
         <div class="acid-empty">
             <span class="acid-empty__icon" aria-hidden="true"><i class="fas fa-magnifying-glass"></i></span>
             <h2 class="acid-empty__title">Aucune classe ne correspond</h2>
-            <p class="acid-empty__text">Essayez un autre nom, une autre annee scolaire ou un autre examen.</p>
+            <p class="acid-empty__text">Essayez un autre nom, une autre année scolaire ou un autre examen.</p>
         </div>
     </div>
 

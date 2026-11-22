@@ -60,7 +60,7 @@ class CandidatLibreController extends Controller
 
         if ($request->hasFile('photo')) {
             $filename = $this->generatePhotoFilename($validated['nom'], $classe);
-            $directory = "photos_cl/{$classe->nom}";
+            $directory = "photos_cl/{$classe->segment_photos}";
             
             if (!Storage::disk('public')->exists($directory)) {
                 Storage::disk('public')->makeDirectory($directory);
@@ -107,7 +107,7 @@ class CandidatLibreController extends Controller
             }
 
             $filename = $this->generatePhotoFilename($validated['nom'], $classe);
-            $directory = "photos_cl/{$classe->nom}";
+            $directory = "photos_cl/{$classe->segment_photos}";
             
             if (!Storage::disk('public')->exists($directory)) {
                 Storage::disk('public')->makeDirectory($directory);
@@ -197,7 +197,7 @@ class CandidatLibreController extends Controller
             }
 
             $filename = $this->generatePhotoFilename($candidatLibre->nom, $classe);
-            $directory = "photos_cl/{$classe->nom}";
+            $directory = "photos_cl/{$classe->segment_photos}";
             
             if (!Storage::disk('public')->exists($directory)) {
                 Storage::disk('public')->makeDirectory($directory);
@@ -243,7 +243,7 @@ class CandidatLibreController extends Controller
             }
 
             $filename = $this->generatePhotoFilename($candidatLibre->nom, $classe);
-            $directory = "photos_cl/{$classe->nom}";
+            $directory = "photos_cl/{$classe->segment_photos}";
             
             if (!Storage::disk('public')->exists($directory)) {
                 Storage::disk('public')->makeDirectory($directory);
@@ -286,7 +286,7 @@ class CandidatLibreController extends Controller
     private function deletePhoto($candidatLibre, $classe)
     {
         try {
-            $photoPath = "photos_cl/{$classe->nom}/{$candidatLibre->photo}";
+            $photoPath = "photos_cl/{$classe->segment_photos}/{$candidatLibre->photo}";
             
             if (Storage::disk('public')->exists($photoPath)) {
                 Storage::disk('public')->delete($photoPath);

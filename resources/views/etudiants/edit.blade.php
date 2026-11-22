@@ -13,7 +13,7 @@
             <span class="acid-page-header__eyebrow">
                 {{ $classe->nom }} &middot; {{ $classe->annee_scolaire }}
             </span>
-            <h1 class="acid-page-header__title">Modifier l'eleve</h1>
+            <h1 class="acid-page-header__title">Modifier l'élève</h1>
             <p class="acid-page-header__lead">
                 {{ strtoupper($etudiant->nom) }} {{ $etudiant->prenoms }}
             </p>
@@ -21,10 +21,10 @@
         <div class="acid-page-header__actions">
             <a href="{{ route('classes.show', $classe) }}" class="acid-btn acid-btn--ghost">
                 <i class="fas fa-arrow-left" aria-hidden="true"></i>
-                Retour a la classe
+                Retour à la classe
             </a>
             <form action="{{ route('etudiants.destroy', [$classe, $etudiant]) }}" method="POST"
-                  data-acid-confirm="Supprimer definitivement {{ $etudiant->nom }} {{ $etudiant->prenoms }} ?">
+                  data-acid-confirm="Supprimer définitivement {{ $etudiant->nom }} {{ $etudiant->prenoms }} ?">
                 @csrf
                 @method('DELETE')
                 <button type="submit" class="acid-btn acid-btn--outline-coral">
@@ -48,7 +48,7 @@
                     <span class="acid-stat__icon" aria-hidden="true"><i class="fas fa-id-badge"></i></span>
                     <div>
                         <h2 class="acid-card__title">Identification</h2>
-                        <p class="acid-card__subtitle">Matricules de l'eleve</p>
+                        <p class="acid-card__subtitle">Matricules de l'élève</p>
                     </div>
                 </div>
                 <div class="acid-card__body">
@@ -90,14 +90,14 @@
                         <i class="fas fa-user"></i>
                     </span>
                     <div>
-                        <h2 class="acid-card__title">Etat civil</h2>
-                        <p class="acid-card__subtitle">Informations portees sur la carte et les documents</p>
+                        <h2 class="acid-card__title">État civil</h2>
+                        <p class="acid-card__subtitle">Informations portées sur la carte et les documents</p>
                     </div>
                 </div>
                 <div class="acid-card__body">
 
                     <div class="acid-field">
-                        <label for="nom" class="acid-label acid-label--required">Nom et prenoms</label>
+                        <label for="nom" class="acid-label acid-label--required">Nom et prénoms</label>
                         <input type="text" id="nom" name="nom" value="{{ old('nom', $etudiant->nom) }}" required
                                class="acid-input @error('nom') is-invalid @enderror">
                         @error('nom')
@@ -110,7 +110,7 @@
 
                     {{-- Champ conserve : alimente par le controleur / l'import --}}
                     <div class="d-none">
-                        <label for="prenoms" class="acid-label">Prenoms</label>
+                        <label for="prenoms" class="acid-label">Prénoms</label>
                         <input type="text" id="prenoms" name="prenoms"
                                value="{{ old('prenoms', $etudiant->prenoms) }}" class="acid-input">
                         @error('prenoms')
@@ -152,9 +152,9 @@
                             <label for="sexe" class="acid-label acid-label--required">Sexe</label>
                             <select id="sexe" name="sexe" required
                                     class="acid-select @error('sexe') is-invalid @enderror">
-                                <option value="">Selectionner...</option>
+                                <option value="">Sélectionner...</option>
                                 <option value="M" {{ old('sexe', $etudiant->sexe) === 'M' ? 'selected' : '' }}>Masculin</option>
-                                <option value="F" {{ old('sexe', $etudiant->sexe) === 'F' ? 'selected' : '' }}>Feminin</option>
+                                <option value="F" {{ old('sexe', $etudiant->sexe) === 'F' ? 'selected' : '' }}>Féminin</option>
                             </select>
                             @error('sexe')
                                 <div class="acid-error" role="alert">
@@ -168,7 +168,7 @@
                             <label for="statut" class="acid-label acid-label--required">Statut</label>
                             <select id="statut" name="statut" required
                                     class="acid-select @error('statut') is-invalid @enderror">
-                                <option value="">Selectionner...</option>
+                                <option value="">Sélectionner...</option>
                                 <option value="N" {{ old('statut', $etudiant->statut) === 'N' ? 'selected' : '' }}>Normal</option>
                                 <option value="R" {{ old('statut', $etudiant->statut) === 'R' ? 'selected' : '' }}>Redoublant</option>
                             </select>
@@ -192,7 +192,7 @@
                     </span>
                     <div>
                         <h2 class="acid-card__title">Photographie</h2>
-                        <p class="acid-card__subtitle">Remplacer la photo de l'eleve</p>
+                        <p class="acid-card__subtitle">Remplacer la photo de l'élève</p>
                     </div>
                 </div>
                 <div class="acid-card__body">
@@ -210,7 +210,7 @@
                                     Photo actuelle
                                 </p>
                                 <p class="acid-hint" style="margin:0;">
-                                    Selectionnez une nouvelle image ci-dessous pour la remplacer.
+                                    Sélectionnez une nouvelle image ci-dessous pour la remplacer.
                                 </p>
                             </div>
                         </div>
@@ -222,7 +222,7 @@
                         <label for="photoInput" style="cursor:pointer;display:block;margin:0;">
                             <span id="photoPreviewContainer" class="d-none"
                                   style="display:block;margin-block-end:var(--acid-space-3);">
-                                <img id="photoPreview" alt="Apercu de la nouvelle photo"
+                                <img id="photoPreview" alt="Aperçu de la nouvelle photo"
                                      style="max-width:220px;max-height:220px;object-fit:cover;
                                             border-radius:var(--acid-radius);border:1px solid var(--acid-border);">
                             </span>
@@ -261,6 +261,7 @@
     </form>
 
     {{-- Transfert de classe : formulaire distinct de la mise a jour de la fiche --}}
+    @can('transferer', $etudiant)
     <section class="acid-card" style="max-width:62rem;margin-block-start:var(--acid-space-6);">
         <div class="acid-card__header">
             <span class="acid-stat__icon" aria-hidden="true"
@@ -268,9 +269,9 @@
                 <i class="fas fa-right-left"></i>
             </span>
             <div>
-                <h2 class="acid-card__title">Transferer vers une autre classe</h2>
+                <h2 class="acid-card__title">Transférer vers une autre classe</h2>
                 <p class="acid-card__subtitle">
-                    La fiche et la photo de l'eleve suivent le transfert
+                    La fiche et la photo de l'élève suivent le transfert
                 </p>
             </div>
         </div>
@@ -281,20 +282,20 @@
                     <i class="fas fa-circle-info acid-alert__icon" aria-hidden="true"></i>
                     <div class="acid-alert__body">
                         <p style="margin:0;font-size:var(--acid-text-sm);">
-                            Aucune autre classe n'est enregistree. Creez-en une pour pouvoir
-                            transferer cet eleve.
+                            Aucune autre classe n'est enregistrée. Créez-en une pour pouvoir
+                            transférer cet élève.
                         </p>
                         <a href="{{ route('classes.create') }}"
                            class="acid-btn acid-btn--outline acid-btn--sm"
                            style="margin-block-start:var(--acid-space-3);">
                             <i class="fas fa-plus" aria-hidden="true"></i>
-                            Creer une classe
+                            Créer une classe
                         </a>
                     </div>
                 </div>
             @else
                 <form method="POST" action="{{ route('etudiants.transfert', $classe) }}"
-                      data-acid-confirm="Transferer {{ $etudiant->nom }} {{ $etudiant->prenoms }} vers la classe selectionnee ?">
+                      data-acid-confirm="Transférer {{ $etudiant->nom }} {{ $etudiant->prenoms }} vers la classe sélectionnée ?">
                     @csrf
                     <input type="hidden" name="etudiants[]" value="{{ $etudiant->id }}">
 
@@ -305,7 +306,7 @@
                             </label>
                             <select id="transfert_destination" name="classe_destination_id" required
                                     class="acid-select @error('classe_destination_id') is-invalid @enderror">
-                                <option value="">Selectionnez une classe</option>
+                                <option value="">Sélectionnez une classe</option>
                                 @foreach ($autresClasses as $destination)
                                     <option value="{{ $destination->id }}">
                                         {{ $destination->nom }} &mdash; {{ $destination->annee_scolaire }}
@@ -316,7 +317,7 @@
 
                         <button type="submit" class="acid-btn acid-btn--secondary">
                             <i class="fas fa-right-left" aria-hidden="true"></i>
-                            Transferer
+                            Transférer
                         </button>
                     </div>
 
@@ -329,13 +330,14 @@
 
                     <p class="acid-hint" style="margin-block-start:var(--acid-space-3);">
                         Classe actuelle : <strong>{{ $classe->nom }}</strong> ({{ $classe->annee_scolaire }}).
-                        Pour transferer plusieurs eleves a la fois, utilisez la selection
+                        Pour transférer plusieurs élèves à la fois, utilisez la sélection
                         depuis <a href="{{ route('classes.show', $classe) }}">la liste de la classe</a>.
                     </p>
                 </form>
             @endif
         </div>
     </section>
+    @endcan
 
     @push('scripts')
         <script>

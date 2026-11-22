@@ -2,7 +2,7 @@
     <div class="acid-alert acid-alert--navy" style="margin-block-end:var(--acid-space-6);">
         <i class="fas fa-shield-halved acid-alert__icon" aria-hidden="true"></i>
         <div class="acid-alert__body">
-            <p class="acid-alert__title">Zone securisee</p>
+            <p class="acid-alert__title">Zone sécurisée</p>
             <p style="margin:0;font-size:var(--acid-text-sm);">
                 Confirmez votre mot de passe pour continuer.
             </p>

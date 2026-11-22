@@ -1,6 +1,6 @@
 <x-guest-layout>
     <h1 class="acid-auth__title">Connexion</h1>
-    <p class="acid-auth__lead">Accedez a votre espace de gestion de l'identification scolaire.</p>
+    <p class="acid-auth__lead">Accédez à votre espace de gestion de l'identification scolaire.</p>
 
     <x-auth-session-status :status="session('status')" />
 
@@ -13,7 +13,7 @@
                 <i class="fas fa-envelope acid-input-group__icon" aria-hidden="true"></i>
                 <x-text-input id="email" type="email" name="email" :value="old('email')"
                               class="{{ $errors->get('email') ? 'is-invalid' : '' }}"
-                              placeholder="nom@etablissement.cm"
+                              placeholder="nom@établissement.cm"
                               required autofocus autocomplete="username" />
             </div>
             <x-input-error :messages="$errors->get('email')" />
@@ -40,7 +40,7 @@
             @if (Route::has('password.request'))
                 <a href="{{ route('password.request') }}"
                    style="font-size:var(--acid-text-sm);font-weight:var(--acid-fw-semibold);">
-                    Mot de passe oublie ?
+                    Mot de passe oublié ?
                 </a>
             @endif
         </div>
@@ -54,7 +54,7 @@
     @if (Route::has('register'))
         <p class="acid-auth__footer">
             Pas encore de compte ?
-            <a href="{{ route('register') }}">Creer un acces</a>
+            <a href="{{ route('register') }}">Créer un accès</a>
         </p>
     @endif
 </x-guest-layout>

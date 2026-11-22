@@ -94,7 +94,7 @@
                     </a>
                     @if (Route::has('register'))
                         <a href="{{ route('register') }}" class="acid-btn acid-btn--neutral">
-                            Creer un acces
+                            Créer un accès
                         </a>
                     @endif
                 @endauth
@@ -111,25 +111,25 @@
                 </span>
 
                 <h1 class="acid-landing__title">
-                    L'identite de chaque eleve,<br>
-                    maitrisee de bout en bout.
+                    L'identité de chaque élève,<br>
+                    maîtrisée de bout en bout.
                 </h1>
 
                 <p class="acid-landing__lead">
-                    {{ config('app.name', 'ACID') }} centralise les eleves, les photographies,
+                    {{ config('app.name', 'ACID') }} centralise les élèves, les photographies,
                     les cartes scolaires et les documents d'examen. Une seule chaine de production,
-                    des resultats conformes et prets a imprimer.
+                    des résultats conformes et prêts à imprimer.
                 </p>
 
                 <div class="acid-btn-group" style="margin-block-start:var(--acid-space-6);">
                     @auth
                         <a href="{{ route('dashboard') }}" class="acid-btn acid-btn--secondary acid-btn--lg">
-                            Acceder a la plateforme
+                            Accéder à la plateforme
                             <i class="fas fa-arrow-right" aria-hidden="true"></i>
                         </a>
                     @else
                         <a href="{{ route('login') }}" class="acid-btn acid-btn--secondary acid-btn--lg">
-                            Acceder a la plateforme
+                            Accéder à la plateforme
                             <i class="fas fa-arrow-right" aria-hidden="true"></i>
                         </a>
                     @endauth
@@ -144,10 +144,10 @@
                 <article class="acid-card" style="padding:var(--acid-space-5);">
                     <span class="acid-stat__icon" aria-hidden="true"><i class="fas fa-users"></i></span>
                     <h3 class="acid-card__title" style="margin:var(--acid-space-3) 0 .25rem;">
-                        Gestion des eleves
+                        Gestion des élèves
                     </h3>
                     <p class="acid-card__subtitle" style="margin:0;">
-                        Classes, effectifs et import de listes Excel en une operation.
+                        Classes, effectifs et import de listes Excel en une opération.
                     </p>
                 </article>
 
@@ -157,10 +157,10 @@
                         <i class="fas fa-camera-retro"></i>
                     </span>
                     <h3 class="acid-card__title" style="margin:var(--acid-space-3) 0 .25rem;">
-                        Prise de vue guidee
+                        Prise de vue guidée
                     </h3>
                     <p class="acid-card__subtitle" style="margin:0;">
-                        Camera integree, cadrage normalise et recadrage automatique.
+                        Caméra intégrée, cadrage normalisé et recadrage automatique.
                     </p>
                 </article>
 
@@ -173,7 +173,7 @@
                         Cartes scolaires
                     </h3>
                     <p class="acid-card__subtitle" style="margin:0;">
-                        Generation automatique, par classe ou pour tout l'etablissement.
+                        Génération automatique, par classe ou pour tout l'établissement.
                     </p>
                 </article>
 
@@ -186,7 +186,7 @@
                         Documents d'examen
                     </h3>
                     <p class="acid-card__subtitle" style="margin:0;">
-                        Photos labellisees et planches imprimables aux formats officiels.
+                        Photos labellisées et planches imprimables aux formats officiels.
                     </p>
                 </article>
             </div>
@@ -201,7 +201,7 @@
                     &middot; {{ config('school.name') }}
                 @endif
             </span>
-            <span>Acces reserve au personnel autorise</span>
+            <span>Accès réservé au personnel autorisé</span>
         </div>
     </footer>
 

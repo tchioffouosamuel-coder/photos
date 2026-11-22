@@ -53,7 +53,7 @@ class ExcelTemplateService
         'A' => 'N°',
         'B' => 'Matricule national',
         'C' => 'Matricule interne',
-        'D' => 'Nom et prenoms',
+        'D' => 'Nom et prénoms',
         'E' => 'Date de naissance',
         'F' => 'Lieu de naissance',
         'G' => 'Sexe',
@@ -83,8 +83,8 @@ class ExcelTemplateService
 
         $spreadsheet->getProperties()
             ->setCreator(config('school.name', 'ACID'))
-            ->setTitle('Modele de liste d\'eleves')
-            ->setDescription('Modele d\'import genere automatiquement par ACID.');
+            ->setTitle('Modèle de liste d\'élèves')
+            ->setDescription('Modèle d\'import généré automatiquement par ACID.');
 
         $this->buildDataSheet($spreadsheet);
         $this->buildHelpSheet($spreadsheet);
@@ -117,7 +117,7 @@ class ExcelTemplateService
         $sheet->setTitle('Eleves');
 
         /* ---- Bandeau de titre ---- */
-        $sheet->setCellValue('A1', 'LISTE DES ELEVES');
+        $sheet->setCellValue('A1', 'LISTE DES ÉLÈVES');
         $sheet->mergeCells('A1:H1');
         $sheet->getStyle('A1')->applyFromArray([
             'font' => ['bold' => true, 'size' => 14, 'color' => ['argb' => 'FFFFFFFF']],
@@ -129,7 +129,7 @@ class ExcelTemplateService
         /* ---- Rappel du mode d'emploi, en clair ---- */
         $sheet->setCellValue(
             'A2',
-            'Saisissez un eleve par ligne sous l\'en-tete. Ne modifiez ni l\'ordre '
+            'Saisissez un élève par ligne sous l\'en-tête. Ne modifiez ni l\'ordre '
             . 'des colonnes ni le libelle « N° » en A' . self::HEADER_ROW . '.'
         );
         $sheet->mergeCells('A2:H2');
@@ -198,7 +198,7 @@ class ExcelTemplateService
             "G{$premiere}:G{$derniere}",
             '"M,F"',
             'Sexe',
-            'Choisissez M (masculin) ou F (feminin).'
+            'Choisissez M (masculin) ou F (féminin).'
         );
 
         $this->applyListValidation(
@@ -206,7 +206,7 @@ class ExcelTemplateService
             "H{$premiere}:H{$derniere}",
             '"N,R"',
             'Statut',
-            'N = Normal, R = Redoublant. Vide equivaut a N.'
+            'N = Normal, R = Redoublant. Vide équivaut à N.'
         );
 
         /* L'en-tete reste visible pendant le defilement */
@@ -233,7 +233,7 @@ class ExcelTemplateService
 
         $sheet->setCellValue(
             'A2',
-            'Ces lignes sont des exemples : recopiez-les dans l\'onglet « Eleves », ne les importez pas telles quelles.'
+            'Ces lignes sont des exemples : recopiez-les dans l\'onglet « Élèves », ne les importez pas telles quelles.'
         );
         $sheet->mergeCells('A2:H2');
         $sheet->getStyle('A2')->getFont()->setItalic(true)->setSize(10);
@@ -258,8 +258,8 @@ class ExcelTemplateService
          | compris pour un nom compose.
          */
         $exemples = [
-            ['1', '20080412MN01', 'INT-001', 'MBALLA Paul Eric', '12/04/2008', 'Yaounde', 'M', 'N'],
-            ['2', '20070903MN02', 'INT-002', 'NGO BALEPA Amelie Therese', '03/09/2007', 'Douala', 'F', 'R'],
+            ['1', '20080412MN01', 'INT-001', 'MBALLA Paul Éric', '12/04/2008', 'Yaounde', 'M', 'N'],
+            ['2', '20070903MN02', 'INT-002', 'NGO BALEPA Amélie Thérèse', '03/09/2007', 'Douala', 'F', 'R'],
             ['3', '', 'INT-003', 'TCHOFFO Jean', '25/12/2008', 'Bafoussam', 'M', ''],
         ];
 
@@ -285,26 +285,26 @@ class ExcelTemplateService
 
         /* ---- Consignes ---- */
         $consignes = [
-            'Regles de remplissage',
-            'Colonne A (N°) : simple numerotation, elle n\'est pas importee.',
-            'Colonne D : nom de famille en MAJUSCULES, puis prenoms en casse normale.',
-            '    Exemple : « MBALLA Paul » donne le nom MBALLA et le prenom Paul.',
-            '    Un nom compose fonctionne : « NGO BALEPA Amelie » donne NGO BALEPA / Amelie.',
+            'Règles de remplissage',
+            'Colonne A (N°) : simple numérotation, elle n\'est pas importée.',
+            'Colonne D : nom de famille en MAJUSCULES, puis prénoms en casse normale.',
+            '    Exemple : « MBALLA Paul » donne le nom MBALLA et le prénom Paul.',
+            '    Un nom composé fonctionne : « NGO BALEPA Amélie » donne NGO BALEPA / Amélie.',
             'Colonne E : date au format JJ/MM/AAAA, par exemple 15/08/2008.',
             'Colonne G : M ou F uniquement.',
-            'Colonne H : N (normal) ou R (redoublant). Laisser vide equivaut a N.',
+            'Colonne H : N (normal) ou R (redoublant). Laisser vide équivaut à N.',
             '',
-            'Mise a jour et doublons',
-            'Un eleve dont le matricule national existe deja dans la classe est mis a jour,',
+            'Mise à jour et doublons',
+            'Un élève dont le matricule national existe déjà dans la classe est mis à jour,',
             'et non duplique. Sans matricule national, le rapprochement se fait sur le nom,',
-            'les prenoms et la date de naissance.',
+            'les prénoms et la date de naissance.',
             '',
             'Points de vigilance',
             'Ne modifiez pas le libelle « N° » de la cellule A' . self::HEADER_ROW
-                . ' de l\'onglet « Eleves » : c\'est lui qui',
-            'indique au logiciel ou commencent les donnees.',
+                . ' de l\'onglet « Élèves » : c\'est lui qui',
+            'indique au logiciel où commencent les données.',
             'Ne changez pas l\'ordre des colonnes.',
-            'Une ligne sans nom est ignoree.',
+            'Une ligne sans nom est ignorée.',
         ];
 
         $ligne += 2;
@@ -314,8 +314,8 @@ class ExcelTemplateService
             $sheet->mergeCells('A' . $ligne . ':H' . $ligne);
 
             $estTitre = in_array($texte, [
-                'Regles de remplissage',
-                'Mise a jour et doublons',
+                'Règles de remplissage',
+                'Mise à jour et doublons',
                 'Points de vigilance',
             ], true);
 
@@ -349,7 +349,7 @@ class ExcelTemplateService
             ->setShowInputMessage(true)
             ->setShowErrorMessage(true)
             ->setShowDropDown(true)
-            ->setErrorTitle('Valeur refusee')
+            ->setErrorTitle('Valeur refusée')
             ->setError($message)
             ->setPromptTitle($titre)
             ->setPrompt($message)

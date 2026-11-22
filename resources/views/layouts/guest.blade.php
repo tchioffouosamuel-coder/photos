@@ -17,18 +17,18 @@
 
             <div class="acid-auth__brand-body">
                 <h2 class="acid-auth__claim">
-                    L'identification scolaire,<br>maitrisee de bout en bout.
+                    L'identification scolaire,<br>maîtrisée de bout en bout.
                 </h2>
                 <p class="acid-auth__pitch">
                     Photographies, cartes scolaires et documents d'examen :
-                    une seule plateforme, des resultats conformes et pres a imprimer.
+                    une seule plateforme, des résultats conformes et prêts à imprimer.
                 </p>
 
                 <ul class="acid-auth__features">
-                    <li><i class="fas fa-camera-retro" aria-hidden="true"></i> Prise de vue guidee et cadrage normalise</li>
-                    <li><i class="fas fa-id-card" aria-hidden="true"></i> Generation automatique des cartes scolaires</li>
-                    <li><i class="fas fa-print" aria-hidden="true"></i> Planches de photos pretes a l'impression</li>
-                    <li><i class="fas fa-shield-halved" aria-hidden="true"></i> Donnees centralisees et tracables</li>
+                    <li><i class="fas fa-camera-retro" aria-hidden="true"></i> Prise de vue guidée et cadrage normalisé</li>
+                    <li><i class="fas fa-id-card" aria-hidden="true"></i> Génération automatique des cartes scolaires</li>
+                    <li><i class="fas fa-print" aria-hidden="true"></i> Planches de photos prêtes à l'impression</li>
+                    <li><i class="fas fa-shield-halved" aria-hidden="true"></i> Données centralisées et traçables</li>
                 </ul>
             </div>
 
@@ -52,7 +52,7 @@
             </div>
 
             <p class="acid-auth__legal">
-                Acces reserve au personnel autorise de l'etablissement.
+                Accès reservé au personnel autorisé de l'établissement.
             </p>
         </main>
     </div>

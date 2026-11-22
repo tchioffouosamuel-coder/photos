@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Etudiant;
+use App\Services\AuditLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
@@ -10,6 +11,10 @@ use Illuminate\Support\Facades\Validator;
 
 class EtudiantPhotoController extends Controller
 {
+    public function __construct(private readonly AuditLogger $journal)
+    {
+    }
+
     /**
      * Upload photo - Optimisé pour PC et Mobile
      */
@@ -53,13 +58,15 @@ class EtudiantPhotoController extends Controller
             }
 
             // Supprimer l'ancienne photo
-            if ($etudiant->photo) {
+            $anciennePhoto = $etudiant->photo;
+
+            if ($anciennePhoto) {
                 $this->deleteOldPhoto($etudiant, $classe);
             }
 
             // Générer le nom de fichier
             $filename = $this->generatePhotoFilename($etudiant);
-            $directory = "photos/{$classe->nom}";
+            $directory = "photos/{$classe->segment_photos}";
             
             // S'assurer que le dossier existe dans storage/app/public
             if (!Storage::disk('public')->exists($directory)) {
@@ -79,6 +86,13 @@ class EtudiantPhotoController extends Controller
             // Mettre à jour la base de données
             $etudiant->photo = $filename;
             $etudiant->save();
+
+            $this->journal->enregistrer(
+                $anciennePhoto ? AuditLogger::PHOTO_REMPLACEE : AuditLogger::PHOTO_PRISE,
+                $etudiant,
+                $anciennePhoto ? ['photo' => $anciennePhoto] : null,
+                ['photo' => $filename, 'classe' => $classe->nom]
+            );
 
             // Construire l'URL correcte
             $photoUrl = $this->getPhotoUrl($path);
@@ -159,13 +173,15 @@ class EtudiantPhotoController extends Controller
             }
 
             // Supprimer l'ancienne photo
-            if ($etudiant->photo) {
+            $anciennePhoto = $etudiant->photo;
+
+            if ($anciennePhoto) {
                 $this->deleteOldPhoto($etudiant, $classe);
             }
 
             // Générer le nom de fichier
             $filename = $this->generatePhotoFilename($etudiant);
-            $directory = "photos/{$classe->nom}";
+            $directory = "photos/{$classe->segment_photos}";
             
             // S'assurer que le dossier existe
             if (!Storage::disk('public')->exists($directory)) {
@@ -185,6 +201,13 @@ class EtudiantPhotoController extends Controller
             // Mettre à jour la base de données
             $etudiant->photo = $filename;
             $etudiant->save();
+
+            $this->journal->enregistrer(
+                $anciennePhoto ? AuditLogger::PHOTO_REMPLACEE : AuditLogger::PHOTO_PRISE,
+                $etudiant,
+                $anciennePhoto ? ['photo' => $anciennePhoto] : null,
+                ['photo' => $filename, 'classe' => $classe->nom]
+            );
 
             // Construire l'URL
             $photoUrl = $this->getPhotoUrl($path);
@@ -222,7 +245,7 @@ class EtudiantPhotoController extends Controller
     private function deleteOldPhoto(Etudiant $etudiant, $classe)
     {
         try {
-            $oldPhotoPath = "photos/{$classe->nom}/{$etudiant->photo}";
+            $oldPhotoPath = "photos/{$classe->segment_photos}/{$etudiant->photo}";
             
             // Supprimer de storage/app/public
             if (Storage::disk('public')->exists($oldPhotoPath)) {
@@ -347,8 +370,17 @@ class EtudiantPhotoController extends Controller
 
             $this->deleteOldPhoto($etudiant, $classe);
 
+            $photoSupprimee = $etudiant->photo;
+
             $etudiant->photo = null;
             $etudiant->save();
+
+            $this->journal->enregistrer(
+                AuditLogger::PHOTO_SUPPRIMEE,
+                $etudiant,
+                ['photo' => $photoSupprimee],
+                null
+            );
 
             Log::info('Photo deleted', ['etudiant_id' => $etudiant->id]);
 
@@ -404,9 +436,9 @@ class EtudiantPhotoController extends Controller
         ], [
             'classe_id.required' => 'La classe de destination est obligatoire',
             'classe_id.exists' => 'Cette classe est introuvable',
-            'photos.required' => 'Veuillez selectionner au moins une photo',
+            'photos.required' => 'Veuillez sélectionner au moins une photo',
             'photos.*.image' => 'Un des fichiers n\'est pas une image',
-            'photos.*.mimes' => 'Formats acceptes : JPG, PNG',
+            'photos.*.mimes' => 'Formats acceptés : JPG, PNG',
             'photos.*.max' => 'Chaque photo doit faire moins de 10 Mo',
         ]);
 
@@ -450,7 +482,7 @@ class EtudiantPhotoController extends Controller
             if (count($trouves) === 0) {
                 $inconnus[] = [
                     'fichier' => $nomOriginal,
-                    'raison' => 'Aucun eleve de cette classe ne correspond a ce nom de fichier',
+                    'raison' => 'Aucun élève de cette classe ne correspond à ce nom de fichier',
                 ];
                 continue;
             }
@@ -458,7 +490,7 @@ class EtudiantPhotoController extends Controller
             if (count($trouves) > 1) {
                 $ignores[] = [
                     'fichier' => $nomOriginal,
-                    'raison' => 'Plusieurs eleves correspondent (' . count($trouves) . ') : renommez le fichier avec le matricule',
+                    'raison' => 'Plusieurs élèves correspondent (' . count($trouves) . ') : renommez le fichier avec le matricule',
                 ];
                 continue;
             }
@@ -470,7 +502,7 @@ class EtudiantPhotoController extends Controller
                 $ignores[] = [
                     'fichier' => $nomOriginal,
                     'eleve' => $this->libelleEleve($etudiant),
-                    'raison' => 'Cet eleve a deja une photo',
+                    'raison' => 'Cet élève a déjà une photo',
                 ];
                 continue;
             }
@@ -484,7 +516,7 @@ class EtudiantPhotoController extends Controller
                 $path = $fichier->storeAs($directory, $filename, 'public');
 
                 if (! $path) {
-                    throw new \RuntimeException('Le fichier n\'a pas pu etre ecrit sur le disque');
+                    throw new \RuntimeException('Le fichier n\'a pas pu être écrit sur le disque');
                 }
 
                 $this->syncPhotoToPublic($path);
@@ -499,7 +531,7 @@ class EtudiantPhotoController extends Controller
                     'photo_url' => $this->getPhotoUrl($path),
                 ];
             } catch (\Throwable $e) {
-                Log::error('[photos] import groupe : echec sur un fichier', [
+                Log::error('[photos] import groupe : échec sur un fichier', [
                     'classe_id' => $classe->id,
                     'etudiant_id' => $etudiant->id,
                     'fichier' => $nomOriginal,
@@ -516,7 +548,22 @@ class EtudiantPhotoController extends Controller
             }
         }
 
-        Log::info('[photos] import groupe termine', [
+        $this->journal->enregistrer(
+            AuditLogger::PHOTOS_IMPORTEES,
+            $classe,
+            null,
+            [
+                'recus' => count($fichiers),
+                'attribues' => count($attribues),
+                'ignores' => count($ignores),
+                'inconnus' => count($inconnus),
+                'echecs' => count($echecs),
+                'eleves' => array_column($attribues, 'eleve'),
+            ],
+            $classe->nom
+        );
+
+        Log::info('[photos] import groupe terminé', [
             'classe_id' => $classe->id,
             'recus' => count($fichiers),
             'attribues' => count($attribues),
@@ -622,14 +669,14 @@ class EtudiantPhotoController extends Controller
     private function resumeImport(int $attribues, int $ignores, int $inconnus, int $echecs): string
     {
         if ($attribues === 0 && $ignores === 0 && $echecs === 0) {
-            return 'Aucune photo n\'a pu etre rattachee : verifiez les noms de fichiers';
+            return 'Aucune photo n\'a pu être rattachée : vérifiez les noms de fichiers';
         }
 
         $parts = [];
-        $parts[] = $attribues . ' photo' . ($attribues > 1 ? 's' : '') . ' attribuee' . ($attribues > 1 ? 's' : '');
+        $parts[] = $attribues . ' photo' . ($attribues > 1 ? 's' : '') . ' attribuée' . ($attribues > 1 ? 's' : '');
 
         if ($ignores > 0) {
-            $parts[] = $ignores . ' ignoree' . ($ignores > 1 ? 's' : '');
+            $parts[] = $ignores . ' ignorée' . ($ignores > 1 ? 's' : '');
         }
 
         if ($inconnus > 0) {
@@ -637,7 +684,7 @@ class EtudiantPhotoController extends Controller
         }
 
         if ($echecs > 0) {
-            $parts[] = $echecs . ' en echec';
+            $parts[] = $echecs . ' en échec';
         }
 
         return implode(', ', $parts);
@@ -648,7 +695,7 @@ class EtudiantPhotoController extends Controller
      */
     private static function photoDirectory($classe): string
     {
-        return 'photos/' . $classe->nom;
+        return 'photos/' . $classe->segment_photos;
     }
 
     // ... Autres méthodes CRUD (create, store, edit, update, destroy) ...

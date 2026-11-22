@@ -13,7 +13,7 @@
             <span class="acid-page-header__eyebrow">Gestion scolaire</span>
             <h1 class="acid-page-header__title">Nouvelle classe</h1>
             <p class="acid-page-header__lead">
-                Declarez une classe pour y rattacher ses eleves, leurs photos et leurs documents.
+                Déclarez une classe pour y rattacher ses élèves, leurs photos et leurs documents.
             </p>
         </div>
         <div class="acid-page-header__actions">
@@ -30,7 +30,7 @@
             <div class="acid-card__header">
                 <div>
                     <h2 class="acid-card__title">Informations de la classe</h2>
-                    <p class="acid-card__subtitle">Les champs marques d'une etoile sont obligatoires.</p>
+                    <p class="acid-card__subtitle">Les champs marques d'une étoile sont obligatoires.</p>
                 </div>
             </div>
 
@@ -47,7 +47,7 @@
                                    placeholder="Ex. TF4-BA, 2nde F6-MIPE"
                                    class="acid-input @error('nom') is-invalid @enderror">
                         </div>
-                        <span class="acid-hint">Le nom doit etre unique et facilement reconnaissable.</span>
+                        <span class="acid-hint">Le nom doit être unique et facilement reconnaissable.</span>
                         @error('nom')
                             <div class="acid-error" role="alert">
                                 <i class="fas fa-circle-exclamation" aria-hidden="true"></i>
@@ -57,7 +57,7 @@
                     </div>
 
                     <div class="acid-field">
-                        <label for="exam" class="acid-label">Examen / diplome</label>
+                        <label for="exam" class="acid-label">Examen / diplôme</label>
                         <div class="acid-input-group">
                             <i class="fas fa-graduation-cap acid-input-group__icon" aria-hidden="true"></i>
                             <input type="text" id="exam" name="exam" value="{{ old('exam') }}"
@@ -65,7 +65,7 @@
                                    class="acid-input @error('exam') is-invalid @enderror">
                         </div>
                         <span class="acid-hint">
-                            Renseignez l'examen officiel : il conditionne le format des photos labellisees.
+                            Renseignez l'examen officiel : il conditionne le format des photos labellisées.
                         </span>
                         @error('exam')
                             <div class="acid-error" role="alert">
@@ -76,7 +76,7 @@
                     </div>
 
                     <div class="acid-field">
-                        <label for="annee_scolaire" class="acid-label acid-label--required">Annee scolaire</label>
+                        <label for="annee_scolaire" class="acid-label acid-label--required">Année scolaire</label>
                         <div class="acid-input-group">
                             <i class="fas fa-calendar-days acid-input-group__icon" aria-hidden="true"></i>
                             <input type="text" id="annee_scolaire" name="annee_scolaire" readonly
@@ -84,7 +84,7 @@
                                    required pattern="\d{4}-\d{4}" placeholder="2024-2025"
                                    class="acid-input @error('annee_scolaire') is-invalid @enderror">
                         </div>
-                        <span class="acid-hint">Format AAAA-AAAA, renseigne automatiquement.</span>
+                        <span class="acid-hint">Format AAAA-AAAA, renseigné automatiquement.</span>
                         @error('annee_scolaire')
                             <div class="acid-error" role="alert">
                                 <i class="fas fa-circle-exclamation" aria-hidden="true"></i>
@@ -92,6 +92,42 @@
                             </div>
                         @enderror
                     </div>
+
+                    {{--
+                      | Le choix n'apparaît que s'il est nécessaire : le contrôleur
+                      | n'envoie une liste que lorsque le rattachement est ambigu,
+                      | c'est-à-dire pour un compte à portée globale qui regarde
+                      | plusieurs établissements à la fois.
+                    --}}
+                    @if (!empty($etablissements) && count($etablissements) > 0)
+                        <div class="acid-field">
+                            <label for="etablissement_id" class="acid-label acid-label--required">
+                                Établissement
+                            </label>
+                            <div class="acid-input-group">
+                                <i class="fas fa-school acid-input-group__icon" aria-hidden="true"></i>
+                                <select id="etablissement_id" name="etablissement_id" class="acid-select" required>
+                                    <option value="">Choisir l'établissement</option>
+                                    @foreach ($etablissements as $etab)
+                                        <option value="{{ $etab->id }}"
+                                                @selected(old('etablissement_id') == $etab->id)>
+                                            {{ $etab->nom }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <span class="acid-hint">
+                                Vous travaillez sur plusieurs établissements : précisez lequel
+                                accueille cette classe.
+                            </span>
+                            @error('etablissement_id')
+                                <div class="acid-error" role="alert">
+                                    <i class="fas fa-circle-exclamation" aria-hidden="true"></i>
+                                    <span>{{ $message }}</span>
+                                </div>
+                            @enderror
+                        </div>
+                    @endif
                 </div>
 
                 <div class="acid-card__footer">
@@ -100,7 +136,7 @@
                     </a>
                     <button type="submit" class="acid-btn acid-btn--primary" style="margin-inline-start:auto;">
                         <i class="fas fa-floppy-disk" aria-hidden="true"></i>
-                        Creer la classe
+                        Créer la classe
                     </button>
                 </div>
             </form>
@@ -113,16 +149,16 @@
                     <i class="fas fa-route"></i>
                 </span>
                 <div>
-                    <h2 class="acid-card__title">Prochaines etapes</h2>
+                    <h2 class="acid-card__title">Prochaines étapes</h2>
                     <p class="acid-card__subtitle">De la classe au document imprimable</p>
                 </div>
             </div>
             <div class="acid-card__body">
                 <ol class="acid-steps" style="flex-direction:column;align-items:stretch;">
-                    <li class="acid-steps__item is-active">Creer la classe</li>
-                    <li class="acid-steps__item">Importer la liste des eleves</li>
-                    <li class="acid-steps__item">Photographier les eleves</li>
-                    <li class="acid-steps__item">Generer cartes et planches</li>
+                    <li class="acid-steps__item is-active">Créer la classe</li>
+                    <li class="acid-steps__item">Importer la liste des élèves</li>
+                    <li class="acid-steps__item">Photographier les élèves</li>
+                    <li class="acid-steps__item">Générer cartes et planches</li>
                 </ol>
 
                 <div class="acid-alert acid-alert--navy" style="margin-block-start:var(--acid-space-5);">
@@ -130,13 +166,13 @@
                     <div class="acid-alert__body">
                         <p class="acid-alert__title">Gagnez du temps</p>
                         <p style="margin:0;font-size:var(--acid-text-sm);">
-                            L'import Excel cree la classe et ses eleves en une seule operation.
+                            L'import Excel crée la classe et ses élèves en une seule opération.
                         </p>
                         <a href="{{ route('import.index') }}"
                            class="acid-btn acid-btn--outline acid-btn--sm"
                            style="margin-block-start:var(--acid-space-3);">
                             <i class="fas fa-file-import" aria-hidden="true"></i>
-                            Aller a l'import
+                            Aller à l'import
                         </a>
                     </div>
                 </div>

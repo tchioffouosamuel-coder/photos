@@ -13,7 +13,7 @@
     <div class="acid-page-header">
         <div class="acid-page-header__text">
             <span class="acid-page-header__eyebrow">Pilotage</span>
-            <h1 class="acid-page-header__title">Statistiques generales</h1>
+            <h1 class="acid-page-header__title">Statistiques générales</h1>
             <p class="acid-page-header__lead">
                 Vue d'ensemble des effectifs et de l'avancement de la campagne photographique.
             </p>
@@ -37,14 +37,14 @@
             <div class="acid-stat__body">
                 <span class="acid-stat__label">Classes</span>
                 <span class="acid-stat__value">{{ number_format($totalClasses, 0, ',', ' ') }}</span>
-                <span class="acid-stat__hint">Total dans le systeme</span>
+                <span class="acid-stat__hint">Total dans le système</span>
             </div>
         </article>
 
         <article class="acid-stat acid-stat--sky">
             <span class="acid-stat__icon" aria-hidden="true"><i class="fas fa-users"></i></span>
             <div class="acid-stat__body">
-                <span class="acid-stat__label">Eleves</span>
+                <span class="acid-stat__label">Élèves</span>
                 <span class="acid-stat__value">{{ number_format($totalStudents, 0, ',', ' ') }}</span>
                 <span class="acid-stat__hint">Effectif total</span>
             </div>
@@ -55,7 +55,7 @@
             <div class="acid-stat__body">
                 <span class="acid-stat__label">Avec photo</span>
                 <span class="acid-stat__value">{{ number_format($studentsWithPhotos, 0, ',', ' ') }}</span>
-                <span class="acid-stat__hint">{{ number_format($photoPercentage, 1) }}% complete</span>
+                <span class="acid-stat__hint">{{ number_format($photoPercentage, 1) }}% complète</span>
             </div>
         </article>
 
@@ -70,7 +70,7 @@
                             Voir la liste <i class="fas fa-arrow-right" aria-hidden="true"></i>
                         </a>
                     @else
-                        Campagne terminee
+                        Campagne terminée
                     @endif
                 </span>
             </div>
@@ -88,9 +88,9 @@
                 <h2 class="acid-card__title">Avancement de la campagne photographique</h2>
                 <p class="acid-card__subtitle">
                     @if ($studentsWithoutPhotos > 0)
-                        Il reste {{ number_format($studentsWithoutPhotos, 0, ',', ' ') }} photo(s) a collecter
+                        Il reste {{ number_format($studentsWithoutPhotos, 0, ',', ' ') }} photo(s) à collecter
                     @else
-                        Toutes les photos ont ete collectees
+                        Toutes les photos ont été collectées
                     @endif
                 </p>
             </div>
@@ -107,7 +107,7 @@
                 <div class="acid-progress__bar" style="width:{{ $photoPercentage }}%;"></div>
             </div>
             <p class="acid-hint" style="margin-block-start:var(--acid-space-2);">
-                {{ number_format($studentsWithPhotos, 0, ',', ' ') }} eleves sur
+                {{ number_format($studentsWithPhotos, 0, ',', ' ') }} élèves sur
                 {{ number_format($totalStudents, 0, ',', ' ') }} disposent d'une photo.
             </p>
         </div>
@@ -119,14 +119,14 @@
         <section class="acid-card">
             <div class="acid-card__header">
                 <div>
-                    <h2 class="acid-card__title">Repartition par sexe</h2>
+                    <h2 class="acid-card__title">Répartition par sexe</h2>
                 </div>
             </div>
             <div class="acid-card__body">
                 <div class="acid-row" style="gap:.25rem;margin-block-end:var(--acid-space-4);">
                     <div style="flex:{{ max($pctBoys, 1) }};min-width:1.5rem;height:.625rem;
                                 border-radius:var(--acid-radius-pill);background:var(--acid-sky-500);"
-                         title="Garcons"></div>
+                         title="Garçons"></div>
                     <div style="flex:{{ max($pctGirls, 1) }};min-width:1.5rem;height:.625rem;
                                 border-radius:var(--acid-radius-pill);background:var(--acid-coral-500);"
                          title="Filles"></div>
@@ -139,7 +139,7 @@
                         <div class="acid-stat__value" style="font-size:var(--acid-text-xl);">
                             {{ number_format($totalBoys, 0, ',', ' ') }}
                         </div>
-                        <span class="acid-stat__hint">Garcons &middot; {{ number_format($pctBoys, 1) }}%</span>
+                        <span class="acid-stat__hint">Garçons &middot; {{ number_format($pctBoys, 1) }}%</span>
                     </div>
                     <div class="acid-card acid-card--soft" style="padding:var(--acid-space-4);text-align:center;">
                         <i class="fas fa-venus" aria-hidden="true"
@@ -156,7 +156,7 @@
         <section class="acid-card">
             <div class="acid-card__header">
                 <div>
-                    <h2 class="acid-card__title">Repartition par statut</h2>
+                    <h2 class="acid-card__title">Répartition par statut</h2>
                 </div>
             </div>
             <div class="acid-card__body">
@@ -195,7 +195,7 @@
     <section class="acid-card">
         <div class="acid-card__header">
             <div>
-                <h2 class="acid-card__title">Detail par classe</h2>
+                <h2 class="acid-card__title">Détail par classe</h2>
                 <p class="acid-card__subtitle">Effectifs et couverture photographique</p>
             </div>
             <div class="acid-card__actions">
@@ -209,7 +209,7 @@
                     <tr>
                         <th scope="col">Classe</th>
                         <th scope="col" class="acid-table__num">Total</th>
-                        <th scope="col" class="acid-table__num">Garcons</th>
+                        <th scope="col" class="acid-table__num">Garçons</th>
                         <th scope="col" class="acid-table__num">Filles</th>
                         <th scope="col" class="acid-table__num">Avec photo</th>
                         <th scope="col" class="acid-table__num">Sans photo</th>
@@ -229,7 +229,7 @@
                             <td data-label="Total" data-cell="meta" class="acid-table__num">
                                 <strong>{{ $classe->effectif_total }}</strong>
                             </td>
-                            <td data-label="Garcons" data-cell="meta" class="acid-table__num">
+                            <td data-label="Garçons" data-cell="meta" class="acid-table__num">
                                 <span class="acid-badge acid-badge--sky">{{ $classe->effectif_garcons }}</span>
                             </td>
                             <td data-label="Filles" data-cell="meta" class="acid-table__num">
@@ -272,14 +272,14 @@
                             <td colspan="8">
                                 <div class="acid-empty">
                                     <span class="acid-empty__icon" aria-hidden="true"><i class="fas fa-chart-column"></i></span>
-                                    <h3 class="acid-empty__title">Aucune donnee a analyser</h3>
+                                    <h3 class="acid-empty__title">Aucune donnée à analyser</h3>
                                     <p class="acid-empty__text">
-                                        Les statistiques apparaitront des que des classes et des eleves
-                                        seront enregistres.
+                                        Les statistiques apparaîtront des que des classes et des élèves
+                                        seront enregistrés.
                                     </p>
                                     <div class="acid-empty__actions">
                                         <a href="{{ route('classes.create') }}" class="acid-btn acid-btn--primary">
-                                            <i class="fas fa-plus" aria-hidden="true"></i> Creer une classe
+                                            <i class="fas fa-plus" aria-hidden="true"></i> Créer une classe
                                         </a>
                                     </div>
                                 </div>
@@ -294,7 +294,7 @@
             <div class="acid-empty">
                 <span class="acid-empty__icon" aria-hidden="true"><i class="fas fa-magnifying-glass"></i></span>
                 <h3 class="acid-empty__title">Aucune classe ne correspond</h3>
-                <p class="acid-empty__text">Modifiez votre recherche dans la barre superieure.</p>
+                <p class="acid-empty__text">Modifiez votre recherche dans la barre supérieure.</p>
             </div>
         </div>
     </section>

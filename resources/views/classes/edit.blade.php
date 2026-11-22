@@ -17,7 +17,7 @@
         <div class="acid-page-header__actions">
             <a href="{{ route('classes.show', $classe) }}" class="acid-btn acid-btn--ghost">
                 <i class="fas fa-arrow-left" aria-hidden="true"></i>
-                Retour a la classe
+                Retour à la classe
             </a>
         </div>
     </div>
@@ -28,7 +28,7 @@
             <div class="acid-card__header">
                 <div>
                     <h2 class="acid-card__title">Informations de la classe</h2>
-                    <p class="acid-card__subtitle">Les champs marques d'une etoile sont obligatoires.</p>
+                    <p class="acid-card__subtitle">Les champs marques d'une étoile sont obligatoires.</p>
                 </div>
             </div>
 
@@ -54,7 +54,7 @@
                     </div>
 
                     <div class="acid-field">
-                        <label for="exam" class="acid-label">Examen / diplome</label>
+                        <label for="exam" class="acid-label">Examen / diplôme</label>
                         <div class="acid-input-group">
                             <i class="fas fa-graduation-cap acid-input-group__icon" aria-hidden="true"></i>
                             <input type="text" id="exam" name="exam" value="{{ old('exam', $classe->exam) }}"
@@ -62,7 +62,7 @@
                                    class="acid-input @error('exam') is-invalid @enderror">
                         </div>
                         <span class="acid-hint">
-                            Conditionne le format des photos labellisees pour les fiches d'examen.
+                            Conditionne le format des photos labellisées pour les fiches d'examen.
                         </span>
                         @error('exam')
                             <div class="acid-error" role="alert">
@@ -73,7 +73,7 @@
                     </div>
 
                     <div class="acid-field">
-                        <label for="annee_scolaire" class="acid-label acid-label--required">Annee scolaire</label>
+                        <label for="annee_scolaire" class="acid-label acid-label--required">Année scolaire</label>
                         <div class="acid-input-group">
                             <i class="fas fa-calendar-days acid-input-group__icon" aria-hidden="true"></i>
                             <input type="text" id="annee_scolaire" name="annee_scolaire"
@@ -108,20 +108,20 @@
                 <div class="acid-card__header">
                     <div>
                         <h2 class="acid-card__title">Effectifs actuels</h2>
-                        <p class="acid-card__subtitle">Donnees en lecture seule</p>
+                        <p class="acid-card__subtitle">Données en lecture seule</p>
                     </div>
                 </div>
                 <div class="acid-card__body">
                     <div class="acid-stack" style="gap:var(--acid-space-3);">
                         <div class="acid-row acid-row--between">
-                            <span class="acid-stat__label">Total eleves</span>
+                            <span class="acid-stat__label">Total élèves</span>
                             <strong class="acid-num" style="font-size:var(--acid-text-lg);color:var(--acid-navy);">
                                 {{ $classe->effectif_total }}
                             </strong>
                         </div>
                         <hr class="acid-divider" style="margin:0;">
                         <div class="acid-row acid-row--between">
-                            <span class="acid-stat__label">Garcons</span>
+                            <span class="acid-stat__label">Garçons</span>
                             <strong class="acid-num" style="font-size:var(--acid-text-lg);color:var(--acid-sky-600);">
                                 {{ $classe->effectif_garcons }}
                             </strong>
@@ -139,7 +139,7 @@
                        class="acid-btn acid-btn--outline acid-btn--sm acid-btn--block"
                        style="margin-block-start:var(--acid-space-5);">
                         <i class="fas fa-users" aria-hidden="true"></i>
-                        Gerer les eleves
+                        Gérer les élèves
                     </a>
                 </div>
             </section>
@@ -148,10 +148,10 @@
                 <div class="acid-card__body">
                     <h3 class="acid-card__title" style="margin-block-end:.375rem;">Zone sensible</h3>
                     <p class="acid-card__subtitle" style="margin-block-end:var(--acid-space-4);">
-                        La suppression retire la classe et tous ses eleves, photos incluses.
+                        La suppression retire la classe et tous ses élèves, photos incluses.
                     </p>
                     <form action="{{ route('classes.destroy', $classe) }}" method="POST"
-                          data-acid-confirm="Supprimer la classe {{ $classe->nom }} et tous ses eleves ? Cette action est irreversible.">
+                          data-acid-confirm="Supprimer la classe {{ $classe->nom }} et tous ses élèves ? Cette action est irréversible.">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="acid-btn acid-btn--outline-coral acid-btn--sm acid-btn--block">

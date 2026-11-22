@@ -1,6 +1,6 @@
 <p style="margin:0 0 var(--acid-space-4);color:var(--acid-text-muted);">
-    La suppression du compte efface definitivement toutes les donnees associees.
-    Pensez a exporter au prealable les documents que vous souhaitez conserver.
+    La suppression du compte efface définitivement toutes les données associées.
+    Pensez à exporter au préalable les documents que vous souhaitez conserver.
 </p>
 
 <button type="button" class="acid-btn acid-btn--coral"
@@ -20,10 +20,10 @@
             </span>
             <div>
                 <h2 class="modal-title" id="modal-confirm-user-deletion-label">
-                    Supprimer definitivement ce compte ?
+                    Supprimer définitivement ce compte ?
                 </h2>
                 <p style="margin:.25rem 0 0;font-size:var(--acid-text-sm);color:var(--acid-text-muted);">
-                    Cette action est irreversible. Saisissez votre mot de passe pour confirmer.
+                    Cette action est irréversible. Saisissez votre mot de passe pour confirmer.
                 </p>
             </div>
             <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal"
@@ -46,7 +46,7 @@
             </button>
             <x-danger-button>
                 <i class="fas fa-trash-can" aria-hidden="true"></i>
-                Supprimer definitivement
+                Supprimer définitivement
             </x-danger-button>
         </div>
     </form>

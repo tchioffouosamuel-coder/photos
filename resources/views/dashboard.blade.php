@@ -26,7 +26,7 @@
                 </p>
             </div>
             <div class="acid-hero__pill">
-                <span>Annee scolaire</span>
+                <span>Année scolaire</span>
                 <strong>{{ date('Y') }}-{{ date('Y') + 1 }}</strong>
             </div>
         </div>
@@ -40,17 +40,17 @@
             <div class="acid-stat__body">
                 <span class="acid-stat__label">Classes</span>
                 <span class="acid-stat__value">{{ number_format($totalClasses, 0, ',', ' ') }}</span>
-                <span class="acid-stat__hint">Classes actives cette annee</span>
+                <span class="acid-stat__hint">Classes actives cette année</span>
             </div>
         </article>
 
         <article class="acid-stat acid-stat--sky">
             <span class="acid-stat__icon" aria-hidden="true"><i class="fas fa-users"></i></span>
             <div class="acid-stat__body">
-                <span class="acid-stat__label">Eleves</span>
+                <span class="acid-stat__label">Élèves</span>
                 <span class="acid-stat__value">{{ number_format($totalStudents, 0, ',', ' ') }}</span>
                 <span class="acid-stat__hint">
-                    {{ number_format($totalBoys, 0, ',', ' ') }} garcons &middot;
+                    {{ number_format($totalBoys, 0, ',', ' ') }} garçons &middot;
                     {{ number_format($totalGirls, 0, ',', ' ') }} filles
                 </span>
             </div>
@@ -59,7 +59,7 @@
         <article class="acid-stat acid-stat--teal">
             <span class="acid-stat__icon" aria-hidden="true"><i class="fas fa-camera-retro"></i></span>
             <div class="acid-stat__body">
-                <span class="acid-stat__label">Photos enregistrees</span>
+                <span class="acid-stat__label">Photos enregistrées</span>
                 <span class="acid-stat__value">{{ number_format($totalWithPhotos, 0, ',', ' ') }}</span>
                 <span class="acid-stat__hint">{{ $pctPhotos }}% de l'effectif couvert</span>
             </div>
@@ -89,7 +89,7 @@
         <section class="acid-card">
             <div class="acid-card__header">
                 <div>
-                    <h2 class="acid-card__title">Repartition des eleves par classe</h2>
+                    <h2 class="acid-card__title">Répartition des élèves par classe</h2>
                     <p class="acid-card__subtitle">Effectifs et couverture photographique</p>
                 </div>
                 <div class="acid-card__actions">
@@ -106,7 +106,7 @@
                         <tr>
                             <th scope="col">Classe</th>
                             <th scope="col" class="acid-table__num">Effectif</th>
-                            <th scope="col" class="acid-table__num">Garcons</th>
+                            <th scope="col" class="acid-table__num">Garçons</th>
                             <th scope="col" class="acid-table__num">Filles</th>
                         </tr>
                     </thead>
@@ -121,7 +121,7 @@
                                 <td data-label="Effectif" data-cell="meta" class="acid-table__num">
                                     <span class="acid-badge acid-badge--navy">{{ $classe->etudiants_count }}</span>
                                 </td>
-                                <td data-label="Garcons" data-cell="meta" class="acid-table__num">
+                                <td data-label="Garçons" data-cell="meta" class="acid-table__num">
                                     <span class="acid-badge acid-badge--sky">{{ $classe->effectif_garcons }}</span>
                                 </td>
                                 <td data-label="Filles" data-cell="meta" class="acid-table__num">
@@ -135,18 +135,20 @@
                                         <span class="acid-empty__icon" aria-hidden="true">
                                             <i class="fas fa-school"></i>
                                         </span>
-                                        <h3 class="acid-empty__title">Aucune classe enregistree</h3>
+                                        <h3 class="acid-empty__title">Aucune classe enregistrée</h3>
                                         <p class="acid-empty__text">
-                                            Creez une classe ou importez une liste d'eleves pour
-                                            demarrer la campagne d'identification.
+                                            Créez une classe ou importez une liste d'élèves pour
+                                            démarrer la campagne d'identification.
                                         </p>
                                         <div class="acid-empty__actions">
                                             <a href="{{ route('classes.create') }}" class="acid-btn acid-btn--primary">
                                                 <i class="fas fa-plus" aria-hidden="true"></i> Nouvelle classe
                                             </a>
-                                            <a href="{{ route('import.index') }}" class="acid-btn acid-btn--neutral">
-                                                <i class="fas fa-file-import" aria-hidden="true"></i> Importer une liste
-                                            </a>
+                                            @can(\App\Support\Permissions::ELEVES_IMPORTER)
+                                                <a href="{{ route('import.index') }}" class="acid-btn acid-btn--neutral">
+                                                    <i class="fas fa-file-import" aria-hidden="true"></i> Importer une liste
+                                                </a>
+                                            @endcan
                                         </div>
                                     </div>
                                 </td>
@@ -164,7 +166,7 @@
                 <div class="acid-card__header">
                     <div>
                         <h2 class="acid-card__title">Avancement photographique</h2>
-                        <p class="acid-card__subtitle">Eleves disposant d'une photo</p>
+                        <p class="acid-card__subtitle">Élèves disposant d'une photo</p>
                     </div>
                 </div>
                 <div class="acid-card__body">
@@ -186,12 +188,12 @@
                            class="acid-btn acid-btn--outline-coral acid-btn--sm acid-btn--block"
                            style="margin-block-start:var(--acid-space-4);">
                             <i class="fas fa-user-slash" aria-hidden="true"></i>
-                            {{ number_format($totalWithout, 0, ',', ' ') }} eleve(s) sans photo
+                            {{ number_format($totalWithout, 0, ',', ' ') }} élève(s) sans photo
                         </a>
                     @else
                         <p class="acid-hint" style="margin-block-start:var(--acid-space-3);">
                             <i class="fas fa-circle-check acid-text-teal" aria-hidden="true"></i>
-                            Tous les eleves disposent d'une photo.
+                            Tous les élèves disposent d'une photo.
                         </p>
                     @endif
                 </div>
@@ -201,7 +203,7 @@
             <section class="acid-card">
                 <div class="acid-card__header">
                     <div>
-                        <h2 class="acid-card__title">Repartition par sexe</h2>
+                        <h2 class="acid-card__title">Répartition par sexe</h2>
                     </div>
                 </div>
                 <div class="acid-card__body">
@@ -223,7 +225,7 @@
                             <div class="acid-stat__value" style="font-size:var(--acid-text-xl);">
                                 {{ number_format($totalBoys, 0, ',', ' ') }}
                             </div>
-                            <span class="acid-stat__hint">Garcons &middot; {{ $pctBoys }}%</span>
+                            <span class="acid-stat__hint">Garçons &middot; {{ $pctBoys }}%</span>
                         </div>
 
                         <div class="acid-card acid-card--soft" style="padding:var(--acid-space-4);text-align:center;">
@@ -241,7 +243,7 @@
     </div>
 
     {{-- Acces rapides --}}
-    <h2 class="acid-section-title">Acces rapides</h2>
+    <h2 class="acid-section-title">Accès rapides</h2>
 
     <div class="acid-grid acid-grid--cards">
 
@@ -252,11 +254,13 @@
                 <strong style="display:block;color:var(--acid-text-strong);font-weight:var(--acid-fw-bold);">
                     Nouvelle classe
                 </strong>
-                <span class="acid-stat__hint">Creer une classe et son effectif</span>
+                <span class="acid-stat__hint">Créer une classe et son effectif</span>
             </span>
         </a>
 
-        <a href="{{ route('import.index') }}" class="acid-card acid-card--hover"
+        @can(\App\Support\Permissions::ELEVES_IMPORTER)
+
+            <a href="{{ route('import.index') }}" class="acid-card acid-card--hover"
            style="padding:var(--acid-space-5);display:flex;gap:var(--acid-space-4);align-items:flex-start;">
             <span class="acid-stat__icon" aria-hidden="true" style="background:var(--acid-teal-50);color:var(--acid-teal-700);">
                 <i class="fas fa-file-import"></i>
@@ -265,9 +269,11 @@
                 <strong style="display:block;color:var(--acid-text-strong);font-weight:var(--acid-fw-bold);">
                     Importer une liste
                 </strong>
-                <span class="acid-stat__hint">Charger un fichier Excel d'eleves</span>
+                <span class="acid-stat__hint">Charger un fichier Excel d'élèves</span>
             </span>
         </a>
+
+        @endcan
 
         <a href="{{ route('cards.index') }}" class="acid-card acid-card--hover"
            style="padding:var(--acid-space-5);display:flex;gap:var(--acid-space-4);align-items:flex-start;">
@@ -278,7 +284,7 @@
                 <strong style="display:block;color:var(--acid-text-strong);font-weight:var(--acid-fw-bold);">
                     Cartes &amp; documents
                 </strong>
-                <span class="acid-stat__hint">Generer cartes, photos et planches</span>
+                <span class="acid-stat__hint">Générer cartes, photos et planches</span>
             </span>
         </a>
 
@@ -291,7 +297,7 @@
                 <strong style="display:block;color:var(--acid-text-strong);font-weight:var(--acid-fw-bold);">
                     Statistiques
                 </strong>
-                <span class="acid-stat__hint">Suivi detaille par classe</span>
+                <span class="acid-stat__hint">Suivi détaillé par classe</span>
             </span>
         </a>
     </div>

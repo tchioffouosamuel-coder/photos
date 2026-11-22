@@ -25,18 +25,18 @@
             <div class="acid-alert acid-alert--warning" style="margin-block-start:var(--acid-space-3);">
                 <i class="fas fa-triangle-exclamation acid-alert__icon" aria-hidden="true"></i>
                 <div class="acid-alert__body">
-                    <p class="acid-alert__title">Adresse non verifiee</p>
+                    <p class="acid-alert__title">Adresse non vérifiée</p>
                     <button form="send-verification" type="submit"
                             class="acid-btn acid-btn--outline-coral acid-btn--sm"
                             style="margin-block-start:var(--acid-space-2);">
                         <i class="fas fa-paper-plane" aria-hidden="true"></i>
-                        Renvoyer l'e-mail de verification
+                        Renvoyer l'e-mail de vérification
                     </button>
 
                     @if (session('status') === 'verification-link-sent')
                         <p style="margin:var(--acid-space-2) 0 0;font-size:var(--acid-text-sm);
                                   font-weight:var(--acid-fw-semibold);color:var(--acid-teal-700);">
-                            Un nouveau lien de verification vous a ete envoye.
+                            Un nouveau lien de vérification vous a été envoyé.
                         </p>
                     @endif
                 </div>
@@ -52,7 +52,7 @@
 
         @if (session('status') === 'profile-updated')
             <span class="acid-badge acid-badge--teal">
-                <i class="fas fa-check" aria-hidden="true"></i> Enregistre
+                <i class="fas fa-check" aria-hidden="true"></i> Enregistré
             </span>
         @endif
     </div>

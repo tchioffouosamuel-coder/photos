@@ -11,9 +11,9 @@
     <div class="acid-page-header">
         <div class="acid-page-header__text">
             <span class="acid-page-header__eyebrow">Pilotage</span>
-            <h1 class="acid-page-header__title">Eleves sans photo</h1>
+            <h1 class="acid-page-header__title">Élèves sans photo</h1>
             <p class="acid-page-header__lead">
-                Liste de travail pour les seances de photographie : chaque ligne permet
+                Liste de travail pour les séances de photographie : chaque ligne permet
                 d'ouvrir directement la prise de vue.
             </p>
         </div>
@@ -36,23 +36,23 @@
             <div class="acid-stat__body">
                 <span class="acid-stat__label">Photos manquantes</span>
                 <span class="acid-stat__value">{{ number_format($totalWithoutPhotos, 0, ',', ' ') }}</span>
-                <span class="acid-stat__hint">Eleves a photographier</span>
+                <span class="acid-stat__hint">Élèves à photographier</span>
             </div>
         </article>
 
         <article class="acid-stat">
             <span class="acid-stat__icon" aria-hidden="true"><i class="fas fa-school"></i></span>
             <div class="acid-stat__body">
-                <span class="acid-stat__label">Classes concernees</span>
+                <span class="acid-stat__label">Classes concernées</span>
                 <span class="acid-stat__value">{{ number_format($classesAffected, 0, ',', ' ') }}</span>
-                <span class="acid-stat__hint">A planifier</span>
+                <span class="acid-stat__hint">À planifier</span>
             </div>
         </article>
 
         <article class="acid-stat acid-stat--sky">
             <span class="acid-stat__icon" aria-hidden="true"><i class="fas fa-mars"></i></span>
             <div class="acid-stat__body">
-                <span class="acid-stat__label">Garcons</span>
+                <span class="acid-stat__label">Garçons</span>
                 <span class="acid-stat__value">{{ number_format($boysWithoutPhotos, 0, ',', ' ') }}</span>
             </div>
         </article>
@@ -70,12 +70,12 @@
     <section class="acid-card">
         <div class="acid-card__header">
             <div>
-                <h2 class="acid-card__title">Liste detaillee</h2>
-                <p class="acid-card__subtitle">Cliquez sur &laquo; Photographier &raquo; pour ouvrir la camera</p>
+                <h2 class="acid-card__title">Liste détaillée</h2>
+                <p class="acid-card__subtitle">Cliquez sur &laquo; Photographier &raquo; pour ouvrir la caméra</p>
             </div>
             <div class="acid-card__actions">
                 <span class="acid-badge acid-badge--navy" id="countDisplay">
-                    {{ $totalWithoutPhotos }} eleves
+                    {{ $totalWithoutPhotos }} élèves
                 </span>
             </div>
         </div>
@@ -86,7 +86,7 @@
                     <i class="fas fa-magnifying-glass acid-input-group__icon" aria-hidden="true"></i>
                     <input type="search" id="searchInput" class="acid-input"
                            placeholder="Rechercher par nom, classe ou matricule..."
-                           autocomplete="off" aria-label="Rechercher un eleve">
+                           autocomplete="off" aria-label="Rechercher un élève">
                 </div>
             </div>
 
@@ -102,7 +102,7 @@
             <div style="flex:0 0 11rem;">
                 <select id="filterSexe" class="acid-select" aria-label="Filtrer par sexe">
                     <option value="">Tous les sexes</option>
-                    <option value="M">Garcons</option>
+                    <option value="M">Garçons</option>
                     <option value="F">Filles</option>
                 </select>
             </div>
@@ -115,7 +115,7 @@
                         <th scope="col" class="acid-table__num">N&deg;</th>
                         <th scope="col">Classe</th>
                         <th scope="col">Matricule</th>
-                        <th scope="col">Eleve</th>
+                        <th scope="col">Élève</th>
                         <th scope="col">Naissance</th>
                         <th scope="col">Sexe</th>
                         <th scope="col" class="acid-table__actions acid-no-print">Action</th>
@@ -147,7 +147,7 @@
                                 <code class="acid-text-muted">{{ $etudiant->matricule_national ?: '—' }}</code>
                             </td>
 
-                            <td data-label="Eleve" data-cell="identity">
+                            <td data-label="Élève" data-cell="identity">
                                 <div class="acid-identity">
                                     <span class="acid-avatar acid-avatar--sky" aria-hidden="true">
                                         <i class="fas fa-user"></i>
@@ -190,15 +190,15 @@
                                     <span class="acid-empty__icon" aria-hidden="true">
                                         <i class="fas fa-circle-check"></i>
                                     </span>
-                                    <h3 class="acid-empty__title">Campagne complete</h3>
+                                    <h3 class="acid-empty__title">Campagne complète</h3>
                                     <p class="acid-empty__text">
-                                        Tous les eleves enregistres disposent d'une photo.
-                                        Vous pouvez generer les cartes et les documents d'examen.
+                                        Tous les élèves enregistrés disposent d'une photo.
+                                        Vous pouvez générer les cartes et les documents d'examen.
                                     </p>
                                     <div class="acid-empty__actions">
                                         <a href="{{ route('cards.index') }}" class="acid-btn acid-btn--primary">
                                             <i class="fas fa-id-card" aria-hidden="true"></i>
-                                            Generer les documents
+                                            Générer les documents
                                         </a>
                                     </div>
                                 </div>
@@ -212,11 +212,11 @@
         <div id="noResults" hidden>
             <div class="acid-empty">
                 <span class="acid-empty__icon" aria-hidden="true"><i class="fas fa-magnifying-glass"></i></span>
-                <h3 class="acid-empty__title">Aucun eleve ne correspond</h3>
-                <p class="acid-empty__text">Modifiez votre recherche ou reinitialisez les filtres.</p>
+                <h3 class="acid-empty__title">Aucun élève ne correspond</h3>
+                <p class="acid-empty__text">Modifiez votre recherche ou réinitialisez les filtres.</p>
                 <div class="acid-empty__actions">
                     <button type="button" class="acid-btn acid-btn--neutral" id="resetFilters">
-                        <i class="fas fa-rotate-left" aria-hidden="true"></i> Reinitialiser
+                        <i class="fas fa-rotate-left" aria-hidden="true"></i> Réinitialiser
                     </button>
                 </div>
             </div>
@@ -224,7 +224,7 @@
     </section>
 
     {{-- Aide --}}
-    <h2 class="acid-section-title acid-no-print">Deroulement d'une seance</h2>
+    <h2 class="acid-section-title acid-no-print">Déroulement d'une séance</h2>
 
     <div class="acid-grid acid-grid--cards acid-no-print">
         <div class="acid-card" style="padding:var(--acid-space-5);">
@@ -233,7 +233,7 @@
                 1. Ouvrir la prise de vue
             </h3>
             <p class="acid-card__subtitle" style="margin:0;">
-                Bouton &laquo; Photographier &raquo; sur la ligne de l'eleve.
+                Bouton &laquo; Photographier &raquo; sur la ligne de l'élève.
             </p>
         </div>
 
@@ -246,7 +246,7 @@
                 2. Capturer ou importer
             </h3>
             <p class="acid-card__subtitle" style="margin:0;">
-                Camera du poste ou du telephone, ou image existante de la galerie.
+                Caméra du poste ou du téléphone, ou image existante de la galerie.
             </p>
         </div>
 
@@ -259,7 +259,7 @@
                 3. Valider
             </h3>
             <p class="acid-card__subtitle" style="margin:0;">
-                La photo est recadree au format carre et associee a l'eleve.
+                La photo est recadrée au format carré et associée à l'élève.
             </p>
         </div>
     </div>
@@ -306,7 +306,7 @@
                         if (match) visible++;
                     });
 
-                    count.textContent = visible + (visible === 1 ? ' eleve' : ' eleves');
+                    count.textContent = visible + (visible === 1 ? ' élève' : ' élèves');
                     empty.hidden = visible > 0;
                     if (table) table.hidden = visible === 0;
                 }

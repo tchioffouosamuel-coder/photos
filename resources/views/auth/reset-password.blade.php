@@ -1,6 +1,6 @@
 <x-guest-layout>
     <h1 class="acid-auth__title">Nouveau mot de passe</h1>
-    <p class="acid-auth__lead">Choisissez un mot de passe solide pour securiser votre acces.</p>
+    <p class="acid-auth__lead">Choisissez un mot de passe solide pour sécuriser votre accès.</p>
 
     <form method="POST" action="{{ route('password.store') }}">
         @csrf
@@ -24,7 +24,7 @@
                 <i class="fas fa-lock acid-input-group__icon" aria-hidden="true"></i>
                 <x-text-input id="password" type="password" name="password"
                               class="{{ $errors->get('password') ? 'is-invalid' : '' }}"
-                              placeholder="8 caracteres minimum"
+                              placeholder="8 caractères minimum"
                               required autocomplete="new-password" />
             </div>
             <x-input-error :messages="$errors->get('password')" />

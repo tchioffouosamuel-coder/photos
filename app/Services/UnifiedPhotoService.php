@@ -93,7 +93,7 @@ class UnifiedPhotoService
      */
     private function processPhoto($subject, $tempDir, $date, $photoDir, $isCandidatLibre)
     {
-        $photoPath = storage_path("app/public/{$photoDir}/{$subject->classe->nom}/{$subject->photo}");
+        $photoPath = storage_path("app/public/{$photoDir}/{$subject->classe->segment_photos}/{$subject->photo}");
         
         if (!file_exists($photoPath)) {
             throw new \Exception("Photo introuvable: {$photoPath}");
@@ -153,7 +153,8 @@ class UnifiedPhotoService
             $schoolCode = '0000';
             $code = 'CL';
         } else {
-            $schoolCode = config('school.code', '1357');
+            /* Le code de l'etablissement du sujet, non celui du .env. */
+            $schoolCode = $subject->classe?->codeEtablissement() ?: '';
             $code = $this->getStudentCode($subject);
         }
         
@@ -234,7 +235,7 @@ class UnifiedPhotoService
      */
     private function create4x4Photo($subject, $tempDir, $date, $photoDir, $isCandidatLibre)
     {
-        $photoPath = storage_path("app/public/{$photoDir}/{$subject->classe->nom}/{$subject->photo}");
+        $photoPath = storage_path("app/public/{$photoDir}/{$subject->classe->segment_photos}/{$subject->photo}");
         
         if (!file_exists($photoPath)) {
             throw new \Exception("Photo introuvable");
@@ -298,7 +299,8 @@ class UnifiedPhotoService
             $schoolCode = '0000';
             $code = 'CL';
         } else {
-            $schoolCode = config('school.code', '1357');
+            /* Le code de l'etablissement du sujet, non celui du .env. */
+            $schoolCode = $subject->classe?->codeEtablissement() ?: '';
             $code = $this->getStudentCode($subject);
         }
         

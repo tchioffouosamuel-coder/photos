@@ -5,8 +5,8 @@
             <span class="acid-page-header__eyebrow">Compte</span>
             <h1 class="acid-page-header__title">Mon profil</h1>
             <p class="acid-page-header__lead">
-                Gerez vos informations personnelles, votre mot de passe et votre acces
-                a la plateforme.
+                Gérez vos informations personnelles, votre mot de passe et votre accès
+                à la plateforme.
             </p>
         </div>
     </div>
@@ -18,7 +18,7 @@
                 <span class="acid-stat__icon" aria-hidden="true"><i class="fas fa-user-pen"></i></span>
                 <div>
                     <h2 class="acid-card__title">Informations du profil</h2>
-                    <p class="acid-card__subtitle">Nom et adresse e-mail associes a votre compte.</p>
+                    <p class="acid-card__subtitle">Nom et adresse e-mail associés à votre compte.</p>
                 </div>
             </div>
             <div class="acid-card__body">
@@ -46,7 +46,7 @@
                 </span>
                 <div>
                     <h2 class="acid-card__title">Supprimer le compte</h2>
-                    <p class="acid-card__subtitle">Cette action est definitive et irreversible.</p>
+                    <p class="acid-card__subtitle">Cette action est définitive et irréversible.</p>
                 </div>
             </div>
             <div class="acid-card__body">

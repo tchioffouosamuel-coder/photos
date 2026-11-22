@@ -9,9 +9,15 @@ use Illuminate\Support\Facades\Storage;
 /*
  | Gestion des fichiers photos sur le disque.
  |
- | Les photos sont rangees par nom de classe :
- |     storage/app/public/photos/{classe}/{fichier}        (eleves)
- |     storage/app/public/photos_cl/{classe}/{fichier}     (candidats libres)
+ | Les photos sont rangees par SEGMENT de classe :
+ |     storage/app/public/photos/{segment}/{fichier}        (eleves)
+ |     storage/app/public/photos_cl/{segment}/{fichier}     (candidats libres)
+ |
+ | Le segment vaut « {prefixe-etablissement}/{classe} », ou « {classe} » seul
+ | pour l'etablissement d'origine, qui garde ses chemins historiques. Voir
+ | Classe::getSegmentPhotosAttribute(). Les appelants passent donc toujours
+ | $classe->segment_photos, jamais $classe->nom : deux etablissements ayant
+ | chacun une « Tle A4 » melangeraient sinon leurs fichiers.
  |
  | Le dossier public/storage de cette installation est un vrai dossier et non
  | un lien symbolique : chaque operation est donc repercutee sur la copie
@@ -33,13 +39,13 @@ class PhotoStorageService
      *                     (il peut differer en cas de collision), ou null si
      *                     l'eleve n'a pas de photo exploitable.
      */
-    public function moveStudentPhoto(Etudiant $etudiant, string $fromClassName, string $toClassName): ?string
+    public function moveStudentPhoto(Etudiant $etudiant, string $depuisSegment, string $versSegment): ?string
     {
-        if (empty($etudiant->photo) || $fromClassName === $toClassName) {
+        if (empty($etudiant->photo) || $depuisSegment === $versSegment) {
             return $etudiant->photo ?: null;
         }
 
-        $source = self::STUDENT_ROOT . "/{$fromClassName}/{$etudiant->photo}";
+        $source = self::STUDENT_ROOT . "/{$depuisSegment}/{$etudiant->photo}";
 
         if (! $this->exists($source)) {
             Log::warning('[photos] fichier source introuvable lors du transfert', [
@@ -51,11 +57,11 @@ class PhotoStorageService
         }
 
         $filename = $this->availableFilename(
-            self::STUDENT_ROOT . "/{$toClassName}",
+            self::STUDENT_ROOT . "/{$versSegment}",
             $etudiant->photo
         );
 
-        $target = self::STUDENT_ROOT . "/{$toClassName}/{$filename}";
+        $target = self::STUDENT_ROOT . "/{$versSegment}/{$filename}";
 
         return $this->move($source, $target) ? $filename : null;
     }
@@ -65,15 +71,15 @@ class PhotoStorageService
      * changement de nom d'une classe. Les fichiers deja presents dans le
      * dossier de destination ne sont pas ecrases.
      */
-    public function renameClassFolders(string $oldName, string $newName): void
+    public function renameClassFolders(string $ancienSegment, string $nouveauSegment): void
     {
-        if ($oldName === $newName) {
+        if ($ancienSegment === $nouveauSegment) {
             return;
         }
 
         foreach ([self::STUDENT_ROOT, self::CANDIDATE_ROOT] as $root) {
-            $from = "{$root}/{$oldName}";
-            $to = "{$root}/{$newName}";
+            $from = "{$root}/{$ancienSegment}";
+            $to = "{$root}/{$nouveauSegment}";
 
             if (! Storage::disk('public')->exists($from)) {
                 continue;
@@ -97,13 +103,13 @@ class PhotoStorageService
     /**
      * Supprime la photo d'un eleve (disque + copie publique).
      */
-    public function deleteStudentPhoto(Etudiant $etudiant, string $className): void
+    public function deleteStudentPhoto(Etudiant $etudiant, string $segment): void
     {
         if (empty($etudiant->photo)) {
             return;
         }
 
-        $path = self::STUDENT_ROOT . "/{$className}/{$etudiant->photo}";
+        $path = self::STUDENT_ROOT . "/{$segment}/{$etudiant->photo}";
 
         if (Storage::disk('public')->exists($path)) {
             Storage::disk('public')->delete($path);
@@ -151,7 +157,7 @@ class PhotoStorageService
 
             return true;
         } catch (\Throwable $e) {
-            Log::error('[photos] echec du deplacement', [
+            Log::error('[photos] échec du deplacement', [
                 'de' => $from,
                 'vers' => $to,
                 'erreur' => $e->getMessage(),

@@ -32,7 +32,7 @@ class EtudiantController extends Controller
         
         // Handle photo upload
         if ($request->hasFile('photo')) {
-            $photoPath = $request->file('photo')->store("photos/{$classe->nom}", 'public');
+            $photoPath = $request->file('photo')->store("photos/{$classe->segment_photos}", 'public');
             $validated['photo'] = basename($photoPath);
         }
         
@@ -80,10 +80,10 @@ class EtudiantController extends Controller
         if ($request->hasFile('photo')) {
             // Delete old photo if exists
             if ($etudiant->photo) {
-                Storage::disk('public')->delete("photos/{$classe->nom}/{$etudiant->photo}");
+                Storage::disk('public')->delete("photos/{$classe->segment_photos}/{$etudiant->photo}");
             }
             
-            $photoPath = $request->file('photo')->store("photos/{$classe->nom}", 'public');
+            $photoPath = $request->file('photo')->store("photos/{$classe->segment_photos}", 'public');
             $validated['photo'] = basename($photoPath);
         }
         
@@ -102,7 +102,7 @@ class EtudiantController extends Controller
         
         // Delete photo if exists
         if ($etudiant->photo) {
-            Storage::disk('public')->delete("photos/{$classe->nom}/{$etudiant->photo}");
+            Storage::disk('public')->delete("photos/{$classe->segment_photos}/{$etudiant->photo}");
         }
         
         $etudiant->delete();
@@ -122,11 +122,11 @@ class EtudiantController extends Controller
         
         // Delete old photo if exists
         if ($etudiant->photo) {
-            Storage::disk('public')->delete("photos/{$classe->nom}/{$etudiant->photo}");
+            Storage::disk('public')->delete("photos/{$classe->segment_photos}/{$etudiant->photo}");
         }
         
         // Store new photo
-        $photoPath = $request->file('photo')->store("photos/{$classe->nom}", 'public');
+        $photoPath = $request->file('photo')->store("photos/{$classe->segment_photos}", 'public');
         $etudiant->update(['photo' => basename($photoPath)]);
         
         return response()->json([
@@ -153,7 +153,7 @@ class EtudiantController extends Controller
         
         // Delete old photo if exists
         if ($etudiant->photo) {
-            Storage::disk('public')->delete("photos/{$classe->nom}/{$etudiant->photo}");
+            Storage::disk('public')->delete("photos/{$classe->segment_photos}/{$etudiant->photo}");
         }
         
         // Decode base64 image
@@ -164,7 +164,7 @@ class EtudiantController extends Controller
         
         // Generate unique filename
         $filename = 'photo_' . $etudiant->id . '_' . time() . '.png';
-        $path = "photos/{$classe->nom}/{$filename}";
+        $path = "photos/{$classe->segment_photos}/{$filename}";
         
         // Save to storage
         Storage::disk('public')->put($path, $imageData);

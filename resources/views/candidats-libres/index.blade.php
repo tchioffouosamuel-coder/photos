@@ -23,13 +23,13 @@
             </span>
             <h1 class="acid-page-header__title">Candidats libres</h1>
             <p class="acid-page-header__lead">
-                Candidats rattaches a cette session d'examen sans etre inscrits dans la classe.
+                Candidats rattachés à cette session d'examen sans être inscrits dans la classe.
             </p>
         </div>
         <div class="acid-page-header__actions">
             <a href="{{ route('classes.show', $classe) }}" class="acid-btn acid-btn--ghost">
                 <i class="fas fa-arrow-left" aria-hidden="true"></i>
-                Retour a la classe
+                Retour à la classe
             </a>
             <a href="{{ route('candidats-libres.create', $classe) }}" class="acid-btn acid-btn--primary">
                 <i class="fas fa-plus" aria-hidden="true"></i>
@@ -51,7 +51,7 @@
         <article class="acid-stat acid-stat--sky">
             <span class="acid-stat__icon" aria-hidden="true"><i class="fas fa-mars"></i></span>
             <div class="acid-stat__body">
-                <span class="acid-stat__label">Garcons</span>
+                <span class="acid-stat__label">Garçons</span>
                 <span class="acid-stat__value">{{ $candidats->where('sexe', 'M')->count() }}</span>
             </div>
         </article>
@@ -84,8 +84,8 @@
                 <i class="fas fa-print"></i>
             </span>
             <div>
-                <h2 class="acid-card__title">Documents a generer</h2>
-                <p class="acid-card__subtitle">Photos labellisees pour les fiches d'inscription</p>
+                <h2 class="acid-card__title">Documents à générer</h2>
+                <p class="acid-card__subtitle">Photos labellisées pour les fiches d'inscription</p>
             </div>
         </div>
         <div class="acid-card__body acid-card__body--tight">
@@ -95,7 +95,7 @@
                     <div class="acid-alert__body">
                         <p class="acid-alert__title">Aucune photo disponible</p>
                         <p style="margin:0;font-size:var(--acid-text-sm);">
-                            Ajoutez au moins une photo de candidat pour pouvoir generer les documents.
+                            Ajoutez au moins une photo de candidat pour pouvoir générer les documents.
                         </p>
                     </div>
                 </div>
@@ -188,7 +188,7 @@
                                         </span>
                                     @else
                                         <span class="acid-badge acid-badge--coral">
-                                            <i class="fas fa-venus" aria-hidden="true"></i> Feminin
+                                            <i class="fas fa-venus" aria-hidden="true"></i> Féminin
                                         </span>
                                     @endif
                                 </td>
@@ -224,7 +224,7 @@
                 <div class="acid-empty">
                     <span class="acid-empty__icon" aria-hidden="true"><i class="fas fa-magnifying-glass"></i></span>
                     <h3 class="acid-empty__title">Aucun candidat ne correspond</h3>
-                    <p class="acid-empty__text">Modifiez votre recherche dans la barre superieure.</p>
+                    <p class="acid-empty__text">Modifiez votre recherche dans la barre supérieure.</p>
                 </div>
             </div>
         </section>

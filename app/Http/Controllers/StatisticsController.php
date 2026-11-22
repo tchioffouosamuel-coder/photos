@@ -10,7 +10,7 @@ class StatisticsController extends Controller
 {
     public function index()
     {
-        $classes = Classe::withCount('etudiants')->get();
+        $classes = Classe::visiblesPar()->withCount('etudiants')->get();
         
         // Calculer les statistiques pour chaque classe
         $classes->transform(function ($classe) {
@@ -38,12 +38,12 @@ class StatisticsController extends Controller
             : 0;
         
         // Statistiques par sexe
-        $totalBoys = Etudiant::where('sexe', 'M')->count();
-        $totalGirls = Etudiant::where('sexe', 'F')->count();
+        $totalBoys = Etudiant::visiblesPar()->where('sexe', 'M')->count();
+        $totalGirls = Etudiant::visiblesPar()->where('sexe', 'F')->count();
         
         // Statistiques par statut
-        $normalStudents = Etudiant::where('statut', 'N')->count();
-        $redoublants = Etudiant::where('statut', 'R')->count();
+        $normalStudents = Etudiant::visiblesPar()->where('statut', 'N')->count();
+        $redoublants = Etudiant::visiblesPar()->where('statut', 'R')->count();
         
         return view('statistics.index', compact(
             'classes',
@@ -61,13 +61,14 @@ class StatisticsController extends Controller
     
     public function noPhotos()
     {
-        $students = Etudiant::with('classe')
+        $students = Etudiant::visiblesPar()
+            ->with('classe')
             ->whereNull('photo')
             ->orWhere('photo', '')
             ->orderBy('nom')
             ->get();
         
-        $classes = Classe::has('etudiants')->orderBy('nom')->get();
+        $classes = Classe::visiblesPar()->has('etudiants')->orderBy('nom')->get();
         
         $totalWithoutPhotos = $students->count();
         $classesAffected = $students->pluck('classe_id')->unique()->count();

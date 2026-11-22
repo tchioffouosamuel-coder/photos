@@ -19,6 +19,7 @@
             </a>
         </li>
 
+        @can(\App\Support\Permissions::CLASSES_VOIR)
         <li>
             <a href="{{ route('classes.index') }}"
                class="acid-bottomnav__link {{ request()->routeIs('classes.*') || request()->routeIs('etudiants.*') || request()->routeIs('candidats-libres.*') ? 'is-active' : '' }}"
@@ -30,6 +31,9 @@
             </a>
         </li>
 
+        @endcan
+
+        @can(\App\Support\Permissions::DOCUMENTS_GENERER)
         <li>
             <a href="{{ route('cards.index') }}"
                class="acid-bottomnav__link {{ request()->routeIs('cards.*') ? 'is-active' : '' }}"
@@ -41,6 +45,9 @@
             </a>
         </li>
 
+        @endcan
+
+        @can(\App\Support\Permissions::STATISTIQUES_VOIR)
         <li>
             <a href="{{ route('statistics.no-photos') }}"
                class="acid-bottomnav__link {{ request()->routeIs('statistics.no-photos') ? 'is-active' : '' }}"
@@ -53,12 +60,14 @@
                         </span>
                     @endif
                 </span>
-                <span class="acid-bottomnav__label">A photographier</span>
+                <span class="acid-bottomnav__label">À photographier</span>
                 @if (!empty($pendingPhotos))
-                    <span class="acid-sr-only">{{ $pendingPhotos }} eleves sans photo</span>
+                    <span class="acid-sr-only">{{ $pendingPhotos }} élèves sans photo</span>
                 @endif
             </a>
         </li>
+
+        @endcan
 
         <li>
             {{-- Ouvre le tiroir : meme etat que le bouton hamburger de la topbar --}}

@@ -19,44 +19,100 @@
             <span>Tableau de bord</span>
         </a>
 
-        <a href="{{ route('statistics.index') }}"
+        @can(\App\Support\Permissions::STATISTIQUES_VOIR)
+
+            <a href="{{ route('statistics.index') }}"
            class="acid-sidebar__link {{ request()->routeIs('statistics.index') ? 'is-active' : '' }}"
            @if (request()->routeIs('statistics.index')) aria-current="page" @endif>
             <i class="fas fa-chart-column" aria-hidden="true"></i>
             <span>Statistiques</span>
         </a>
 
-        <a href="{{ route('statistics.no-photos') }}"
+        @endcan
+
+        @can(\App\Support\Permissions::STATISTIQUES_VOIR)
+
+            <a href="{{ route('statistics.no-photos') }}"
            class="acid-sidebar__link {{ request()->routeIs('statistics.no-photos') ? 'is-active' : '' }}"
            @if (request()->routeIs('statistics.no-photos')) aria-current="page" @endif>
             <i class="fas fa-user-slash" aria-hidden="true"></i>
             <span>Photos manquantes</span>
         </a>
 
+        @endcan
+
         <p class="acid-sidebar__section">Gestion scolaire</p>
 
-        <a href="{{ route('classes.index') }}"
+        @can(\App\Support\Permissions::CLASSES_VOIR)
+
+            <a href="{{ route('classes.index') }}"
            class="acid-sidebar__link {{ request()->routeIs('classes.*') || request()->routeIs('etudiants.*') || request()->routeIs('candidats-libres.*') ? 'is-active' : '' }}"
            @if (request()->routeIs('classes.*')) aria-current="page" @endif>
             <i class="fas fa-school" aria-hidden="true"></i>
-            <span>Classes &amp; eleves</span>
+            <span>Classes &amp; élèves</span>
         </a>
 
-        <a href="{{ route('import.index') }}"
+        @endcan
+
+        @can(\App\Support\Permissions::ELEVES_IMPORTER)
+
+            <a href="{{ route('import.index') }}"
            class="acid-sidebar__link {{ request()->routeIs('import.*') ? 'is-active' : '' }}"
            @if (request()->routeIs('import.*')) aria-current="page" @endif>
             <i class="fas fa-file-import" aria-hidden="true"></i>
             <span>Importer une liste</span>
         </a>
 
+        @endcan
+
         <p class="acid-sidebar__section">Production</p>
 
-        <a href="{{ route('cards.index') }}"
+        @can(\App\Support\Permissions::DOCUMENTS_GENERER)
+
+            <a href="{{ route('cards.index') }}"
            class="acid-sidebar__link {{ request()->routeIs('cards.*') ? 'is-active' : '' }}"
            @if (request()->routeIs('cards.*')) aria-current="page" @endif>
             <i class="fas fa-id-card" aria-hidden="true"></i>
             <span>Cartes &amp; documents</span>
         </a>
+
+        @endcan
+
+        @canany([
+            \App\Support\Permissions::COMPTES_GERER,
+            \App\Support\Permissions::JOURNAL_CONSULTER,
+            \App\Support\Permissions::ETABLISSEMENTS_VOIR,
+        ])
+            <p class="acid-sidebar__section">Administration</p>
+
+            @can(\App\Support\Permissions::ETABLISSEMENTS_VOIR)
+                <a href="{{ route('administration.etablissements.index') }}"
+                   class="acid-sidebar__link {{ request()->routeIs('administration.etablissements.*') ? 'is-active' : '' }}"
+                   @if (request()->routeIs('administration.etablissements.*')) aria-current="page" @endif>
+                    <i class="fas fa-school" aria-hidden="true"></i>
+                    <span>Établissements</span>
+                </a>
+            @endcan
+
+            @can(\App\Support\Permissions::COMPTES_GERER)
+                <a href="{{ route('administration.utilisateurs.index') }}"
+                   class="acid-sidebar__link {{ request()->routeIs('administration.utilisateurs.*') || request()->routeIs('administration.roles.*') ? 'is-active' : '' }}"
+                   @if (request()->routeIs('administration.utilisateurs.*')) aria-current="page" @endif>
+                    <i class="fas fa-users-gear" aria-hidden="true"></i>
+                    <span>Comptes &amp; rôles</span>
+                </a>
+            @endcan
+
+            @can(\App\Support\Permissions::JOURNAL_CONSULTER)
+                <a href="{{ route('administration.journal.index') }}"
+                   class="acid-sidebar__link {{ request()->routeIs('administration.journal.*') ? 'is-active' : '' }}"
+                   @if (request()->routeIs('administration.journal.*')) aria-current="page" @endif>
+                    <i class="fas fa-clipboard-list" aria-hidden="true"></i>
+                    <span>Journal d'activité</span>
+                </a>
+            @endcan
+        @endcanany
+
     </nav>
 
     <div class="acid-sidebar__footer">
@@ -86,7 +142,7 @@
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button type="submit" class="dropdown-item dropdown-item--danger">
-                            <i class="fas fa-arrow-right-from-bracket" aria-hidden="true"></i> Deconnexion
+                            <i class="fas fa-arrow-right-from-bracket" aria-hidden="true"></i> Déconnexion
                         </button>
                     </form>
                 </li>

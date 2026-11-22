@@ -26,10 +26,10 @@
             <div class="modal-header">
                 <span class="acid-modal-icon" aria-hidden="true"><i class="fas fa-camera-retro"></i></span>
                 <div style="min-width:0;">
-                    <h2 class="modal-title" id="modalStudentName">Photo de l'eleve</h2>
+                    <h2 class="modal-title" id="modalStudentName">Photo de l'élève</h2>
                     <p id="modalClassName"
                        style="margin:.125rem 0 0;font-size:var(--acid-text-sm);color:var(--acid-text-muted);">
-                        Camera en direct ou import depuis la galerie
+                        Caméra en direct ou import depuis la galerie
                     </p>
                 </div>
                 <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal"
@@ -53,7 +53,7 @@
                     <div class="acid-spec" style="flex:1 1 auto;">
                         <div class="acid-spec__item">
                             <span>Format</span>
-                            <strong>Carre 1:1</strong>
+                            <strong>Carré 1:1</strong>
                         </div>
                         <div class="acid-spec__item">
                             <span>Compression</span>
@@ -71,7 +71,7 @@
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active" id="capture-tab" data-bs-toggle="tab"
                                 data-bs-target="#captureSection" type="button" role="tab">
-                            <i class="fas fa-camera" aria-hidden="true"></i> Camera
+                            <i class="fas fa-camera" aria-hidden="true"></i> Caméra
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
@@ -89,15 +89,15 @@
                         <div class="acid-capture__stage" style="aspect-ratio:1/1;max-width:420px;margin-inline:auto;">
                             <video id="videoElement" autoplay playsinline muted></video>
                             <canvas id="canvasElement" class="d-none"></canvas>
-                            <img id="capturedPhoto" class="d-none" alt="Photo capturee">
+                            <img id="capturedPhoto" class="d-none" alt="Photo capturée">
 
                             <div class="acid-capture__guide" id="captureGuide"
                                  data-label="Cadrez le visage"
                                  style="aspect-ratio:1/1;inset-block:10%;"></div>
 
                             <button type="button" id="switchCameraBtn" class="acid-icon-btn d-none"
-                                    onclick="switchCamera()" title="Changer de camera"
-                                    aria-label="Changer de camera"
+                                    onclick="switchCamera()" title="Changer de caméra"
+                                    aria-label="Changer de caméra"
                                     style="position:absolute;top:.75rem;right:.75rem;z-index:2;
                                            background:rgba(255,255,255,.92);">
                                 <i class="fas fa-camera-rotate" aria-hidden="true"></i>
@@ -107,7 +107,7 @@
                         <div class="acid-capture__toolbar" style="justify-content:center;">
                             <span class="acid-capture__status" id="cameraStatus">
                                 <span class="acid-badge__dot" aria-hidden="true"></span>
-                                Camera a l'arret
+                                Caméra à l'arret
                             </span>
                         </div>
 
@@ -115,7 +115,7 @@
                             <button type="button" id="startCameraBtn" onclick="startCamera()"
                                     class="acid-btn acid-btn--secondary acid-btn--lg acid-btn--block">
                                 <i class="fas fa-video" aria-hidden="true"></i>
-                                Demarrer la camera
+                                Démarrer la caméra
                             </button>
 
                             <button type="button" id="captureBtn" onclick="capturePhoto()"
@@ -159,7 +159,7 @@
                                         Choisir une photo
                                     </span>
                                     <span class="acid-dropzone__hint" style="display:block;">
-                                        JPG ou PNG &middot; 10 Mo maximum &middot; glisser-deposer accepte
+                                        JPG ou PNG &middot; 10 Mo maximum &middot; glisser-déposer accepté
                                     </span>
                                     <span class="acid-badge acid-badge--teal" style="margin-block-start:var(--acid-space-3);">
                                         <i class="fas fa-compress" aria-hidden="true"></i>
@@ -170,7 +170,7 @@
 
                             <div id="uploadPreviewSection" class="d-none" style="margin-block-start:var(--acid-space-4);">
                                 <div style="text-align:center;margin-block-end:var(--acid-space-4);">
-                                    <img id="uploadPreview" alt="Apercu"
+                                    <img id="uploadPreview" alt="Aperçu"
                                          style="max-height:260px;max-width:100%;border-radius:var(--acid-radius);
                                                 border:1px solid var(--acid-border);">
                                     <div id="compressionInfo" class="acid-hint"></div>
@@ -246,7 +246,7 @@ function openPhotoModal(id, nom, prenoms, photoUrl = '', classeNom = '') {
     const classLabel = document.getElementById('modalClassName');
     classLabel.textContent = classeNom
         ? `Classe : ${classeNom}`
-        : 'Camera en direct ou import depuis la galerie';
+        : 'Caméra en direct ou import depuis la galerie';
 
     document.getElementById('studentId').value = id;
 
@@ -282,7 +282,7 @@ function setCameraStatus(live) {
     const el = document.getElementById('cameraStatus');
     if (!el) return;
     el.classList.toggle('is-live', live);
-    el.lastChild.textContent = live ? ' Camera active' : ' Camera a l\'arret';
+    el.lastChild.textContent = live ? ' Caméra active' : ' Caméra à l\'arret';
 }
 
 /* ---------------- Chargement ---------------- */
@@ -341,7 +341,7 @@ async function previewUploadedPhoto(event) {
             document.getElementById('compressionInfo').innerHTML =
                 '<i class="fas fa-circle-check" style="color:var(--acid-teal-600);"></i> ' +
                 formatFileSize(originalSize) + ' &rarr; ' + formatFileSize(compressedSize) +
-                ' (' + compressionRatio + '% de reduction)';
+                ' (' + compressionRatio + '% de réduction)';
 
             hideError();
         };
@@ -378,7 +378,7 @@ async function sendPhoto(blob, filename) {
 
 function onPhotoSaved(data) {
     updateStudentPhoto(currentStudentId, data.photo_url);
-    showToast('Photo enregistree.', 'success');
+    showToast('Photo enregistrée.', 'success');
 
     setTimeout(() => {
         photoModal.hide();
@@ -390,7 +390,7 @@ async function uploadPhoto() {
     const photoInput = document.getElementById('photoInput');
 
     if (!photoInput.files || !photoInput.files[0]) {
-        showError('Veuillez selectionner une photo.');
+        showError('Veuillez sélectionner une photo.');
         return;
     }
 
@@ -429,7 +429,7 @@ async function saveCapturedPhoto() {
             canvas.toBlob(resolve, 'image/jpeg', 0.9);
         });
 
-        if (!blob) throw new Error('Erreur de creation de l\'image');
+        if (!blob) throw new Error('Erreur de création de l\'image');
 
         const { ok, data } = await sendPhoto(blob, 'capture.jpg');
         hideLoading();
@@ -480,7 +480,7 @@ async function detectCameras() {
             document.getElementById('switchCameraBtn').classList.remove('d-none');
         }
     } catch (err) {
-        console.log('Impossible de detecter les cameras :', err);
+        console.log('Impossible de détecter les caméras :', err);
     }
 }
 
@@ -496,7 +496,7 @@ function switchCamera() {
 
 async function startCamera() {
     if (!navigator.mediaDevices?.getUserMedia) {
-        showError('Camera non supportee par ce navigateur.');
+        showError('Caméra non supportee par ce navigateur.');
         return;
     }
 
@@ -525,15 +525,15 @@ async function startCamera() {
         hideError();
 
     } catch (err) {
-        console.error('Camera error:', err);
-        let errorMsg = 'Erreur d\'acces a la camera.';
+        console.error('Caméra error:', err);
+        let errorMsg = 'Erreur d\'accès à la caméra.';
 
         if (err.name === 'NotAllowedError') {
-            errorMsg = 'Autorisation refusee. Verifiez les parametres du navigateur.';
+            errorMsg = 'Autorisation refusée. Vérifiez les paramètres du navigateur.';
         } else if (err.name === 'NotFoundError') {
-            errorMsg = 'Aucune camera detectee.';
+            errorMsg = 'Aucune caméra détectée.';
         } else if (err.name === 'NotReadableError') {
-            errorMsg = 'Camera deja utilisee par une autre application.';
+            errorMsg = 'Caméra déjà utilisée par une autre application.';
         }
 
         setCameraStatus(false);

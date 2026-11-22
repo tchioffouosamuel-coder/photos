@@ -4,7 +4,7 @@
         <ol class="acid-breadcrumb">
             <li><a href="{{ route('classes.index') }}">Classes</a></li>
             <li><a href="{{ route('classes.show', $classe) }}">{{ $classe->nom }}</a></li>
-            <li aria-current="page">Nouvel eleve</li>
+            <li aria-current="page">Nouvel élève</li>
         </ol>
     </nav>
 
@@ -13,16 +13,16 @@
             <span class="acid-page-header__eyebrow">
                 {{ $classe->nom }} &middot; {{ $classe->annee_scolaire }}
             </span>
-            <h1 class="acid-page-header__title">Ajouter un eleve</h1>
+            <h1 class="acid-page-header__title">Ajouter un élève</h1>
             <p class="acid-page-header__lead">
-                Renseignez l'identite de l'eleve. La photo peut etre ajoutee maintenant
+                Renseignez l'identité de l'élève. La photo peut être ajoutée maintenant
                 ou plus tard depuis la prise de vue.
             </p>
         </div>
         <div class="acid-page-header__actions">
             <a href="{{ route('classes.show', $classe) }}" class="acid-btn acid-btn--ghost">
                 <i class="fas fa-arrow-left" aria-hidden="true"></i>
-                Retour a la classe
+                Retour à la classe
             </a>
         </div>
     </div>
@@ -39,7 +39,7 @@
                     <span class="acid-stat__icon" aria-hidden="true"><i class="fas fa-id-badge"></i></span>
                     <div>
                         <h2 class="acid-card__title">Identification</h2>
-                        <p class="acid-card__subtitle">Matricules de l'eleve</p>
+                        <p class="acid-card__subtitle">Matricules de l'élève</p>
                     </div>
                 </div>
                 <div class="acid-card__body">
@@ -81,16 +81,16 @@
                         <i class="fas fa-user"></i>
                     </span>
                     <div>
-                        <h2 class="acid-card__title">Etat civil</h2>
-                        <p class="acid-card__subtitle">Informations portees sur la carte et les documents</p>
+                        <h2 class="acid-card__title">État civil</h2>
+                        <p class="acid-card__subtitle">Informations portées sur la carte et les documents</p>
                     </div>
                 </div>
                 <div class="acid-card__body">
 
                     <div class="acid-field">
-                        <label for="nom" class="acid-label acid-label--required">Nom et prenoms</label>
+                        <label for="nom" class="acid-label acid-label--required">Nom et prénoms</label>
                         <input type="text" id="nom" name="nom" value="{{ old('nom') }}" required
-                               placeholder="Tel qu'il doit apparaitre sur la carte"
+                               placeholder="Tel qu'il doit apparaître sur la carte"
                                class="acid-input @error('nom') is-invalid @enderror">
                         @error('nom')
                             <div class="acid-error" role="alert">
@@ -102,7 +102,7 @@
 
                     {{-- Champ conserve : rempli par le controleur / l'import --}}
                     <div class="d-none">
-                        <label for="prenoms" class="acid-label">Prenoms</label>
+                        <label for="prenoms" class="acid-label">Prénoms</label>
                         <input type="text" id="prenoms" name="prenoms" value="" required class="acid-input">
                         @error('prenoms')
                             <div class="acid-error" role="alert">
@@ -143,9 +143,9 @@
                             <label for="sexe" class="acid-label acid-label--required">Sexe</label>
                             <select id="sexe" name="sexe" required
                                     class="acid-select @error('sexe') is-invalid @enderror">
-                                <option value="">Selectionner...</option>
+                                <option value="">Sélectionner...</option>
                                 <option value="M" {{ old('sexe') === 'M' ? 'selected' : '' }}>Masculin</option>
-                                <option value="F" {{ old('sexe') === 'F' ? 'selected' : '' }}>Feminin</option>
+                                <option value="F" {{ old('sexe') === 'F' ? 'selected' : '' }}>Féminin</option>
                             </select>
                             @error('sexe')
                                 <div class="acid-error" role="alert">
@@ -159,7 +159,7 @@
                             <label for="statut" class="acid-label acid-label--required">Statut</label>
                             <select id="statut" name="statut" required
                                     class="acid-select @error('statut') is-invalid @enderror">
-                                <option value="">Selectionner...</option>
+                                <option value="">Sélectionner...</option>
                                 <option value="N" {{ old('statut') === 'N' ? 'selected' : '' }}>Normal</option>
                                 <option value="R" {{ old('statut') === 'R' ? 'selected' : '' }}>Redoublant</option>
                             </select>
@@ -183,7 +183,7 @@
                     </span>
                     <div>
                         <h2 class="acid-card__title">Photographie</h2>
-                        <p class="acid-card__subtitle">Facultatif a cette etape</p>
+                        <p class="acid-card__subtitle">Facultatif à cette étape</p>
                     </div>
                 </div>
                 <div class="acid-card__body">
@@ -193,7 +193,7 @@
                         <label for="photoInput" style="cursor:pointer;display:block;margin:0;">
                             <span id="photoPreviewContainer" class="d-none"
                                   style="display:block;margin-block-end:var(--acid-space-3);">
-                                <img id="photoPreview" alt="Apercu de la photo"
+                                <img id="photoPreview" alt="Aperçu de la photo"
                                      style="max-width:220px;max-height:220px;object-fit:cover;
                                             border-radius:var(--acid-radius);border:1px solid var(--acid-border);">
                             </span>
@@ -201,7 +201,7 @@
                                 <i class="fas fa-cloud-arrow-up"></i>
                             </span>
                             <span class="acid-dropzone__title" style="display:block;margin-block-start:var(--acid-space-3);">
-                                Selectionner une photo
+                                Sélectionner une photo
                             </span>
                             <span class="acid-dropzone__hint" style="display:block;">
                                 JPG ou PNG &middot; 5 Mo maximum
@@ -219,8 +219,8 @@
                         <i class="fas fa-circle-info acid-alert__icon" aria-hidden="true"></i>
                         <div class="acid-alert__body">
                             <p style="margin:0;font-size:var(--acid-text-sm);">
-                                Pour une prise de vue cadree au format carre, utilisez la camera
-                                integree depuis la liste des eleves apres enregistrement.
+                                Pour une prise de vue cadrée au format carré, utilisez la caméra
+                                intégrée depuis la liste des élèves après enregistrement.
                             </p>
                         </div>
                     </div>
@@ -235,7 +235,7 @@
             <div class="acid-form-actions__end">
                 <button type="submit" class="acid-btn acid-btn--primary acid-btn--lg">
                     <i class="fas fa-floppy-disk" aria-hidden="true"></i>
-                    Enregistrer l'eleve
+                    Enregistrer l'élève
                 </button>
             </div>
         </div>

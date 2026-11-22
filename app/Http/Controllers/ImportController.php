@@ -20,7 +20,7 @@ class ImportController extends Controller
     
     public function index()
     {
-        $classes = Classe::orderBy('nom')->get();
+        $classes = Classe::visiblesPar()->orderBy('nom')->get();
         $history = ImportHistory::with('classe')->latest()->paginate(10);
         
         return view('import.index', compact('classes', 'history'));
@@ -66,13 +66,13 @@ class ImportController extends Controller
         try {
             $contenu = $templates->build();
         } catch (\Throwable $e) {
-            Log::error('[import] generation du modele impossible', [
+            Log::error('[import] génération du modèle impossible', [
                 'error' => $e->getMessage(),
             ]);
 
             return redirect()
                 ->route('import.index')
-                ->with('error', 'Le modele n\'a pas pu etre genere. Reessayez ou signalez l\'incident.');
+                ->with('error', 'Le modèle n\'a pas pu être généré. Réessayez ou signalez l\'incident.');
         }
 
         return response($contenu, 200, [

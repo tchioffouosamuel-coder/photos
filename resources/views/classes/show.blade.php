@@ -29,32 +29,40 @@
         </div>
 
         <div class="acid-page-header__actions">
-            <a href="{{ route('candidats-libres.index', $classe) }}" class="acid-btn acid-btn--neutral">
-                <i class="fas fa-user-tag" aria-hidden="true"></i>
-                Candidats libres
-            </a>
-            <a href="{{ route('classes.edit', $classe) }}" class="acid-btn acid-btn--neutral">
-                <i class="fas fa-pen" aria-hidden="true"></i>
-                Modifier
-            </a>
-            <a href="{{ route('etudiants.create', $classe) }}" class="acid-btn acid-btn--secondary">
-                <i class="fas fa-user-plus" aria-hidden="true"></i>
-                Nouvel eleve
-            </a>
-            @if ($classe->etudiants->count() > 0)
+            @can(\App\Support\Permissions::CANDIDATS_VOIR)
+                <a href="{{ route('candidats-libres.index', $classe) }}" class="acid-btn acid-btn--neutral">
+                    <i class="fas fa-user-tag" aria-hidden="true"></i>
+                    Candidats libres
+                </a>
+            @endcan
+            @can('update', $classe)
+                <a href="{{ route('classes.edit', $classe) }}" class="acid-btn acid-btn--neutral">
+                    <i class="fas fa-pen" aria-hidden="true"></i>
+                    Modifier
+                </a>
+            @endcan
+            @can(\App\Support\Permissions::ELEVES_CREER)
+                <a href="{{ route('etudiants.create', $classe) }}" class="acid-btn acid-btn--secondary">
+                    <i class="fas fa-user-plus" aria-hidden="true"></i>
+                    Nouvel élève
+                </a>
+            @endcan
+            @if ($classe->etudiants->count() > 0 && auth()->user()?->can(\App\Support\Permissions::PHOTOS_IMPORTER))
                 <button type="button" class="acid-btn acid-btn--secondary"
                         data-bs-toggle="modal" data-bs-target="#importPhotosModal">
                     <i class="fas fa-images" aria-hidden="true"></i>
                     Importer des photos
                 </button>
             @endif
-            <form action="{{ route('cards.generate', $classe) }}" method="POST" style="display:inline;">
-                @csrf
-                <button type="submit" class="acid-btn acid-btn--primary">
-                    <i class="fas fa-id-card" aria-hidden="true"></i>
-                    Generer les cartes
-                </button>
-            </form>
+            @can('genererDocuments', $classe)
+                <form action="{{ route('cards.generate', $classe) }}" method="POST" style="display:inline;">
+                    @csrf
+                    <button type="submit" class="acid-btn acid-btn--primary">
+                        <i class="fas fa-id-card" aria-hidden="true"></i>
+                        Générer les cartes
+                    </button>
+                </form>
+            @endcan
         </div>
     </div>
 
@@ -63,7 +71,7 @@
         <article class="acid-stat">
             <span class="acid-stat__icon" aria-hidden="true"><i class="fas fa-users"></i></span>
             <div class="acid-stat__body">
-                <span class="acid-stat__label">Total eleves</span>
+                <span class="acid-stat__label">Total élèves</span>
                 <span class="acid-stat__value">{{ $effectif }}</span>
             </div>
         </article>
@@ -71,7 +79,7 @@
         <article class="acid-stat acid-stat--sky">
             <span class="acid-stat__icon" aria-hidden="true"><i class="fas fa-mars"></i></span>
             <div class="acid-stat__body">
-                <span class="acid-stat__label">Garcons</span>
+                <span class="acid-stat__label">Garçons</span>
                 <span class="acid-stat__value">{{ $classe->effectif_garcons }}</span>
             </div>
         </article>
@@ -112,14 +120,14 @@
     <section class="acid-card">
         <div class="acid-card__header">
             <div>
-                <h2 class="acid-card__title">Liste des eleves</h2>
+                <h2 class="acid-card__title">Liste des élèves</h2>
                 <p class="acid-card__subtitle">
                     Cliquez sur une photo pour ouvrir la prise de vue
                 </p>
             </div>
             <div class="acid-card__actions">
                 <span class="acid-badge acid-badge--navy" id="countDisplay">
-                    {{ $classe->etudiants->count() }} eleves
+                    {{ $classe->etudiants->count() }} élèves
                 </span>
             </div>
         </div>
@@ -130,15 +138,15 @@
                 <div class="acid-input-group">
                     <i class="fas fa-magnifying-glass acid-input-group__icon" aria-hidden="true"></i>
                     <input type="search" id="searchInput" class="acid-input"
-                           placeholder="Rechercher un eleve (nom, matricule...)"
-                           autocomplete="off" aria-label="Rechercher un eleve">
+                           placeholder="Rechercher un élève (nom, matricule...)"
+                           autocomplete="off" aria-label="Rechercher un élève">
                 </div>
             </div>
 
             <div style="flex:0 0 11rem;">
                 <select id="filterSexe" class="acid-select" aria-label="Filtrer par sexe">
                     <option value="">Tous les sexes</option>
-                    <option value="M">Garcons</option>
+                    <option value="M">Garçons</option>
                     <option value="F">Filles</option>
                 </select>
             </div>
@@ -165,25 +173,25 @@
             <div class="acid-bulkbar acid-no-print" id="bulkBar" hidden>
                 <span class="acid-bulkbar__count">
                     <i class="fas fa-check-double" aria-hidden="true"></i>
-                    <strong id="bulkCount">0</strong> eleve(s) selectionne(s)
+                    <strong id="bulkCount">0</strong> élève(s) sélectionné(s)
                 </span>
 
                 <div class="acid-bulkbar__actions">
-                    @if ($autresClasses->isNotEmpty())
+                    @if ($autresClasses->isNotEmpty() && auth()->user()?->can(\App\Support\Permissions::ELEVES_TRANSFERER))
                         <button type="button" class="acid-btn acid-btn--secondary acid-btn--sm"
                                 data-bs-toggle="modal" data-bs-target="#transfertModal">
                             <i class="fas fa-right-left" aria-hidden="true"></i>
-                            Transferer vers une autre classe
+                            Transférer vers une autre classe
                         </button>
                     @else
                         <span class="acid-badge acid-badge--amber">
                             <i class="fas fa-circle-info" aria-hidden="true"></i>
-                            Creez une autre classe pour pouvoir transferer
+                            Créez une autre classe pour pouvoir transférer
                         </span>
                     @endif
 
                     <button type="button" class="acid-btn acid-btn--ghost acid-btn--sm" id="bulkClear">
-                        Annuler la selection
+                        Annuler la sélection
                     </button>
                 </div>
             </div>
@@ -195,13 +203,13 @@
                     <tr>
                         <th scope="col" class="acid-table__select acid-no-print">
                             <label class="acid-check" style="margin:0;"
-                                   title="Tout selectionner">
+                                   title="Tout sélectionner">
                                 <input type="checkbox" id="selectAll"
-                                       aria-label="Selectionner tous les eleves affiches">
+                                       aria-label="Sélectionner tous les élèves affichés">
                             </label>
                         </th>
                         <th scope="col" class="acid-table__num">N&deg;</th>
-                        <th scope="col">Eleve</th>
+                        <th scope="col">Élève</th>
                         <th scope="col">Matricules</th>
                         <th scope="col" class="acid-hide-md">Naissance</th>
                         <th scope="col">Sexe</th>
@@ -225,23 +233,29 @@
                             data-photo="{{ $etudiant->photo ? '1' : '0' }}"
                             data-nom-complet="{{ trim(strtoupper($etudiant->nom) . ' ' . $etudiant->prenoms) }}">
 
-                            <td data-label="Selection" data-cell="select" class="acid-table__select acid-no-print">
+                            <td data-label="Sélection" data-cell="select" class="acid-table__select acid-no-print">
                                 <label class="acid-check" style="margin:0;">
                                     <input type="checkbox" class="student-select" value="{{ $etudiant->id }}"
                                            @checked(in_array((string) $etudiant->id, array_map('strval', (array) old('etudiants', [])), true))
-                                           aria-label="Selectionner {{ $etudiant->nom }} {{ $etudiant->prenoms }}">
+                                           aria-label="Sélectionner {{ $etudiant->nom }} {{ $etudiant->prenoms }}">
                                 </label>
                             </td>
 
                             <td data-label="N&deg;" data-cell="rank" class="acid-table__num">{{ $index + 1 }}</td>
 
-                            <td data-label="Eleve" data-cell="identity">
+                            <td data-label="Élève" data-cell="identity">
                                 <div class="acid-identity">
-                                    <button type="button" class="acid-avatar acid-avatar--navy"
-                                            style="border:0;cursor:pointer;padding:0;"
-                                            title="Gerer la photo de {{ $etudiant->nom }}"
-                                            aria-label="Gerer la photo de {{ $etudiant->nom }} {{ $etudiant->prenoms }}"
-                                            onclick="openPhotoModal({{ $etudiant->id }}, @js($etudiant->nom), @js($etudiant->prenoms), @js($photoUrl))">
+                                    {{-- Avatar cliquable seulement si le compte peut gérer la photo --}}
+                                    @php $peutPhoto = auth()->user()?->can('gererPhoto', $etudiant); @endphp
+                                    <{{ $peutPhoto ? 'button' : 'span' }}
+                                            @if ($peutPhoto) type="button" @endif
+                                            class="acid-avatar acid-avatar--navy"
+                                            style="border:0;padding:0;{{ $peutPhoto ? 'cursor:pointer;' : '' }}"
+                                            @if ($peutPhoto)
+                                                title="Gérer la photo de {{ $etudiant->nom }}"
+                                                aria-label="Gérer la photo de {{ $etudiant->nom }} {{ $etudiant->prenoms }}"
+                                                onclick="openPhotoModal({{ $etudiant->id }}, @js($etudiant->nom), @js($etudiant->prenoms), @js($photoUrl))"
+                                            @endif>
                                         @if ($etudiant->photo)
                                             <img src="{{ $photoUrl }}" alt=""
                                                  id="student-photo-{{ $etudiant->id }}">
@@ -250,7 +264,7 @@
                                                 <i class="fas fa-camera"></i>
                                             </span>
                                         @endif
-                                    </button>
+                                    </{{ $peutPhoto ? 'button' : 'span' }}>
 
                                     <span class="acid-identity__text">
                                         <strong>{{ strtoupper($etudiant->nom) }}</strong>
@@ -299,39 +313,45 @@
 
                             <td data-label="Actions" data-cell="actions" class="acid-table__actions">
                                 <div class="acid-btn-group" style="justify-content:flex-end;">
+                                    @can('gererPhoto', $etudiant)
                                     <button type="button" class="acid-btn acid-btn--neutral acid-btn--sm acid-btn--icon"
-                                            title="Photo de l'eleve" aria-label="Photo de l'eleve"
+                                            title="Photo de l'élève" aria-label="Photo de l'élève"
                                             onclick="openPhotoModal({{ $etudiant->id }}, @js($etudiant->nom), @js($etudiant->prenoms), @js($photoUrl))">
                                         <i class="fas fa-camera-retro" aria-hidden="true"></i>
                                     </button>
+                                    @endcan
 
+                                    @can('update', $etudiant)
                                     <a href="{{ route('etudiants.edit', [$classe, $etudiant]) }}"
                                        class="acid-btn acid-btn--neutral acid-btn--sm acid-btn--icon"
-                                       title="Modifier l'eleve" aria-label="Modifier l'eleve">
+                                       title="Modifier l'élève" aria-label="Modifier l'élève">
                                         <i class="fas fa-pen" aria-hidden="true"></i>
                                     </a>
+                                    @endcan
 
-                                    @if ($autresClasses->isNotEmpty())
+                                    @if ($autresClasses->isNotEmpty() && auth()->user()?->can('transferer', $etudiant))
                                         <button type="button"
                                                 class="acid-btn acid-btn--neutral acid-btn--sm acid-btn--icon js-transfert-un"
                                                 data-etudiant-id="{{ $etudiant->id }}"
-                                                title="Transferer vers une autre classe"
-                                                aria-label="Transferer {{ $etudiant->nom }} vers une autre classe">
+                                                title="Transférer vers une autre classe"
+                                                aria-label="Transférer {{ $etudiant->nom }} vers une autre classe">
                                             <i class="fas fa-right-left" aria-hidden="true"></i>
                                         </button>
                                     @endif
 
+                                    @can('delete', $etudiant)
                                     <form action="{{ route('etudiants.destroy', [$classe, $etudiant]) }}"
                                           method="POST" style="display:inline;"
-                                          data-acid-confirm="Supprimer definitivement {{ $etudiant->nom }} {{ $etudiant->prenoms }} ?">
+                                          data-acid-confirm="Supprimer définitivement {{ $etudiant->nom }} {{ $etudiant->prenoms }} ?">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit"
                                                 class="acid-btn acid-btn--outline-coral acid-btn--sm acid-btn--icon"
-                                                title="Supprimer l'eleve" aria-label="Supprimer l'eleve">
+                                                title="Supprimer l'élève" aria-label="Supprimer l'élève">
                                             <i class="fas fa-trash-can" aria-hidden="true"></i>
                                         </button>
                                     </form>
+                                    @endcan
                                 </div>
                             </td>
                         </tr>
@@ -340,14 +360,14 @@
                             <td colspan="8">
                                 <div class="acid-empty">
                                     <span class="acid-empty__icon" aria-hidden="true"><i class="fas fa-users"></i></span>
-                                    <h3 class="acid-empty__title">Aucun eleve dans cette classe</h3>
+                                    <h3 class="acid-empty__title">Aucun élève dans cette classe</h3>
                                     <p class="acid-empty__text">
-                                        Ajoutez les eleves un par un, ou importez la liste complete
+                                        Ajoutez les élèves un par un, ou importez la liste complète
                                         depuis un fichier Excel.
                                     </p>
                                     <div class="acid-empty__actions">
                                         <a href="{{ route('etudiants.create', $classe) }}" class="acid-btn acid-btn--primary">
-                                            <i class="fas fa-user-plus" aria-hidden="true"></i> Ajouter un eleve
+                                            <i class="fas fa-user-plus" aria-hidden="true"></i> Ajouter un élève
                                         </a>
                                         <a href="{{ route('import.index') }}" class="acid-btn acid-btn--neutral">
                                             <i class="fas fa-file-import" aria-hidden="true"></i> Importer une liste
@@ -364,11 +384,11 @@
         <div id="studentsNoResults" hidden>
             <div class="acid-empty">
                 <span class="acid-empty__icon" aria-hidden="true"><i class="fas fa-magnifying-glass"></i></span>
-                <h3 class="acid-empty__title">Aucun eleve ne correspond</h3>
-                <p class="acid-empty__text">Modifiez votre recherche ou reinitialisez les filtres.</p>
+                <h3 class="acid-empty__title">Aucun élève ne correspond</h3>
+                <p class="acid-empty__text">Modifiez votre recherche ou réinitialisez les filtres.</p>
                 <div class="acid-empty__actions">
                     <button type="button" class="acid-btn acid-btn--neutral" id="resetFilters">
-                        <i class="fas fa-rotate-left" aria-hidden="true"></i> Reinitialiser
+                        <i class="fas fa-rotate-left" aria-hidden="true"></i> Réinitialiser
                     </button>
                 </div>
             </div>
@@ -376,7 +396,7 @@
     </section>
 
     {{-- Production de documents --}}
-    @if ($classe->etudiants->count() > 0)
+    @if ($classe->etudiants->count() > 0 && auth()->user()?->can('genererDocuments', $classe))
         <h2 class="acid-section-title">Production de documents</h2>
 
         <div class="acid-grid acid-grid--cards">
@@ -390,7 +410,7 @@
                         <strong style="display:block;color:var(--acid-text-strong);font-weight:var(--acid-fw-bold);">
                             Cartes scolaires
                         </strong>
-                        <span class="acid-stat__hint">Planche de cartes prete a imprimer</span>
+                        <span class="acid-stat__hint">Planche de cartes prête à imprimer</span>
                     </span>
                 </button>
             </form>
@@ -406,9 +426,9 @@
                     </span>
                     <span>
                         <strong style="display:block;color:var(--acid-text-strong);font-weight:var(--acid-fw-bold);">
-                            Photos labellisees
+                            Photos labellisées
                         </strong>
-                        <span class="acid-stat__hint">Photos normalisees pour les fiches d'examen</span>
+                        <span class="acid-stat__hint">Photos normalisées pour les fiches d'examen</span>
                     </span>
                 </button>
             </form>
@@ -426,7 +446,7 @@
                         <strong style="display:block;color:var(--acid-text-strong);font-weight:var(--acid-fw-bold);">
                             Planches imprimables
                         </strong>
-                        <span class="acid-stat__hint">Photos disposees pour le tirage</span>
+                        <span class="acid-stat__hint">Photos disposées pour le tirage</span>
                     </span>
                 </button>
             </form>
@@ -442,9 +462,9 @@
                     </span>
                     <span>
                         <strong style="display:block;color:var(--acid-text-strong);font-weight:var(--acid-fw-bold);">
-                            Tout generer
+                            Tout générer
                         </strong>
-                        <span class="acid-stat__hint">Archive complete de la classe</span>
+                        <span class="acid-stat__hint">Archive complète de la classe</span>
                     </span>
                 </button>
             </form>
@@ -466,7 +486,7 @@
                             </span>
                             <div>
                                 <h2 class="modal-title" id="transfertModalLabel">
-                                    Transferer des eleves
+                                    Transférer des élèves
                                 </h2>
                                 <p style="margin:.125rem 0 0;font-size:var(--acid-text-sm);color:var(--acid-text-muted);">
                                     Depuis la classe {{ $classe->nom }}
@@ -482,7 +502,7 @@
                             <div class="acid-card acid-card--soft" style="padding:var(--acid-space-4);
                                         margin-block-end:var(--acid-space-5);">
                                 <div class="acid-row acid-row--between" style="margin-block-end:var(--acid-space-2);">
-                                    <span class="acid-stat__label">Eleves selectionnes</span>
+                                    <span class="acid-stat__label">Élèves sélectionnés</span>
                                     <span class="acid-badge acid-badge--solid-navy" id="transfertCount">0</span>
                                 </div>
                                 <p class="acid-hint" style="margin:0;max-height:7rem;overflow-y:auto;"
@@ -496,7 +516,7 @@
                                 </label>
                                 <select id="classe_destination_id" name="classe_destination_id" required
                                         class="acid-select @error('classe_destination_id') is-invalid @enderror">
-                                    <option value="">Selectionnez une classe</option>
+                                    <option value="">Sélectionnez une classe</option>
                                     @foreach ($autresClasses as $destination)
                                         <option value="{{ $destination->id }}"
                                                 @selected(old('classe_destination_id') == $destination->id)>
@@ -517,9 +537,9 @@
                                 <div class="acid-alert__body">
                                     <p class="acid-alert__title">Ce que fait le transfert</p>
                                     <ul style="margin:0;padding-inline-start:1.125rem;font-size:var(--acid-text-sm);">
-                                        <li>Les eleves changent de classe, leur fiche est conservee.</li>
-                                        <li>Leurs photos sont deplacees dans le dossier de la classe d'arrivee.</li>
-                                        <li>Les effectifs des deux classes sont recalcules automatiquement.</li>
+                                        <li>Les élèves changent de classe, leur fiche est conservée.</li>
+                                        <li>Leurs photos sont déplacées dans le dossier de la classe d'arrivee.</li>
+                                        <li>Les effectifs des deux classes sont recalculés automatiquement.</li>
                                     </ul>
                                 </div>
                             </div>
@@ -529,7 +549,7 @@
 
                             <div class="acid-error d-none" id="transfertError" role="alert">
                                 <i class="fas fa-circle-exclamation" aria-hidden="true"></i>
-                                <span>Selectionnez au moins un eleve a transferer.</span>
+                                <span>Sélectionnez au moins un élève à transférer.</span>
                             </div>
                         </div>
 
@@ -539,7 +559,7 @@
                             </button>
                             <button type="submit" class="acid-btn acid-btn--primary" id="transfertSubmit">
                                 <i class="fas fa-right-left" aria-hidden="true"></i>
-                                Transferer
+                                Transférer
                             </button>
                         </div>
                     </form>
@@ -573,7 +593,7 @@
                                 Importer des photos en lot
                             </h2>
                             <p class="acid-stat__hint" style="margin:0.25rem 0 0;">
-                                Les photos sont rattachees automatiquement d'apres le nom du fichier.
+                                Les photos sont rattachées automatiquement d'après le nom du fichier.
                             </p>
                         </div>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"
@@ -588,8 +608,8 @@
                                 <p class="acid-alert__title">Comment nommer les fichiers</p>
                                 <p style="margin:0;">
                                     Le nom du fichier doit contenir le matricule <em>ou</em> le nom et les
-                                    prenoms de l'eleve. Les accents, la casse, les espaces, les tirets et
-                                    les underscores sont ignores.
+                                    prénoms de l'élève. Les accents, la casse, les espaces, les tirets et
+                                    les underscores sont ignorés.
                                 </p>
                                 <p style="margin:var(--acid-space-2) 0 0;font-size:var(--acid-text-sm);">
                                     Exemple pour cette classe :
@@ -607,10 +627,10 @@
                                 <i class="fas fa-cloud-arrow-up"></i>
                             </span>
                             <span class="acid-dropzone__title">
-                                Deposez vos photos ici ou cliquez pour les choisir
+                                Déposez vos photos ici ou cliquez pour les choisir
                             </span>
                             <span class="acid-dropzone__hint">
-                                JPG ou PNG, 10 Mo maximum par photo. Plusieurs fichiers a la fois.
+                                JPG ou PNG, 10 Mo maximum par photo. Plusieurs fichiers à la fois.
                             </span>
                         </label>
 
@@ -623,7 +643,7 @@
                                 </span>
                                 <button type="button" class="acid-btn acid-btn--ghost acid-btn--sm"
                                         id="importSelectionClear">
-                                    <i class="fas fa-xmark" aria-hidden="true"></i> Vider la selection
+                                    <i class="fas fa-xmark" aria-hidden="true"></i> Vider la sélection
                                 </button>
                             </div>
                             <div class="acid-filegrid" id="importFileGrid"></div>
@@ -635,7 +655,7 @@
                             <span class="acid-check__text">
                                 <strong>Remplacer les photos existantes</strong>
                                 <span>
-                                    Sans cette option, les eleves qui ont deja une photo sont ignores.
+                                    Sans cette option, les élèves qui ont déjà une photo sont ignorés.
                                 </span>
                             </span>
                         </label>
@@ -672,7 +692,9 @@
     @endif
 
     {{-- Module partage de prise de vue (modale camera + galerie) --}}
-    @include('partials.photo-capture')
+    @can(\App\Support\Permissions::PHOTOS_PRENDRE)
+        @include('partials.photo-capture')
+    @endcan
 
     @push('scripts')
         <script>
@@ -725,7 +747,7 @@
                         }
                     });
 
-                    count.textContent = visible + (visible === 1 ? ' eleve' : ' eleves');
+                    count.textContent = visible + (visible === 1 ? ' élève' : ' élèves');
                     empty.hidden = visible > 0;
                     if (table) table.hidden = visible === 0;
 
@@ -829,7 +851,7 @@
 
                         nomsField.textContent = noms.length
                             ? noms.join(' · ')
-                            : 'Aucun eleve selectionne.';
+                            : 'Aucun élève sélectionné.';
 
                         /* Les identifiants sont (re)construits a chaque ouverture */
                         inputs.innerHTML = '';
@@ -919,7 +941,7 @@
 
                     Array.from(liste).forEach((file) => {
                         if (!/^image\/(jpeg|png)$/i.test(file.type)) {
-                            refuses.push(file.name + ' (format non accepte)');
+                            refuses.push(file.name + ' (format non accepté)');
                             return;
                         }
                         if (file.size > MAX_OCTETS) {
@@ -1040,7 +1062,7 @@
                     try {
                         charge = await reponse.json();
                     } catch (e) {
-                        throw new Error('Reponse inattendue du serveur (HTTP ' + reponse.status + ')');
+                        throw new Error('Réponse inattendue du serveur (HTTP ' + reponse.status + ')');
                     }
 
                     if (!reponse.ok && reponse.status !== 200) {
@@ -1087,7 +1109,7 @@
                             majProgression(faits, total);
                         }
 
-                        pLabel.textContent = 'Import termine';
+                        pLabel.textContent = 'Import terminé';
                         afficherCompteRendu(cumul, total);
                         viderSelection();
 
@@ -1095,8 +1117,8 @@
                             const n = cumul.attribues.length;
                             window.AcidUI.notify(
                                 n > 0
-                                    ? n + ' photo(s) rattachee(s) avec succes'
-                                    : 'Aucune photo rattachee : verifiez les noms de fichiers',
+                                    ? n + ' photo(s) rattachée(s) avec succès'
+                                    : 'Aucune photo rattachée : vérifiez les noms de fichiers',
                                 n > 0 ? 'success' : 'warning'
                             );
                         }
@@ -1109,10 +1131,10 @@
                             + '<span class="acid-alert__icon" aria-hidden="true">'
                             + '<i class="fas fa-triangle-exclamation"></i></span>'
                             + '<div class="acid-alert__body"><p class="acid-alert__title">'
-                            + 'L\'import a ete interrompu</p><p style="margin:0;">'
+                            + 'L\'import a été interrompu</p><p style="margin:0;">'
                             + echapper(erreur.message)
                             + '</p><p style="margin:var(--acid-space-2) 0 0;font-size:var(--acid-text-sm);">'
-                            + 'Les photos deja envoyees ont bien ete enregistrees.</p></div></div>';
+                            + 'Les photos déjà envoyées ont bien été enregistrées.</p></div></div>';
 
                         if (cumul.attribues.length > 0) {
                             afficherCompteRendu(cumul, total, true);
@@ -1153,8 +1175,8 @@
 
                 function afficherCompteRendu(cumul, total, enPlus) {
                     const bloc =
-                        groupe('Photos attribuees', 'fa-circle-check', 'var(--acid-teal-700)', cumul.attribues)
-                        + groupe('Fichiers ignores', 'fa-circle-minus', 'var(--acid-amber-600)', cumul.ignores)
+                        groupe('Photos attribuées', 'fa-circle-check', 'var(--acid-teal-700)', cumul.attribues)
+                        + groupe('Fichiers ignorés', 'fa-circle-minus', 'var(--acid-amber-600)', cumul.ignores)
                         + groupe('Aucune correspondance', 'fa-circle-question', 'var(--acid-sky-600)', cumul.inconnus)
                         + groupe('Echecs', 'fa-circle-exclamation', 'var(--acid-coral-700)', cumul.echecs);
 
@@ -1164,9 +1186,9 @@
                         + cumul.attribues.length + ' attribue(s), '
                         + cumul.ignores.length + ' ignore(s), '
                         + cumul.inconnus.length + ' sans correspondance, '
-                        + cumul.echecs.length + ' en echec.'
-                        + ' <a href="" onclick="window.location.reload();return false;">Recharger la page</a>'
-                        + ' pour mettre a jour les indicateurs.</p>';
+                        + cumul.echecs.length + ' en échec.'
+                        + ' <à href="" onclick="window.location.reload();return false;">Recharger la page</à>'
+                        + ' pour mettre à jour les indicateurs.</p>';
 
                     report.hidden = false;
                     report.insertAdjacentHTML(

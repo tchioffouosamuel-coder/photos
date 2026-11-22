@@ -5,8 +5,8 @@
             <span class="acid-page-header__eyebrow">Production</span>
             <h1 class="acid-page-header__title">Cartes &amp; documents</h1>
             <p class="acid-page-header__lead">
-                Generez les cartes scolaires, les photos labellisees d'examen et les planches
-                imprimables, par classe ou pour tout l'etablissement.
+                Générez les cartes scolaires, les photos labellisées d'examen et les planches
+                imprimables, par classe ou pour tout l'établissement.
             </p>
         </div>
     </div>
@@ -15,20 +15,24 @@
     <section class="acid-hero" style="margin-block-end:var(--acid-space-6);">
         <div class="acid-row acid-row--between" style="gap:var(--acid-space-6);align-items:flex-start;">
             <div style="min-width:0;flex:1 1 320px;">
-                <h2 class="h3" style="margin:0 0 .5rem;">Generation globale</h2>
+                <h2 class="h3" style="margin:0 0 .5rem;">Génération globale</h2>
                 <p style="max-width:52ch;">
-                    Produit en une seule operation les cartes scolaires de toutes les classes,
-                    regroupees dans un document PDF unique.
+                    Produit en une seule opération les cartes scolaires de toutes les classes,
+                    regroupées dans un document PDF unique.
                 </p>
 
-                <form action="{{ route('cards.generate-all-global') }}" method="POST" id="globalGenerationForm"
+                @can(\App\Support\Permissions::DOCUMENTS_GENERER_GLOBAL)
+
+                    <form action="{{ route('cards.generate-all-global') }}" method="POST" id="globalGenerationForm"
                       style="margin-block-start:var(--acid-space-5);">
                     @csrf
                     <button type="submit" class="acid-btn acid-btn--secondary acid-btn--lg">
                         <i class="fas fa-file-pdf" aria-hidden="true"></i>
-                        Generer toutes les cartes
+                        Générer toutes les cartes
                     </button>
                 </form>
+
+                @endcan
             </div>
 
             <div class="acid-row" style="gap:var(--acid-space-3);flex:0 1 auto;">
@@ -37,7 +41,7 @@
                     <strong>{{ $classes->count() }}</strong>
                 </div>
                 <div class="acid-hero__pill">
-                    <span>Eleves</span>
+                    <span>Élèves</span>
                     <strong>{{ number_format($classes->sum('etudiants_count'), 0, ',', ' ') }}</strong>
                 </div>
                 <div class="acid-hero__pill">
@@ -100,7 +104,7 @@
                             <div class="acid-stat__value" style="font-size:var(--acid-text-xl);">
                                 {{ $classe->etudiants_count }}
                             </div>
-                            <span class="acid-stat__label">Eleves</span>
+                            <span class="acid-stat__label">Élèves</span>
                         </div>
                         <div>
                             <div class="acid-stat__value" style="font-size:var(--acid-text-xl);color:var(--acid-teal-700);">
@@ -134,7 +138,7 @@
                            class="acid-btn acid-btn--outline-coral acid-btn--sm acid-btn--block"
                            style="margin-block-start:var(--acid-space-4);">
                             <i class="fas fa-camera-retro" aria-hidden="true"></i>
-                            Completer les photos manquantes
+                            Compléter les photos manquantes
                         </a>
                     @endif
                 </div>
@@ -156,7 +160,7 @@
                               style="flex:1 1 0;">
                             @csrf
                             <button type="submit" class="acid-btn acid-btn--neutral acid-btn--sm acid-btn--block"
-                                    title="Archive ZIP des photos labellisees">
+                                    title="Archive ZIP des photos labellisées">
                                 <i class="fas fa-images" aria-hidden="true"></i>
                                 Photos ZIP
                             </button>
@@ -177,7 +181,7 @@
                         @csrf
                         <button type="submit" class="acid-btn acid-btn--outline-teal acid-btn--sm acid-btn--block">
                             <i class="fas fa-file-zipper" aria-hidden="true"></i>
-                            Tout generer (ZIP)
+                            Tout générer (ZIP)
                         </button>
                     </form>
                 </div>
@@ -187,14 +191,14 @@
                 <div class="acid-card">
                     <div class="acid-empty">
                         <span class="acid-empty__icon" aria-hidden="true"><i class="fas fa-id-card"></i></span>
-                        <h2 class="acid-empty__title">Aucune classe a traiter</h2>
+                        <h2 class="acid-empty__title">Aucune classe à traiter</h2>
                         <p class="acid-empty__text">
-                            Creez une classe et importez ses eleves pour pouvoir generer
+                            Créez une classe et importez ses élèves pour pouvoir générer
                             cartes et documents.
                         </p>
                         <div class="acid-empty__actions">
                             <a href="{{ route('classes.create') }}" class="acid-btn acid-btn--primary">
-                                <i class="fas fa-plus" aria-hidden="true"></i> Creer une classe
+                                <i class="fas fa-plus" aria-hidden="true"></i> Créer une classe
                             </a>
                             <a href="{{ route('import.index') }}" class="acid-btn acid-btn--neutral">
                                 <i class="fas fa-file-import" aria-hidden="true"></i> Importer une liste
@@ -222,7 +226,7 @@
             <span class="acid-stat__icon" aria-hidden="true"><i class="fas fa-id-card"></i></span>
             <h3 class="acid-card__title" style="margin:var(--acid-space-3) 0 .25rem;">Cartes scolaires</h3>
             <p class="acid-card__subtitle" style="margin:0;">
-                PDF prerempli avec une carte par eleve, prete a decouper.
+                PDF prérempli avec une carte par élève, prête à découper.
             </p>
         </div>
 
@@ -231,9 +235,9 @@
                   style="background:var(--acid-teal-50);color:var(--acid-teal-700);">
                 <i class="fas fa-images"></i>
             </span>
-            <h3 class="acid-card__title" style="margin:var(--acid-space-3) 0 .25rem;">Photos labellisees</h3>
+            <h3 class="acid-card__title" style="margin:var(--acid-space-3) 0 .25rem;">Photos labellisées</h3>
             <p class="acid-card__subtitle" style="margin:0;">
-                Archive ZIP de photos normalisees et annotees pour les fiches d'examen.
+                Archive ZIP de photos normalisées et annotées pour les fiches d'examen.
             </p>
         </div>
 
@@ -244,7 +248,7 @@
             </span>
             <h3 class="acid-card__title" style="margin:var(--acid-space-3) 0 .25rem;">Photos 4x4</h3>
             <p class="acid-card__subtitle" style="margin:0;">
-                PDF optimise pour le tirage au format 4x4 chez le photographe.
+                PDF optimisé pour le tirage au format 4x4 chez le photographe.
             </p>
         </div>
 
@@ -253,9 +257,9 @@
                   style="background:var(--acid-coral-50);color:var(--acid-coral-700);">
                 <i class="fas fa-file-zipper"></i>
             </span>
-            <h3 class="acid-card__title" style="margin:var(--acid-space-3) 0 .25rem;">Tout generer</h3>
+            <h3 class="acid-card__title" style="margin:var(--acid-space-3) 0 .25rem;">Tout générer</h3>
             <p class="acid-card__subtitle" style="margin:0;">
-                Archive complete regroupant l'ensemble des documents de la classe.
+                Archive complète regroupant l'ensemble des documents de la classe.
             </p>
         </div>
     </div>
@@ -303,7 +307,7 @@
             document.querySelectorAll('form[action*="cards/"]').forEach((form) => {
                 form.addEventListener('submit', function () {
                     window.AcidUI.notify(
-                        'Generation lancee. Le telechargement demarrera automatiquement.',
+                        'Génération lancee. Le téléchargement demarrera automatiquement.',
                         'info',
                         6000
                     );

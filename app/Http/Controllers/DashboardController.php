@@ -12,18 +12,20 @@ class DashboardController extends Controller
     public function index()
     {
         // Statistiques générales
-        $totalClasses = Classe::count();
-        $totalStudents = Etudiant::count();
-        $totalBoys = Etudiant::where('sexe', 'M')->count();
-        $totalGirls = Etudiant::where('sexe', 'F')->count();
+        $totalClasses = Classe::visiblesPar()->count();
+        $totalStudents = Etudiant::visiblesPar()->count();
+        $totalBoys = Etudiant::visiblesPar()->where('sexe', 'M')->count();
+        $totalGirls = Etudiant::visiblesPar()->where('sexe', 'F')->count();
         
         // Étudiants avec photos
-        $totalWithPhotos = Etudiant::whereNotNull('photo')
+        $totalWithPhotos = Etudiant::visiblesPar()
+            ->whereNotNull('photo')
             ->where('photo', '!=', '')
             ->count();
         
         // Classes avec leurs statistiques détaillées
-        $classes = Classe::withCount('etudiants')
+        $classes = Classe::visiblesPar()
+            ->withCount('etudiants')
             ->with(['etudiants' => function($query) {
                 $query->select('classe_id', 'sexe');
             }])

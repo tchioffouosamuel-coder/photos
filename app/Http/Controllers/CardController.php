@@ -4,6 +4,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Classe;
+use App\Services\AuditLogger;
 use App\Services\CardGenerationService;
 use App\Services\PhotoProcessingService;
 use App\Services\Photo4x4Service;
@@ -16,19 +17,40 @@ class CardController extends Controller
     private $photoService;
     private $photo4x4Service;
     
+    private $journal;
+
     public function __construct(
         CardGenerationService $cardService,
         PhotoProcessingService $photoService,
-        Photo4x4Service $photo4x4Service
+        Photo4x4Service $photo4x4Service,
+        AuditLogger $journal
     ) {
         $this->cardService = $cardService;
         $this->photoService = $photoService;
         $this->photo4x4Service = $photo4x4Service;
+        $this->journal = $journal;
+    }
+
+    /**
+     * Trace la production d'un document.
+     *
+     * Pour du materiel d'examen, savoir qui a produit quoi et quand compte
+     * autant que le document lui-meme.
+     */
+    private function tracerDocument(string $type, $classe, string $chemin): void
+    {
+        $this->journal->enregistrer(
+            AuditLogger::DOCUMENT_GENERE,
+            $classe,
+            null,
+            ['type' => $type, 'fichier' => basename($chemin)],
+            $classe?->nom ?? "Tout l'établissement"
+        );
     }
     
     public function index()
     {
-        $classes = Classe::withCount('etudiants')->get();
+        $classes = Classe::visiblesPar()->withCount('etudiants')->get();
         
         // Calculer les statistiques de photos pour chaque classe
         $classes->transform(function ($classe) {
@@ -55,6 +77,7 @@ class CardController extends Controller
     {
         try {
             $filePath = $this->cardService->generateCards($classe);
+            $this->tracerDocument('Cartes scolaires', $classe, $filePath);
             
             return response()->download($filePath, basename($filePath))->deleteFileAfterSend(true);
         } catch (\Exception $e) {
@@ -66,6 +89,7 @@ class CardController extends Controller
     {
         try {
             $zipPath = $this->photoService->generateProcessedPhotos($classe);
+            $this->tracerDocument('Photos labellisées', $classe, $zipPath);
             
             return response()->download($zipPath, basename($zipPath))->deleteFileAfterSend(true);
         } catch (\Exception $e) {
@@ -77,6 +101,7 @@ class CardController extends Controller
     {
         try {
             $filePath = $this->photo4x4Service->generatePrintablePhotos($classe);
+            $this->tracerDocument('Planche 4x4', $classe, $filePath);
             
             return response()->download($filePath, basename($filePath))->deleteFileAfterSend(true);
         } catch (\Exception $e) {
@@ -111,6 +136,7 @@ class CardController extends Controller
             $zip->addFile($printablePath, 'Photos_Imprimables/' . basename($printablePath));
             
             $zip->close();
+            $this->tracerDocument('Archive complète', $classe, $finalZipPath);
             
             // Nettoyer les fichiers temporaires
             unlink($cardPath);
@@ -126,7 +152,7 @@ class CardController extends Controller
     public function generateAllGlobal()
     {
         try {
-            $classes = Classe::withCount('etudiants')
+            $classes = Classe::visiblesPar()->withCount('etudiants')
                 ->whereHas('etudiants', function($query) {
                     $query->whereNotNull('photo')->where('photo', '!=', '');
                 })
