@@ -9,7 +9,7 @@
   | Ouverture depuis la page :
   |     openPhotoModal(id, nom, prenoms, photoUrl = '', classeNom = '')
   |
-  | Endpoint utilise : POST /etudiants/{id}/upload-photo (inchange).
+  | Endpoint utilise : POST /etudiants/{id}/photo (EtudiantPhotoController).
   | La photo est recadree au format carre 1:1 et compressee avant envoi.
 --}}
 
@@ -361,7 +361,7 @@ async function sendPhoto(blob, filename) {
     const formData = new FormData();
     formData.append('photo', blob, filename);
 
-    const response = await fetch(`/etudiants/${currentStudentId}/upload-photo`, {
+    const response = await fetch(`/etudiants/${currentStudentId}/photo`, {
         method: 'POST',
         body: formData,
         credentials: 'same-origin',
@@ -554,13 +554,17 @@ function capturePhoto() {
     const offsetX = (videoWidth - size) / 2;
     const offsetY = (videoHeight - size) / 2;
 
-    canvas.width = size;
-    canvas.height = size;
+    /* Meme plafond que l'import galerie : une capture pleine resolution
+       depasserait upload_max_filesize et serait rejetee en silence par PHP. */
+    const finalSize = Math.min(size, 1024);
+
+    canvas.width = finalSize;
+    canvas.height = finalSize;
 
     context.imageSmoothingEnabled = true;
     context.imageSmoothingQuality = 'high';
 
-    context.drawImage(video, offsetX, offsetY, size, size, 0, 0, size, size);
+    context.drawImage(video, offsetX, offsetY, size, size, 0, 0, finalSize, finalSize);
 
     const capturedPhoto = document.getElementById('capturedPhoto');
     capturedPhoto.src = canvas.toDataURL('image/jpeg', 0.9);
