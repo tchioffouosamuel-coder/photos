@@ -18,12 +18,12 @@ class EtudiantPhotoController extends Controller
     /**
      * Upload photo - Optimisé pour PC et Mobile
      */
-    public function uploadPhoto(Request $request, $etudiant)
+    public function uploadPhoto(Request $request, Etudiant $etudiant)
     {
         try {
             // Log pour debugging
             Log::info('Upload photo request', [
-                'etudiant_id' => $etudiant,
+                'etudiant_id' => $etudiant->id,
                 'has_file' => $request->hasFile('photo'),
                 'content_type' => $request->header('Content-Type'),
                 'user_agent' => $request->header('User-Agent')
@@ -47,7 +47,6 @@ class EtudiantPhotoController extends Controller
                 ], 422);
             }
 
-            $etudiant = Etudiant::findOrFail($etudiant);
             $classe = $etudiant->classe;
 
             if (!$classe) {
@@ -112,16 +111,9 @@ class EtudiantPhotoController extends Controller
                 'etudiant_id' => $etudiant->id
             ], 200);
 
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            Log::error('Student not found', ['etudiant_id' => $etudiant]);
-            return response()->json([
-                'success' => false,
-                'message' => 'Élève non trouvé'
-            ], 404);
-
         } catch (\Exception $e) {
             Log::error('Photo upload error', [
-                'etudiant_id' => $etudiant,
+                'etudiant_id' => $etudiant->id,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
@@ -129,111 +121,6 @@ class EtudiantPhotoController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Erreur lors de l\'enregistrement de la photo',
-                'error' => config('app.debug') ? $e->getMessage() : 'Erreur serveur'
-            ], 500);
-        }
-    }
-
-    /**
-     * Capture photo depuis webcam/camera mobile - Optimisé
-     */
-    public function capturePhoto(Request $request, $etudiant)
-    {
-        try {
-            Log::info('Capture photo request', [
-                'etudiant_id' => $etudiant,
-                'has_file' => $request->hasFile('photo')
-            ]);
-
-            // Validation
-            $validator = Validator::make($request->all(), [
-                'photo' => 'required|image|mimes:jpeg,png,jpg|max:10240',
-            ], [
-                'photo.required' => 'Aucune photo capturée',
-                'photo.image' => 'Le fichier doit être une image',
-                'photo.mimes' => 'Format accepté: JPG, PNG',
-                'photo.max' => 'La photo ne doit pas dépasser 10MB'
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $validator->errors()->first()
-                ], 422);
-            }
-
-            $etudiant = Etudiant::findOrFail($etudiant);
-            $classe = $etudiant->classe;
-
-            if (!$classe) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'L\'élève n\'est pas associé à une classe'
-                ], 400);
-            }
-
-            // Supprimer l'ancienne photo
-            $anciennePhoto = $etudiant->photo;
-
-            if ($anciennePhoto) {
-                $this->deleteOldPhoto($etudiant, $classe);
-            }
-
-            // Générer le nom de fichier
-            $filename = $this->generatePhotoFilename($etudiant);
-            $directory = "photos/{$classe->segment_photos}";
-            
-            // S'assurer que le dossier existe
-            if (!Storage::disk('public')->exists($directory)) {
-                Storage::disk('public')->makeDirectory($directory);
-            }
-
-            // Stocker la photo capturée
-            $path = $request->file('photo')->storeAs(
-                $directory,
-                $filename,
-                'public'
-            );
-
-            // Synchroniser vers public/storage
-            $this->syncPhotoToPublic($path);
-
-            // Mettre à jour la base de données
-            $etudiant->photo = $filename;
-            $etudiant->save();
-
-            $this->journal->enregistrer(
-                $anciennePhoto ? AuditLogger::PHOTO_REMPLACEE : AuditLogger::PHOTO_PRISE,
-                $etudiant,
-                $anciennePhoto ? ['photo' => $anciennePhoto] : null,
-                ['photo' => $filename, 'classe' => $classe->nom]
-            );
-
-            // Construire l'URL
-            $photoUrl = $this->getPhotoUrl($path);
-
-            Log::info('Photo captured successfully', [
-                'etudiant_id' => $etudiant->id,
-                'filename' => $filename
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Photo capturée et enregistrée avec succès',
-                'photo_url' => $photoUrl,
-                'filename' => $filename,
-                'etudiant_id' => $etudiant->id
-            ], 200);
-
-        } catch (\Exception $e) {
-            Log::error('Photo capture error', [
-                'etudiant_id' => $etudiant,
-                'error' => $e->getMessage()
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Erreur lors de la capture de la photo',
                 'error' => config('app.debug') ? $e->getMessage() : 'Erreur serveur'
             ], 500);
         }
@@ -355,10 +242,9 @@ class EtudiantPhotoController extends Controller
     /**
      * Delete student photo
      */
-    public function deletePhoto($etudiant)
+    public function deletePhoto(Etudiant $etudiant)
     {
         try {
-            $etudiant = Etudiant::findOrFail($etudiant);
             $classe = $etudiant->classe;
 
             if (!$etudiant->photo) {
@@ -391,7 +277,7 @@ class EtudiantPhotoController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Error deleting photo', [
-                'etudiant_id' => $etudiant,
+                'etudiant_id' => $etudiant->id,
                 'error' => $e->getMessage()
             ]);
 

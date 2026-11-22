@@ -175,7 +175,7 @@ class CandidatLibreController extends Controller
         }
     }
 
-    public function uploadPhoto(Request $request, $candidatLibre)
+    public function uploadPhoto(Request $request, CandidatLibre $candidatLibre)
     {
         try {
             $validator = Validator::make($request->all(), [
@@ -189,7 +189,6 @@ class CandidatLibreController extends Controller
                 ], 422);
             }
 
-            $candidatLibre = CandidatLibre::findOrFail($candidatLibre);
             $classe = $candidatLibre->classe;
 
             if ($candidatLibre->photo) {
@@ -221,7 +220,7 @@ class CandidatLibreController extends Controller
         }
     }
 
-    public function capturePhoto(Request $request, $candidatLibre)
+    public function capturePhoto(Request $request, CandidatLibre $candidatLibre)
     {
         try {
             $validator = Validator::make($request->all(), [
@@ -235,7 +234,6 @@ class CandidatLibreController extends Controller
                 ], 422);
             }
 
-            $candidatLibre = CandidatLibre::findOrFail($candidatLibre);
             $classe = $candidatLibre->classe;
 
             if ($candidatLibre->photo) {

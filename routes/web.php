@@ -122,11 +122,6 @@ Route::middleware(['auth'])->group(function () {
 
         Route::post('/photos/bulk-upload', [EtudiantPhotoController::class, 'bulkUpload'])
             ->middleware('can:' . Permissions::PHOTOS_IMPORTER)->name('photos.bulk');
-
-        Route::post('/{etudiant}/upload-photo', [EtudiantController::class, 'uploadPhoto'])
-            ->middleware('can:gererPhoto,etudiant')->name('uploadPhoto');
-        Route::post('/{etudiant}/capture-photo', [EtudiantController::class, 'capturePhoto'])
-            ->middleware('can:gererPhoto,etudiant')->name('capture-photo');
     });
 
     /* ---- Eleves d'une classe ------------------------------------------ */
